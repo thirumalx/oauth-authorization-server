@@ -49,10 +49,15 @@
 	<dependencies>
 		<!--
 		https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
-		<dependency>
+	<!--	<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>3.0.0</version>
+		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
+		<dependency>
+		    <groupId>jakarta.validation</groupId>
+		    <artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 		<!-- libphonenumber -->
 		<dependency>
@@ -93,10 +98,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
+	<!--	<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>		
+		</dependency>	-->	
 		<!-- Retry support -->
 		<dependency>
 		    <groupId>org.springframework.retry</groupId>
