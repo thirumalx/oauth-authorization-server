@@ -3,7 +3,6 @@
  */
 package in.thirumal.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +31,6 @@ import in.thirumal.model.Login;
 import in.thirumal.model.PaginatedLoginHistory;
 import in.thirumal.model.ResetPassword;
 import in.thirumal.model.UserResource;
-import in.thirumal.security.captcha.CaptchaService;
 import in.thirumal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -49,12 +47,10 @@ public class UserController {
 	Logger logger = LoggerFactory.getLogger(UserController.class);
 	
 	private UserService userService;
-	private CaptchaService captchaService;
 	
-	public UserController(UserService userService, CaptchaService captchaService) {
+	public UserController(UserService userService) {
 		super();
 		this.userService = userService;
-		this.captchaService = captchaService;
 	}
 
 	/**
@@ -77,21 +73,8 @@ public class UserController {
 	public UserResource createAccountWithCaptcha(@RequestBody UserResource userResource, 
 			@RequestParam(name="recaptcha") String recaptchaResponse, HttpServletRequest request) {
 		logger.debug("Recaptcha {}", recaptchaResponse);
-		verifyCaptcha(recaptchaResponse, request);
 		return userService.createAccount(userResource);
 	}	
-	
-	private ResponseEntity<?> verifyCaptcha(String recaptchaResponse, HttpServletRequest request) {
-		String ip = request.getRemoteAddr();
-		String captchaVerifyMessage = captchaService.verifyRecaptcha(ip, recaptchaResponse);
-		if (org.apache.commons.lang3.StringUtils.isNotEmpty(captchaVerifyMessage)) {
-			Map<String, Object> response = new HashMap<>();
-			response.put("message", captchaVerifyMessage);
-			return ResponseEntity.badRequest().body(response);
-		}
-		return ResponseEntity.badRequest().body(Boolean.TRUE);
-	}
-
 
 	/***
 	 * Verify the contact (i.e login Id)
@@ -137,20 +120,6 @@ public class UserController {
 	public ResponseEntity<?> login(@Valid @RequestBody Login login,// @RequestParam(name="recaptcha") String recaptchaResponse,
 			HttpServletRequest request) {
 		logger.debug("Login ");
-		//logger.debug("The current active profile is {}", activeProfile);
-		/*if (!Set.of("UDEV").contains(activeProfile)) {// || !loginResource.isDesktopVersion()) {//Start of Verify reCaptcha
-			String ip = request.getRemoteAddr();
-			//String captchaVerifyMessage = captchaService.verifyRecaptcha(ip, recaptchaResponse);
-			if (org.apache.commons.lang3.StringUtils.isNotEmpty(captchaVerifyMessage)) {
-				Map<String, Object> response = new HashMap<>();
-				response.put("message", captchaVerifyMessage);
-				return ResponseEntity.badRequest()
-						.body(response);
-			}//End of reCaptcha
-		}
-		if (loginResource.getIpAddress() == null) {
-			loginResource.setIpAddress(request.getRemoteAddr());
-		}*/
 		return new ResponseEntity<>(userService.login(login), HttpStatus.OK);
 	}
 	
