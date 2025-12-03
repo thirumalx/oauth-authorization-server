@@ -60,7 +60,7 @@ import jakarta.validation.Valid;
  */
 @Service
 public class UserService {
-	
+
 	Logger logger = LoggerFactory.getLogger(UserService.class);
 	//
 	//
@@ -68,11 +68,9 @@ public class UserService {
 	String emailSender;
 	@Value("${notification.sms.sender}")
 	String smsSender;
-    @Value("${notification.enabled:true}")
-    private boolean otpEnabled;
+	@Value("${notification.enabled:true}")
+	private boolean otpEnabled;
 
-	
-	
 	@Autowired
 	private OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService;
 	//
@@ -96,11 +94,13 @@ public class UserService {
 	private LoginUserRoleRepository loginUserRoleRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+
 	//
 	/**
 	 * Create new account for the user
+	 * 
 	 * @param userResource
-	 * @return 
+	 * @return
 	 */
 	@Transactional
 	public UserResource createAccount(UserResource userResource) {
@@ -116,33 +116,39 @@ public class UserService {
 		if (Objects.isNull(loginUser)) {
 			throw new ResourceNotFoundException("Not able create an account, Contact support");
 		}
-		// Consent		
+		// Consent
 		oAuth2AuthorizationConsentService.save(OAuth2AuthorizationConsent
 				.withId(userResource.getRegisteredClientId(), loginUser.getLoginUuid().toString())
-				.authorities(t->t.addAll(userResource.getAuthorities()))
+				.authorities(t -> t.addAll(userResource.getAuthorities()))
 				.build());
 		// User Name
 		loginUserNameRepository.save(LoginUserName.builder().loginUserId(loginUserId)
-				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName()).lastName(userResource.getLastName()).build());
+				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName())
+				.lastName(userResource.getLastName()).build());
 		// Role
-		loginUserRoleRepository.save(LoginUserRole.builder().loginUserId(loginUserId).roleCd(LoginUserRole.USER).remarks("").build());
+		loginUserRoleRepository
+				.save(LoginUserRole.builder().loginUserId(loginUserId).roleCd(LoginUserRole.USER).remarks("").build());
 		// Contact (i.e User ID to login)
 		var contacts = new ArrayList<Contact>();
-		contacts.add(Contact.builder().contactCd(Contact.EMAIL).loginUserId(loginUserId).loginId(userResource.getEmail()).build());
+		contacts.add(Contact.builder().contactCd(Contact.EMAIL).loginUserId(loginUserId)
+				.loginId(userResource.getEmail()).build());
 		contacts.add(Contact.builder().contactCd(Contact.PHONE_NUMBER).loginUserId(loginUserId)
 				.loginId(userResource.getPhoneNumber()).build());
 		contactRepository.saveAll(contacts);
 		// Password
 		passwordRepository.save(Password.builder().loginUserId(loginUserId)
-				.secretKey(passwordEncoder.encode(userResource.getPassword())).forcePasswordChange(userResource.isForcePasswordChange()).build());
-		// Token - 
+				.secretKey(passwordEncoder.encode(userResource.getPassword()))
+				.forcePasswordChange(userResource.isForcePasswordChange()).build());
+		// Token -
 		if (!userResource.isForcePasswordChange()) { // Force change means account creation using internal system
-			for (Contact contact : contactRepository.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()))) {
+			for (Contact contact : contactRepository
+					.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()))) {
 				String otp = generateOtp(6);
-				sendOtp(userResource.getFirstName(), contact, otp, Email.SIGNUP_FTL_TEMPLATE, "Account Verification OTP ");
+				sendOtp(userResource.getFirstName(), contact, otp, Email.SIGNUP_FTL_TEMPLATE,
+						"Account Verification OTP ");
 				tokenRepository.save(Token.builder().contactId(contact.getContactId()).otp(passwordEncoder.encode(otp))
 						.expiresOn(OffsetDateTime.now().plusMinutes(5)).build());
-				
+
 			}
 		}
 		return get(loginUser.getLoginUuid());
@@ -154,24 +160,26 @@ public class UserService {
 			logger.debug("OTP is disabled, not sending to {}", contact.getLoginId());
 			return;
 		}
-		Message status = null ;
+		Message status = null;
 		if (Contact.PHONE_NUMBER.equals(contact.getContactCd())) {
-			String message = "Dear " + name + ", Your OTP to SignUp is " + otp 
+			String message = "Dear " + name + ", Your OTP to SignUp is " + otp
 					+ " and valid for 5 minutes. Do not disclose it to anyone for security reasons.";
-			status = messageServiceClient.send(Message.builder().sender(smsSender).receiver(Set.of(contact.getLoginId()))
-					.information(message).messageOf(contact.getLoginUserId()).build());
+			status = messageServiceClient
+					.send(Message.builder().sender(smsSender).receiver(Set.of(contact.getLoginId()))
+							.information(message).messageOf(contact.getLoginUserId()).build());
 		} else if (Contact.EMAIL.equals(contact.getContactCd())) {
-			Email email = new Email(emailSender, Set.of(contact.getLoginId()), template, 
-					Map.of("name", name, "otp", otp), (subject + otp),  contact.getLoginUserId());
+			Email email = new Email(emailSender, Set.of(contact.getLoginId()), template,
+					Map.of("name", name, "otp", otp), (subject + otp), contact.getLoginUserId());
 			status = messageServiceClient.send(email);
-		} 
+		}
 		logger.debug("Email/SMS status {}", status);
 	}
 
 	/**
-	 * Validation 
-	 * 	-	REGEX
-	 *  -	User Duplication 
+	 * Validation
+	 * - REGEX
+	 * - User Duplication
+	 * 
 	 * @param userResource
 	 * @param genericCds
 	 */
@@ -179,26 +187,29 @@ public class UserService {
 		logger.debug("E-mail and phone number validation");
 		// E-mail validation
 		validateWithRegex(genericCds, Contact.EMAIL, userResource.getEmail(), "The Requested E-Mail is not vaild");
-		//Phone Number validation
-		//validateWithRegex(genericCds, Contact.PHONE_NUMBER, userResource.getPhoneNumber(), "The Requested Phone Number is not vaild");
+		// Phone Number validation
+		// validateWithRegex(genericCds, Contact.PHONE_NUMBER,
+		// userResource.getPhoneNumber(), "The Requested Phone Number is not vaild");
 		RegexValidation.isValidPhoneNumber(userResource.getPhoneNumber());
 		// User Duplication
-		List<Contact> contacts = contactRepository.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()));
+		List<Contact> contacts = contactRepository
+				.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()));
 		if (!contacts.isEmpty()) {
 			String contact = contacts.stream().map(Contact::getLoginId).collect(Collectors.joining(", "));
-			throw new BadRequestException("Account for " + contact + " is already available, please login or use forgot password");
+			throw new BadRequestException(
+					"Account for " + contact + " is already available, please login or use forgot password");
 		}
 	}
-	
+
 	private void validateWithRegex(List<GenericCd> genericCds, Long codeCd, String value, String errorMessage) {
 		Optional<String> regex = genericCds.stream()
-				.filter(g->codeCd.equals(g.getCodeCd())).map(GenericCd::getRegex).findFirst();
+				.filter(g -> codeCd.equals(g.getCodeCd())).map(GenericCd::getRegex).findFirst();
 		if (regex.isPresent() && !validateRegex(regex.get(), value)) {
 			logger.debug("Regex {} is used for {}", regex.get(), value);
 			throw new BadRequestException(errorMessage);
 		}
-	}	
-	
+	}
+
 	private boolean validateRegex(String regex, String value) {
 		return Pattern.compile(regex).matcher(value).matches();
 	}
@@ -216,16 +227,17 @@ public class UserService {
 		Password password = passwordRepository.findByLoginUserId(loginUser.getLoginUserId());
 		return buildUserResource(loginUser, loginUserName, contacts, password);
 	}
-	
+
 	private UserResource get(Long loginUserId) {
 		LoginUser loginUser = loginUserRepository.findById(loginUserId);
 		if (Objects.isNull(loginUser)) {
 			throw new ResourceNotFoundException("The requested user " + loginUserId + " is not available");
 		}
 		return get(loginUser.getLoginUuid());
-	}	
+	}
 
-	private UserResource buildUserResource(LoginUser loginUser, LoginUserName loginUserName, List<Contact> contacts, Password password) {
+	private UserResource buildUserResource(LoginUser loginUser, LoginUserName loginUserName, List<Contact> contacts,
+			Password password) {
 		UserResource userResource = new UserResource();
 		// Login User
 		userResource.setLoginUuid(loginUser.getLoginUuid());
@@ -252,9 +264,10 @@ public class UserService {
 		}
 		return userResource;
 	}
-	
+
 	/**
 	 * Change the profile name
+	 * 
 	 * @param userResource
 	 * @return {@link UserResource}
 	 */
@@ -271,7 +284,8 @@ public class UserService {
 		}
 		boolean newChange = false;
 		LoginUserName loginUserName = LoginUserName.builder().loginUserId(loginUserDb.getLoginUserId())
-				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName()).lastName(userResource.getLastName()).build();
+				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName())
+				.lastName(userResource.getLastName()).build();
 		if (!loginUserNameDb.equals(loginUserName)) {
 			loginUserNameRepository.save(loginUserName);
 			newChange = true;
@@ -289,7 +303,6 @@ public class UserService {
 		return get(userResource.getLoginUuid());
 	}
 
-
 	public Object login(@Valid Login login) {
 		// TODO Auto-generated method stub
 		return null;
@@ -297,6 +310,7 @@ public class UserService {
 
 	/**
 	 * Generate OTP
+	 * 
 	 * @param otpLength
 	 * @return OTP
 	 */
@@ -304,12 +318,12 @@ public class UserService {
 		StringBuilder generatedOTP = new StringBuilder();
 		SecureRandom secureRandom = new SecureRandom();
 		try {
-		    secureRandom = SecureRandom.getInstance(secureRandom.getAlgorithm());
-		    for (int i = 0; i < otpLength; i++) {
-		        generatedOTP.append(secureRandom.nextInt(9));
-		    }
+			secureRandom = SecureRandom.getInstance(secureRandom.getAlgorithm());
+			for (int i = 0; i < otpLength; i++) {
+				generatedOTP.append(secureRandom.nextInt(9));
+			}
 		} catch (NoSuchAlgorithmException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 		logger.debug("Generated OTP {}", generatedOTP);
 		return generatedOTP.toString();
@@ -346,8 +360,9 @@ public class UserService {
 	}
 
 	/**
-	 * First time OTP request 
+	 * First time OTP request
 	 * Used in Forgot password 1st OTP request & change user id
+	 * 
 	 * @param emailId
 	 * @param otp
 	 * @return OTP
@@ -377,7 +392,7 @@ public class UserService {
 			}
 			template = Email.ACCOUNT_VERIFY_FTL_TEMPLATE;
 			subject = "Account Verification OTP ";
-		} else if (purpose.equalsIgnoreCase("reset-password")) { 
+		} else if (purpose.equalsIgnoreCase("reset-password")) {
 			validatePassword(contact.getLoginUserId(), payload.get("password").toString());
 			template = Email.RESET_PASSWORD_FTL_TEMPLATE;
 			subject = "Password Reset OTP ";
@@ -391,9 +406,10 @@ public class UserService {
 		sendOtp(loginUserName.getFirstName(), contact, otp, template, subject);
 		return true;
 	}
-	
+
 	/**
 	 * Login histories of user
+	 * 
 	 * @param loginUuid
 	 * @param page
 	 * @param size
@@ -402,10 +418,11 @@ public class UserService {
 	public PaginatedLoginHistory loginHistories(UUID loginUuid, int page, int size) {
 		logger.debug("Listing login histories {} from page {} to {}", loginUuid, page, size);
 		LoginUser loginUser = loginUserRepository.findByUuid(loginUuid);
-		if (Objects.isNull(loginUser) ) {
+		if (Objects.isNull(loginUser)) {
 			throw new ResourceNotFoundException("The reuested user is not present in the database");
 		}
-		return new PaginatedLoginHistory(loginHistoryRepository.list(loginUser.getLoginUserId(), size, ((page - 1) * size)), 
+		return new PaginatedLoginHistory(
+				loginHistoryRepository.list(loginUser.getLoginUserId(), size, ((page - 1) * size)),
 				loginHistoryRepository.count(loginUser.getLoginUserId()));
 	}
 
@@ -425,35 +442,36 @@ public class UserService {
 			errorMessage = contact.getLoginId() + " has not requested OTP / it's expired";
 			logger.debug(errorMessage);
 			throw new BadRequestException(errorMessage);
-		}else if (!passwordEncoder.matches(resetPassword.getOtp(), token.getOtp())) {	
+		} else if (!passwordEncoder.matches(resetPassword.getOtp(), token.getOtp())) {
 			throw new BadRequestException("The entered OTP is not valid");
-		}	
+		}
 		String newPassword = resetPassword.getPassword();
 		validatePassword(contact.getLoginUserId(), newPassword);
 		passwordRepository.save(Password.builder().loginUserId(contact.getLoginUserId())
 				.secretKey(passwordEncoder.encode(newPassword)).build());
-		if (contact.getVerifiedOn() == null) { //Verify the contact
+		if (contact.getVerifiedOn() == null) { // Verify the contact
 			contactRepository.verify(contact.getContactId());
 		}
-		messageServiceClient.send(new Email(emailSender, Set.of(contact.getLoginId()), Email.RESET_PASSWORD_SUCCESS_FTL, 
-				Map.of("name", loginUserName.getFirstName()), "Your password has been successfully reset",  contact.getLoginUserId()));
+		messageServiceClient.send(new Email(emailSender, Set.of(contact.getLoginId()), Email.RESET_PASSWORD_SUCCESS_FTL,
+				Map.of("name", loginUserName.getFirstName()), "Your password has been successfully reset",
+				contact.getLoginUserId()));
 		return true;
-		
+
 	}
-	
+
 	private void validatePassword(Long loginUserId, String password) {
 		if (!Password.passwordComplexity.test(password)) {
 			logger.debug("Password complexity");
 			throw new BadRequestException("Password must contain atleast 1 digit, 1 special character,"
 					+ " 1 lowercase, 1 uppercase & minimum length of 8");
-		}	
+		}
 		List<Password> passwords = passwordRepository.findAllByLastNRowLoginUserId(loginUserId, 3);
-		boolean matches = passwords.stream().anyMatch(p -> passwordEncoder.matches(password, p.getSecretKey())); 
+		boolean matches = passwords.stream().anyMatch(p -> passwordEncoder.matches(password, p.getSecretKey()));
 		if (matches) {
 			throw new BadRequestException("New password must not match with last 3 password");
 		}
 	}
-	
+
 	public PaginatedUser list(Pagination pagination) {
 		logger.debug("Lsting users with {}", pagination);
 		var userResources = new ArrayList<UserResource>();
@@ -463,9 +481,10 @@ public class UserService {
 		}
 		return new PaginatedUser(userResources, loginUserRepository.count());
 	}
-	
+
 	/**
 	 * List users by their role
+	 * 
 	 * @param roleCd
 	 * @param page
 	 * @param size
@@ -480,5 +499,5 @@ public class UserService {
 		}
 		return userResources;
 	}
-	
+
 }

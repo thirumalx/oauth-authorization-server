@@ -56,6 +56,57 @@ OAuth2 supports several grant types for different use cases. The most common gra
 
 1. [Eureka](https://github.com/m-thirumal/eureka-server) (Optional)
 2. PostgreSQL 
+3. Java 25
+4. Redis
+
+### Architecture/Flow:
+
+![Architecture](./img/Architecture.drawio.png)
+
+```
+React (Browser)
+      |
+      |-- 1. GET /auth/login ------------------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 2. Forward to BFF /auth/login -----> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 3. Redirect to SAS /authorize ------------------> SAS
+      |                                                     |                                         |                                                      |
+      |<-- 4. Redirect to SAS ------------------------------|                                         |                                                      |
+      |                                                                                               |                                                      |
+      |-- 5. User submits login --------------------------------------------------------------------------------------->|-- 5a. Validate user --> PostgreSQL
+      |                                                                                                                 |<-- 5b. OK --------------------------|
+      |                                                                                                                 |
+      |<-- 6. Redirect back with ?code=XYZ <-----------------------------------------------------------------------------|
+      |
+      |-- 7. GET /auth/callback?code=XYZ ------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 8. Forward to BFF /auth/callback ---> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 9. Exchange code for tokens ---------------------> SAS
+      |                                                     |                                         |                                                     |
+      |                                                     |                                         |<-- 10. Access + Refresh Tokens ---------------------|
+      |                                                     |                                         |
+      |                                                     |                                         |-- 11. Store tokens in Redis -----------------------> Redis
+      |                                                     |                                         |<-- 11a. OK ----------------------------------------|
+      |                                                     |                                         |
+      |<-- 12. Set Secure HttpOnly session cookie ----------|                                         |
+      |
+      |                                                                                               |
+      |-- 13. GET /api/user --------------------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 14. Forward to BFF /api/user --------> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 15. Load session from Redis ---------------------> Redis
+      |                                                     |                                         |<-- 15a. Tokens OK ---------------------------------|
+      |                                                     |                                         |
+      |                                                     |                                         |-- 16. Call Resource Server with Access Token ------------------> Resource Server
+      |                                                     |                                         |                                                     |
+      |                                                     |                                         |<-- 17. Protected Resource Response -----------------------------|
+      |                                                     |                                         |
+      |<-- 18. JSON Payload --------------------------------|                                         |
+      |
+```
 
 ## Set UP
 
@@ -63,25 +114,31 @@ Documentation to set up can be [found here](docs/Set%20up.md)
 
 * [Definition](docs/Definitions.md)
 
-``` mermaid
-sequenceDiagram
-  actor O AS  Resource Owner
-  participant C AS Client
-  participant A AS Authorization Server
-  participant R AS Resource Server
-  autonumber
-  O->>C: Login URL
-  C->>A: http://localhost:9000/auth?client_id=resource-server-1&response_type=code&scope=openid profile&redirect_url=http://localhost:9001/login-callback&state=sEdgkiEkpvnsj
-  Note right of A: code_challenge & method query param is required for PKCE
-  A->>O: Present user with Login page
-  O->>A: User logs in
-  A->>O: Present Consent page
-  O->>A: User authorize client to access the resource server
-  A->>C: Authorization Code (Redirect to http://localhost:9001/callback?code=12ddassa-jk12nm32...)
-  C->>A: Exchange authorization code for an Access Token (http post/token + code + clientId + Client Secret)
-  C->>R: Request data with (Bearer `token`)
-  A->>R: Validate Token
-  R->>C: Resource
+``` 
+Resource Owner (O)       Client (C)         Authorization Server (A)       Resource Server (R)
+       |                     |                         |                          |
+       |------Login URL-----> |                         |                          |
+       |                     |----Request Auth URL---->|                          |
+       |                     |  http://localhost:9000/auth?client_id=resource-server-1
+       |                     |  &response_type=code
+       |                     |  &scope=openid profile
+       |                     |  &redirect_url=http://localhost:9001/login-callback
+       |                     |  &state=sEdgkiEkpvnsj      |                          |
+       |                     |                         | Note: code_challenge & PKCE required
+       |                     |                         |                          |
+       |                     |                         |<----Present Login Page----|
+       |----Enter Credentials------------------------->|                          |
+       |                     |                         |                          |
+       |                     |                         |<----Present Consent Page--|
+       |----Authorize Client------------------------->|                          |
+       |                     |<---Redirect w/ Auth Code (http://localhost:9001/callback?code=12ddassa-jk12nm32...)|
+       |                     |                         |                          |
+       |                     |---Exchange Code for Token (POST /token + code + clientId + clientSecret)---->|
+       |                     |                         |                          |
+       |                     |------------------------Request Resource w/ Bearer Token-------------------->|
+       |                     |                         |----Validate Token-------->|
+       |                     |<----------------------Return Resource---------------------|
+
 
 ```
 

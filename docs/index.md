@@ -28,6 +28,57 @@ OAuth means `Open Authorization` & OAuth 2 is an  `Authorization Framework`
 
 1. [Eureka](https://github.com/m-thirumal/eureka-server) - Optional
 2. PostgreSQL 
+3. Java 25
+4. Redis
+
+### Architecture/Flow:
+
+![Architecture](./img/Architecture.drawio.png)
+
+```
+React (Browser)
+      |
+      |-- 1. GET /auth/login ------------------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 2. Forward to BFF /auth/login -----> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 3. Redirect to SAS /authorize ------------------> SAS
+      |                                                     |                                         |                                                      |
+      |<-- 4. Redirect to SAS ------------------------------|                                         |                                                      |
+      |                                                                                               |                                                      |
+      |-- 5. User submits login --------------------------------------------------------------------------------------->|-- 5a. Validate user --> PostgreSQL
+      |                                                                                                                 |<-- 5b. OK --------------------------|
+      |                                                                                                                 |
+      |<-- 6. Redirect back with ?code=XYZ <-----------------------------------------------------------------------------|
+      |
+      |-- 7. GET /auth/callback?code=XYZ ------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 8. Forward to BFF /auth/callback ---> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 9. Exchange code for tokens ---------------------> SAS
+      |                                                     |                                         |                                                     |
+      |                                                     |                                         |<-- 10. Access + Refresh Tokens ---------------------|
+      |                                                     |                                         |
+      |                                                     |                                         |-- 11. Store tokens in Redis -----------------------> Redis
+      |                                                     |                                         |<-- 11a. OK ----------------------------------------|
+      |                                                     |                                         |
+      |<-- 12. Set Secure HttpOnly session cookie ----------|                                         |
+      |
+      |                                                                                               |
+      |-- 13. GET /api/user --------------------------------> API Gateway
+      |                                                     |
+      |                                                     |-- 14. Forward to BFF /api/user --------> BFF
+      |                                                     |                                         |
+      |                                                     |                                         |-- 15. Load session from Redis ---------------------> Redis
+      |                                                     |                                         |<-- 15a. Tokens OK ---------------------------------|
+      |                                                     |                                         |
+      |                                                     |                                         |-- 16. Call Resource Server with Access Token ------------------> Resource Server
+      |                                                     |                                         |                                                     |
+      |                                                     |                                         |<-- 17. Protected Resource Response -----------------------------|
+      |                                                     |                                         |
+      |<-- 18. JSON Payload --------------------------------|                                         |
+      |
+```
 
 
 ## [How to set up](Set up.md)

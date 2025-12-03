@@ -92,12 +92,8 @@ public class UserController {
 	 */
 	@PatchMapping(value = "/request-otp", consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> requestOtpToVerifyAccount(@RequestParam String purpose, 
-			@RequestParam(name="recaptcha") String recaptchaResponse, HttpServletRequest request,
-			@RequestBody Map<String, Object> payload) {
-		logger.debug("Requested OTP for the ");
-		//Start of Verify reCaptcha
-		// verifyCaptcha(recaptchaResponse, request);
-		//End of reCaptcha
+			HttpServletRequest request,	@RequestBody Map<String, Object> payload) {
+		logger.debug("Requested OTP for the {}", purpose);
 		return new ResponseEntity<>(userService.requestOtp(payload, purpose), HttpStatus.OK);
 	}
 	
