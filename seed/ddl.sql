@@ -1,6 +1,6 @@
 -- ** Database generated with pgModeler (PostgreSQL Database Modeler).
--- ** pgModeler version: 1.2.1
--- ** PostgreSQL version: 17.0
+-- ** pgModeler version: 2.0.0-alpha
+-- ** PostgreSQL version: 18.0
 -- ** Project Site: pgmodeler.io
 -- ** Model Author: Thirumal
 -- object: fdw_user | type: ROLE --
@@ -16,7 +16,7 @@ CREATE ROLE fdw_user WITH
 
 -- object: "authorization" | type: DATABASE --
 -- DROP DATABASE IF EXISTS "authorization";
---CREATE DATABASE "authorization";
+CREATE DATABASE "authorization";
 -- ddl-end --
 COMMENT ON DATABASE "authorization" IS E'Created Thirumal';
 -- ddl-end --
@@ -137,7 +137,9 @@ INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at,
 -- ddl-end --
 INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'pkce', E'pkce', DEFAULT, DEFAULT, DEFAULT, E'pkce', E'none', E'refresh_token,authorization_code', E'http://localhost:3000/authorized', E'read', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":false}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3000.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', DEFAULT);
 -- ddl-end --
-INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'pkcepostman', E'pkcepostman', DEFAULT, DEFAULT, DEFAULT, E'pkcepostman', E'none', E'refresh_token,authorization_code', E'https://oauth.pstmn.io/v1/callback', E'read', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":false}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3000.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', DEFAULT);
+INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'pkcepostman', E'pkcepostman', DEFAULT, DEFAULT, DEFAULT, E'pkcepostman', E'none', E'refresh_token,authorization_code', E'https://oauth.pstmn.io/v1/callback', E'read', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":false}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3000.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', E'http://localhost:2223/');
+-- ddl-end --
+INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'bff-client-id-001', E'bff-client', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'BFF Client', E'client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:2223/login/oauth2/code/bff-client-oidc,http://localhost:2223/authorized', E'openid,profile,message.read,message.write', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.ClientSettings",\n"requireProofKey": false,\n"requireAuthorizationConsent": true}', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.TokenSettings",\n      "accessTokenTimeToLive": "PT1H",\n      "refreshTokenTimeToLive": "P30D",\n      "reuseRefreshTokens": true,\n      "idTokenSignatureAlgorithm": "RS256"}', DEFAULT);
 -- ddl-end --
 
 -- object: public.login_user_name_login_user_name_id_seq | type: SEQUENCE --
