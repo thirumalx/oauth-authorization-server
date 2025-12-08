@@ -317,6 +317,8 @@
 				<h4 class="mb-0">
 					<i class="fas fa-users"></i> User Management
 				</h4>
+				<input type="text" id="userSearch" class="form-control form-control-sm" placeholder="Search users..."
+					style="width: 300px;">
 				<a th:href="@{/addUser}" class="btn btn-light btn-sm">
 					<i class="fas fa-plus"></i> Add User
 				</a>
@@ -372,23 +374,30 @@
 	<!-- Bootstrap JS Bundle (includes Popper.js) - Required for modals -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.js"></script>
-	<script>
+	<script type="text/javascript">
 		$(document).ready(function () {
-			$("#user-table").DataTable({
-				"pageLength": 10,
-				"lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
-				"aoColumnDefs": [{
-					'bSortable': false,
-					'aTargets': [-1] /* Last column, start by the right */
+			var lengthMenuOptions = [10, 25, 50, 100];
+			var table = $('#user-table').DataTable({
+				pageLength: 10,
+				lengthMenu: [lengthMenuOptions, lengthMenuOptions],
+				dom: 'rt<"row mt-3"<"col-sm-4"l><"col-sm-4 text-center"i><"col-sm-4"p>>',
+				aoColumnDefs: [{
+					bSortable: false,
+					aTargets: [-1]
 				}],
-				"language": {
-					"lengthMenu": "Show _MENU_ users",
-					"info": "Showing _START_ to _END_ of _TOTAL_ users",
-					"infoEmpty": "No users available",
-					"infoFiltered": "(filtered from _MAX_ total users)"
+				language: {
+					lengthMenu: 'Show _MENU_ users',
+					info: 'Showing _START_ to _END_ of _TOTAL_ users',
+					infoEmpty: 'No users available',
+					infoFiltered: '(filtered from _MAX_ total users)'
 				}
 			});
-		})
+
+			// Connect custom search box to DataTables
+			$('#userSearch').on('keyup', function () {
+				table.search(this.value).draw();
+			});
+		});
 	</script>
 </body>
 
