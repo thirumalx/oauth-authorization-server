@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.github.thirumalx.model.UserResource;
 import io.github.thirumalx.service.UserService;
@@ -57,11 +58,13 @@ public class SignupController {
 
     /** Show signup page */
     @GetMapping("/signup")
-    public String showSignupPage(Model model) {
-        logger.debug("showSignupPage");
+    public String showSignupPage(
+            @RequestParam(name = "client_id", required = false, defaultValue = "Thirumal") String registeredClientId,
+            Model model) {
+        logger.debug("showSignupPage with client_id: {}", registeredClientId);
         UserResource userResource = new UserResource();
-        // Set default registered client ID (required field)
-        userResource.setRegisteredClientId("Thirumal");
+        // Set registered client ID from request parameter (sent by BFF/React app)
+        userResource.setRegisteredClientId(registeredClientId);
         // Set default authorities for new users
         userResource.setAuthorities(Set.of(
                 new SimpleGrantedAuthority("SCOPE_read"),
