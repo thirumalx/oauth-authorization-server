@@ -36,7 +36,7 @@ public class UserResource implements Serializable {
 	private String email;
 	private String phoneNumber;
 	private String password;
-	private OffsetDateTime dateOfBirth;
+	private OffsetDateTime dateOfBirth;//Or date of Incorporation if user is not an individual
 	private boolean individual;
 	private OffsetDateTime accountCreatedOn;
 	//
@@ -49,6 +49,12 @@ public class UserResource implements Serializable {
 
 	public PhoneNumber getPhoneDetail() {
 		return phoneNumber == null ? null : PhoneNumberUtility.getPhoneDetail(phoneNumber);
+	}
+	
+	public String getFullName() {
+	    return firstName + 
+	           (middleName != null ? " " + middleName : "") + 
+	           " " + lastName;
 	}
 	
 }

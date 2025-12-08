@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <link th:href="@{/style/signup.css}" rel="stylesheet" />
+</head>
+
+<body>
+<div class="content">
+
+    <h2 class="title">Create Account</h2>
+
+    <form th:action="@{/signup}" th:object="${userResource}" method="post">
+
+        <!-- Name Row -->
+        <div class="form-row">
+            <div class="form-field">
+                <label>First Name</label>
+                <input type="text" th:field="*{firstName}" required>
+            </div>
+
+            <div class="form-field">
+                <label>Middle Name</label>
+                <input type="text" th:field="*{middleName}">
+            </div>
+
+            <div class="form-field">
+                <label>Last Name</label>
+                <input type="text" th:field="*{lastName}" required>
+            </div>
+        </div>
+
+        <!-- Email + Phone Row -->
+        <div class="form-row">
+            <div class="form-field">
+                <label>Email</label>
+                <input type="email" th:field="*{email}" required>
+            </div>
+
+            <div class="form-field">
+                <label>Phone Number</label>
+                <input type="tel" th:field="*{phoneNumber}" required
+                       pattern="^[0-9]{10,15}$"
+                       placeholder="10–15 digit number">
+            </div>
+        </div>
+
+        <!-- Password Row -->
+        <div class="form-row">
+            <div class="form-field">
+                <label>Password</label>
+                <input type="password" th:field="*{password}" required minlength="6">
+            </div>
+
+            <div class="form-field">
+                <label>Confirm Password</label>
+                <input type="password" name="confirmPassword" required minlength="6">
+            </div>
+        </div>
+
+        <!-- Individual / Organisation + DOB -->
+        <div class="form-row align-center">
+            <div class="toggle-group">
+                <label><input type="radio" th:field="*{individual}" value="true" checked> Individual</label>
+                <label><input type="radio" th:field="*{individual}" value="false"> Organisation</label>
+            </div>
+
+            <div class="form-field">
+                <label id="dobLabel"
+                       th:text="${userResource.individual} ? 'Date of Birth' : 'Date of Incorporation'">
+                </label>
+                <input type="date" th:field="*{dateOfBirth}" required>
+            </div>
+        </div>
+
+        <button type="submit" class="primary-btn">Create Account</button>
+
+    </form>
+
+</div>
+
+<script>
+    const individual = document.querySelector("input[value='true']");
+    const org = document.querySelector("input[value='false']");
+    const dobLabel = document.getElementById("dobLabel");
+
+    function updateLabel() {
+        dobLabel.textContent = individual.checked
+            ? "Date of Birth"
+            : "Date of Incorporation";
+    }
+
+    individual.addEventListener("change", updateLabel);
+    org.addEventListener("change", updateLabel);
+
+    updateLabel();
+</script>
+
+</body>
+</html>

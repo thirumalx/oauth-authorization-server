@@ -149,7 +149,9 @@ public class AuthorizationServerConfig {
 			        "/vendor/**", 
 			        "/favicon.ico", 
 			        "/actuator/**",
-			        "/webjars/**"
+			        "/webjars/**",
+			        "/signup",
+			        "/style/**"
 			 ).permitAll()
 			.requestMatchers(HttpMethod.POST, "/user/create-account").permitAll()
 			.requestMatchers(HttpMethod.POST, "/login").permitAll() // allow form POST
