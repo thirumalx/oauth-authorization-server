@@ -65,12 +65,34 @@ public class SignupController {
         UserResource userResource = new UserResource();
         // Set registered client ID from request parameter (sent by BFF/React app)
         userResource.setRegisteredClientId(registeredClientId);
-        // Set default authorities for new users
-        userResource.setAuthorities(Set.of(
-                new SimpleGrantedAuthority("SCOPE_read"),
-                new SimpleGrantedAuthority("SCOPE_user")));
         model.addAttribute("userResource", userResource);
         return "signup"; // Thymeleaf template name
+    }
+
+    /**
+     * Get default authorities based on the registered client
+     * Different clients may have different default scopes
+     */
+    private Set<SimpleGrantedAuthority> getDefaultAuthoritiesForClient(String clientId) {
+        logger.debug("Getting default authorities for client: {}", clientId);
+        return switch (clientId) {
+            case "bff-client-id-001" -> Set.of(
+                    new SimpleGrantedAuthority("SCOPE_openid"),
+                    new SimpleGrantedAuthority("SCOPE_profile"),
+                    new SimpleGrantedAuthority("SCOPE_message.read"),
+                    new SimpleGrantedAuthority("SCOPE_message.write"));
+            case "E-Auction" -> Set.of(
+                    new SimpleGrantedAuthority("SCOPE_read"),
+                    new SimpleGrantedAuthority("SCOPE_openid"),
+                    new SimpleGrantedAuthority("SCOPE_profile"),
+                    new SimpleGrantedAuthority("SCOPE_auction.bid"),
+                    new SimpleGrantedAuthority("SCOPE_auction.view"));
+            case "pkce", "pkcepostman" -> Set.of(
+                    new SimpleGrantedAuthority("SCOPE_read"));
+            default -> Set.of(
+                    new SimpleGrantedAuthority("SCOPE_read"),
+                    new SimpleGrantedAuthority("SCOPE_user"));
+        };
     }
 
     @PostMapping("/signup")
@@ -85,6 +107,8 @@ public class SignupController {
         if (bindingResult.hasErrors()) {
             return "signup"; // return to form with errors
         }
+        // Set authorities based on client_id
+        userResource.setAuthorities(getDefaultAuthoritiesForClient(userResource.getRegisteredClientId()));
 
         userService.createAccount(userResource);
 

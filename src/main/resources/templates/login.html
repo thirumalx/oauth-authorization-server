@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to your account">
+    <title>Sign In - Authorization Server</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/style/login.css}" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="content">
+
+        <h2 class="title">Welcome Back</h2>
+        <p class="subtitle">Sign in to your account</p>
+
+        <!-- Success Message (from signup) -->
+        <div th:if="${param.signup}" class="success-message">
+            ✓ Account created successfully! Please sign in.
+        </div>
+
+        <!-- Logout Success Message -->
+        <div th:if="${param.logout}" class="success-message">
+            ✓ You have been logged out successfully.
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${param.error}" class="error-message">
+            ⚠ Invalid username or password. Please try again.
+        </div>
+
+        <form th:action="@{/login}" method="post" id="loginForm">
+
+            <div class="form-field">
+                <label for="username">Email or Phone Number</label>
+                <input type="text" id="username" name="username" required autofocus
+                    placeholder="Enter your email or phone number">
+            </div>
+
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember-me">
+                    <span>Remember me</span>
+                </label>
+                <a th:href="@{/forgot-password}" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="primary-btn">Sign In</button>
+
+            <div class="signup-link">
+                Don't have an account?
+                <a th:href="@{/signup}">Create one</a>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script>
+        // Add visual validation for required fields
+        const inputs = document.querySelectorAll('input[required]');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function () {
+                if (this.value.trim() === '') {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                } else {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                }
+            });
+
+            input.addEventListener('input', function () {
+                if (this.value.trim() !== '') {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
