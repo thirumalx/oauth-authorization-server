@@ -41,7 +41,7 @@ logging:
     '[org.springframework.web]': INFO
     '[org.springframework.security]': debug
     '[org.springframework.security.oauth2]': debug
-    '[in.thirumal]': debug
+    '[io.github.thirumalx]': debug
   file:
     path: logs
     name: logs/authorization-server.log

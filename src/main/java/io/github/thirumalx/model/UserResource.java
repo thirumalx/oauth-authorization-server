@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
@@ -22,9 +23,12 @@ import lombok.ToString;
  * @author Thirumal
  *
  */
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
-@Builder@ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class UserResource implements Serializable {
 
 	private static final long serialVersionUID = -7020619477594468968L;
@@ -36,7 +40,8 @@ public class UserResource implements Serializable {
 	private String email;
 	private String phoneNumber;
 	private String password;
-	private OffsetDateTime dateOfBirth;//Or date of Incorporation if user is not an individual
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	private OffsetDateTime dateOfBirth;// Or date of Incorporation if user is not an individual
 	private boolean individual;
 	private OffsetDateTime accountCreatedOn;
 	//
@@ -45,16 +50,15 @@ public class UserResource implements Serializable {
 	@NotNull
 	private String registeredClientId;
 	private Set<SimpleGrantedAuthority> authorities;
-	
 
 	public PhoneNumber getPhoneDetail() {
 		return phoneNumber == null ? null : PhoneNumberUtility.getPhoneDetail(phoneNumber);
 	}
-	
+
 	public String getFullName() {
-	    return firstName + 
-	           (middleName != null ? " " + middleName : "") + 
-	           " " + lastName;
+		return firstName +
+				(middleName != null ? " " + middleName : "") +
+				" " + lastName;
 	}
-	
+
 }
