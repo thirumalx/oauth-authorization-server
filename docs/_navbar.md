@@ -3,6 +3,7 @@
     * [Resource Server](Resource%20Server.md)
     * [Endpoints](EndPoints.md)
 
+* [Signup Flow](signup-flow.md)
 * [SETUP](Set%20up.md)
 
 * [DATABASE](database.md)

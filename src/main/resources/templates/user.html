@@ -1,60 +1,352 @@
 <!DOCTYPE HTML>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
 	<meta charset="UTF-8" />
 	<title>Authorization Server</title>
-	<link rel="stylesheet" type="text/css"
-		href="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.css" />
-	<link rel="stylesheet"
-		href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
-	  <link th:href="@{/styles/main.css}" rel="stylesheet" />
+	<link th:href="@{/style/datatables.min.css}" rel="stylesheet" />
+	<link th:href="@{/style/bootstrap.min.css}" rel="stylesheet" />
+	<link th:href="@{/style/all.min.css}" rel="stylesheet" />
+	<link th:href="@{/style/main.css}" rel="stylesheet" />
+	<style>
+		/* Custom styles to match navbar theme */
+		.page-header {
+			background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+			color: white;
+			padding: 12px 0;
+			margin-bottom: 20px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.page-header h4 {
+			margin: 0;
+			font-weight: 600;
+			font-size: 1.25rem;
+		}
+
+		/* Table header matching navbar */
+		#user-table thead {
+			background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+			color: white;
+		}
+
+		#user-table thead th {
+			border: none;
+			padding: 10px 8px;
+			font-weight: 600;
+			text-transform: uppercase;
+			font-size: 0.75rem;
+			letter-spacing: 0.3px;
+			vertical-align: middle;
+			white-space: nowrap;
+		}
+
+		/* Hide DataTables sorting arrows */
+		table.dataTable thead .sorting:before,
+		table.dataTable thead .sorting:after,
+		table.dataTable thead .sorting_asc:before,
+		table.dataTable thead .sorting_asc:after,
+		table.dataTable thead .sorting_desc:before,
+		table.dataTable thead .sorting_desc:after {
+			display: none !important;
+		}
+
+		/* Table styling */
+		#user-table {
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			border-radius: 8px;
+			overflow: hidden;
+			font-size: 0.875rem;
+		}
+
+		#user-table tbody tr {
+			transition: background-color 0.2s ease;
+		}
+
+		#user-table tbody tr:hover {
+			background-color: #f8f9fa;
+		}
+
+		#user-table tbody td {
+			vertical-align: middle;
+			padding: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 200px;
+		}
+
+		/* DataTables wrapper styling */
+		.dataTables_wrapper .dataTables_length,
+		.dataTables_wrapper .dataTables_filter {
+			margin-bottom: 10px;
+		}
+
+		.dataTables_wrapper .dataTables_info,
+		.dataTables_wrapper .dataTables_paginate {
+			margin-top: 10px;
+		}
+
+		/* Compact DataTables controls */
+		.dataTables_wrapper .dataTables_length select {
+			padding: 2px 5px;
+			font-size: 0.875rem;
+		}
+
+		.dataTables_wrapper .dataTables_filter input {
+			padding: 4px 8px;
+			font-size: 0.875rem;
+		}
+	</style>
 </head>
+
 <body>
 	<!-- Navigation -->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
 		<div class="container">
-			<a class="navbar-brand" href="/">Authorization Server User</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse"
-				data-target="#navbarResponsive" aria-controls="navbarResponsive"
-				aria-expanded="false" aria-label="Toggle navigation">
+			<a class="navbar-brand" href="/user">
+				<i class="fas fa-shield-alt"></i> Authorization Server
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+				aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarResponsive">
 				<ul class="navbar-nav ml-auto">
-					<li class="nav-item active"><a class="nav-link" href="#">Home
-							<span class="sr-only">(current)</span>
-					</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">About</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">Services</a>
+					<li class="nav-item">
+						<a class="nav-link" href="/user">
+							<i class="fas fa-home"></i> Home
+						</a>
 					</li>
-					<li class="nav-item"><a class="nav-link" href="#">Contact</a>
+					<li class="nav-item">
+						<button class="btn btn-link nav-link" data-toggle="modal" data-target="#aboutModal">
+							<i class="fas fa-user"></i> About
+						</button>
+					</li>
+					<li class="nav-item">
+						<button class="btn btn-link nav-link" data-toggle="modal" data-target="#servicesModal">
+							<i class="fas fa-code"></i> Services
+						</button>
+					</li>
+					<li class="nav-item">
+						<button class="btn btn-link nav-link" data-toggle="modal" data-target="#contactModal">
+							<i class="fas fa-envelope"></i> Contact
+						</button>
+					</li>
+					<li class="nav-item">
+						<form th:action="@{/logout}" method="post" style="display: inline;">
+							<button type="submit" class="btn btn-link nav-link">
+								<i class="fas fa-sign-out-alt"></i> Logout
+							</button>
+						</form>
 					</li>
 				</ul>
 			</div>
 		</div>
 	</nav>
 
+	<!-- About Modal -->
+	<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-primary text-white">
+					<h5 class="modal-title" id="aboutModalLabel">
+						<i class="fas fa-user-circle"></i> About Thirumal
+					</h5>
+					<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 text-center mb-3">
+							<img src="https://avatars.githubusercontent.com/u/12644168?v=4"
+								class="rounded-circle img-fluid" alt="Thirumal" style="max-width: 200px;">
+						</div>
+						<div class="col-md-8">
+							<h4>Thirumal</h4>
+							<p class="text-muted">Full Stack Developer | OAuth2 Specialist | Open Source Contributor</p>
+							<hr>
+							<p>
+								<i class="fas fa-briefcase text-primary"></i>
+								<strong>Expertise:</strong> Spring Boot, OAuth2, Microservices, PostgreSQL, React
+							</p>
+							<p>
+								<i class="fab fa-github text-primary"></i>
+								<strong>GitHub:</strong>
+								<a href="https://github.com/thirumalx" target="_blank">@thirumalx</a>
+							</p>
+							<p>
+								<i class="fas fa-code text-primary"></i>
+								<strong>Focus:</strong> Building secure, scalable authorization and authentication
+								systems
+							</p>
+							<p class="mt-3">
+								Passionate about creating robust OAuth2 solutions and contributing to open-source
+								projects.
+								Specializing in Spring Security, authorization servers, and microservices architecture.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Services Modal -->
+	<div class="modal fade" id="servicesModal" tabindex="-1" role="dialog" aria-labelledby="servicesModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-xl" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-success text-white">
+					<h5 class="modal-title" id="servicesModalLabel">
+						<i class="fab fa-github"></i> GitHub Projects
+					</h5>
+					<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p class="lead">Explore my open-source projects on GitHub:</p>
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<div class="card">
+								<div class="card-body">
+									<h5 class="card-title">
+										<i class="fas fa-shield-alt text-primary"></i> OAuth Authorization Server
+									</h5>
+									<p class="card-text">Spring Boot OAuth2.1 Authorization Server with modern UI</p>
+									<a href="https://github.com/thirumalx/oauth-authorization-server" target="_blank"
+										class="btn btn-sm btn-primary">
+										<i class="fab fa-github"></i> View Project
+									</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<div class="card">
+								<div class="card-body">
+									<h5 class="card-title">
+										<i class="fas fa-server text-success"></i> Resource Server
+									</h5>
+									<p class="card-text">OAuth2 Resource Server implementation</p>
+									<a href="https://github.com/thirumalx" target="_blank"
+										class="btn btn-sm btn-success">
+										<i class="fab fa-github"></i> View Projects
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="text-center mt-3">
+						<a href="https://github.com/thirumalx?tab=repositories" target="_blank" class="btn btn-dark">
+							<i class="fab fa-github"></i> View All Repositories
+						</a>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Contact Modal -->
+	<div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="contactModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-info text-white">
+					<h5 class="modal-title" id="contactModalLabel">
+						<i class="fas fa-address-card"></i> Contact Information
+					</h5>
+					<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="list-group list-group-flush">
+						<div class="list-group-item">
+							<i class="fab fa-github fa-fw text-dark"></i>
+							<strong>GitHub:</strong>
+							<a href="https://github.com/thirumalx" target="_blank">@m-thirumal</a>
+						</div>
+						<div class="list-group-item">
+							<i class="fab fa-linkedin fa-fw text-primary"></i>
+							<strong>LinkedIn:</strong>
+							<a href="https://www.linkedin.com/in/thirumalm/" target="_blank">thirumalm</a>
+						</div>
+						<div class="list-group-item">
+							<i class="fas fa-envelope fa-fw text-danger"></i>
+							<strong>Email:</strong>
+							<a href="mailto:racetortoise@gmail.com">Contact via GitHub</a>
+						</div>
+						<div class="list-group-item">
+							<i class="fas fa-phone fa-fw text-danger"></i>
+							<strong>Mobile Number:</strong>
+							<a href="tel:+918973697871">+91 8973697871</a>
+						</div>
+						<div class="list-group-item">
+							<i class="fas fa-globe fa-fw text-success"></i>
+							<strong>Website:</strong>
+							<a href="https://thirumalx.github.io" target="_blank">thirumalx.github.io</a>
+						</div>
+					</div>
+					<div class="mt-3 text-center">
+						<p class="text-muted">
+							<i class="fas fa-info-circle"></i>
+							Feel free to reach out for collaborations or questions!
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Page Header -->
+	<div class="page-header">
+		<div class="container">
+			<div class="d-flex justify-content-between align-items-center">
+				<h4 class="mb-0">
+					<i class="fas fa-users"></i> User Management
+				</h4>
+				<input type="text" id="userSearch" class="form-control form-control-sm" placeholder="Search users..."
+					style="width: 300px;">
+				<a th:href="@{/addUser}" class="btn btn-light btn-sm">
+					<i class="fas fa-plus"></i> Add User
+				</a>
+			</div>
+		</div>
+	</div>
+
 	<div class="container">
-		<hr/>
-			<a th:href="@{/addUser}" class="btn btn-primary">Add User</a>
-			<div class="col-lg-10 mt-5 mb-5">
-				<table class="table table-bordered table-striped" id="user-table">
+		<div class="row">
+			<div class="col-lg-12">
+				<table class="table table-bordered table-striped table-hover" id="user-table">
 					<thead>
 						<tr>
-							<th>UUID</th>
-							<th>Individual</th>
-							<th>Name</th>
-							<th>Email</th>
-							<th>Phone Number</th>
-						<!-- 	<th>Birth date</th> -->
-							<th>Created On</th>
+							<th><i class="fas fa-fingerprint"></i> UUID</th>
+							<th><i class="fas fa-user-tag"></i> Individual</th>
+							<th><i class="fas fa-user"></i> Name</th>
+							<th><i class="fas fa-envelope"></i> Email</th>
+							<th><i class="fas fa-phone"></i> Phone Number</th>
+							<th><i class="fas fa-calendar-plus"></i> Created On</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="userResource : ${user.userResources}">
 							<td th:text="${userResource.loginUuid}">ID</td>
 							<td th:text="${userResource.individual}">Individual</td>
-							<td th:text="${userResource.firstName} + (${userResource.lastName == null } ? '': ${userResource.lastName})">Name</td>
+							<td
+								th:text="${userResource.firstName} + (${userResource.lastName == null } ? '': ' ' + ${userResource.lastName})">
+								Name</td>
 							<td th:text="${userResource.email}">Email</td>
 							<td th:text="${userResource.phoneNumber}">Phone Number</td>
 							<td th:text="${userResource.accountCreatedOn}">Created On</td>
@@ -62,46 +354,51 @@
 					</tbody>
 				</table>
 
-				<nav aria-label="Page navigation" class="paging">
-					<ul class="pagination" th:if="${user.count > 1}">
-						<li class="page-item"
-							th:classappend="${!employees.paging.isPrevEnabled()? 'disabled' : ''}">
-							<a class="page-link"
-							th:href="@{'/?pageNumber=' + ${employees.paging.pageNumber - 1}}"
-							tabindex="-1">Previous</a>
-						</li>
-						<th:block th:each="item : ${employees.paging.getItems()}">
-							<li class="page-item"
-								th:classappend="${item.index == employees.paging.pageNumber? 'active' : ''}"
-								th:if="${item.pageItemType.name() == 'PAGE'}"><a
-								class="page-link" th:href="@{'/?pageNumber=' + ${item.index}}"
-								th:text="${item.index}"></a></li>
-							<li class="page-item disabled"
-								th:if="${item.pageItemType.name() == 'DOTS'}"><a
-								class="page-link" href="#">...</a></li>
-						</th:block>
-						<li class="page-item"
-							th:classappend="${!employees.paging.isNextEnabled()? 'disabled' : ''}">
-							<a class="page-link"
-							th:href="@{'/?pageNumber=' + ${employees.paging.pageNumber + 1}}">Next</a>
+				<!-- Pagination -->
+				<nav aria-label="Page navigation" class="mt-4" th:if="${user.count > 30}">
+					<ul class="pagination justify-content-center">
+						<li class="page-item">
+							<span class="text-muted">Total Users: <span th:text="${user.count}"></span></span>
 						</li>
 					</ul>
-				</nav> 
+					<p class="text-center text-muted mt-2">
+						<small>Note: Pagination controls will be added when paging object is available</small>
+					</p>
+				</nav>
 			</div>
+		</div>
 	</div>
 
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- Bootstrap JS Bundle (includes Popper.js) - Required for modals -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.js"></script>
-	<script>
-			$(document).ready(function() {
-				$("#user-table").DataTable({
-						'aoColumnDefs': [{
-        				'bSortable': false,
-        				'aTargets': [-1] /* 1st one, start by the right */
-    				}]
-				});
-			})
-		</script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var lengthMenuOptions = [10, 25, 50, 100];
+			var table = $('#user-table').DataTable({
+				pageLength: 10,
+				lengthMenu: [lengthMenuOptions, lengthMenuOptions],
+				dom: 'rt<"row mt-3"<"col-sm-4"l><"col-sm-4 text-center"i><"col-sm-4"p>>',
+				aoColumnDefs: [{
+					bSortable: false,
+					aTargets: [-1]
+				}],
+				language: {
+					lengthMenu: 'Show _MENU_ users',
+					info: 'Showing _START_ to _END_ of _TOTAL_ users',
+					infoEmpty: 'No users available',
+					infoFiltered: '(filtered from _MAX_ total users)'
+				}
+			});
+
+			// Connect custom search box to DataTables
+			$('#userSearch').on('keyup', function () {
+				table.search(this.value).draw();
+			});
+		});
+	</script>
 </body>
+
 </html>
