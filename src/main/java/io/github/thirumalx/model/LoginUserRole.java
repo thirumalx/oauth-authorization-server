@@ -17,17 +17,20 @@ import lombok.ToString;
  * @author Thirumal
  *
  */
-@NoArgsConstructor@AllArgsConstructor
-@Getter@Setter
-@Builder@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
 public class LoginUserRole implements Serializable {
 
 	private static final long serialVersionUID = 454177013599136156L;
 
 	public static final Long USER = 1L;
 	public static final Long SUPPORT = 2L;
-	public static final Long ASMIN = 3L;
-	
+	public static final Long ADMIN = 3L;
+
 	private Long loginUserRoleId;
 	private Long loginUserId;
 	private Long roleCd;

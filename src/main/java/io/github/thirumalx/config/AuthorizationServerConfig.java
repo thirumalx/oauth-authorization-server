@@ -112,7 +112,8 @@ public class AuthorizationServerConfig {
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
 						"/favicon.ico", "/actuator/**", "/webjars/**")
 				.permitAll()
-				.requestMatchers("/user/**").authenticated()
+				// Restrict /user endpoint to users with ADMIN role
+				.requestMatchers("/user/**").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				// Form login handles the redirect to the login page from the
@@ -139,7 +140,17 @@ public class AuthorizationServerConfig {
 						}
 					};
 					requestCache.requestCache(cache);
-				});
+				})
+				.exceptionHandling(exceptions -> exceptions
+						.accessDeniedHandler((request, response, accessDeniedException) -> {
+							// Custom access denied handler for /user endpoint
+							if (request.getRequestURI().startsWith("/user")) {
+								response.sendError(HttpServletResponse.SC_FORBIDDEN,
+										"Access denied. Admin role required to access this resource.");
+							} else {
+								response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
+							}
+						}));
 
 		return http.build();
 	}
