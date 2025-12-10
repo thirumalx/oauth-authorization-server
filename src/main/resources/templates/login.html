@@ -28,6 +28,16 @@
             ✓ You have been logged out successfully.
         </div>
 
+        <!-- Password Reset Success Message -->
+        <div th:if="${param.passwordReset}" class="success-message">
+            ✓ Password reset successfully! Please sign in with your new password.
+        </div>
+
+        <!-- Verified Account Success Message -->
+        <div th:if="${param.verified}" class="success-message">
+            ✓ Account verified successfully! Please sign in.
+        </div>
+
         <!-- Error Message -->
         <div th:if="${param.error}" class="error-message">
             ⚠ Invalid username or password. Please try again.
