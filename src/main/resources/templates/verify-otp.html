@@ -17,19 +17,23 @@
 
     <div class="content">
 
-        <h2 class="title">Verify OTP</h2>
+        <h2 class="title">Verify Your Account</h2>
 
-        <!-- Info message -->
-        <p style="text-align:center; margin-top:-10px; margin-bottom:20px; color:#6b7280;">
-            Enter the 6-digit code sent to your email/phone
+        <!-- Welcome message with user's name -->
+        <p style="text-align:center; margin-top:-10px; margin-bottom:10px; color:#374151; font-weight:500;">
+            Welcome, <span th:text="${firstName}">User</span>!
         </p>
 
-        <form th:action="@{/verify-otp}" method="post" id="otpForm">
+        <!-- Info message -->
+        <p style="text-align:center; margin-bottom:30px; color:#6b7280; font-size:14px;">
+            We've sent verification codes to your email and phone.<br />
+            Please enter both codes below to complete your registration.
+        </p>
 
-            <!-- Hidden fields to carry identifier (email/phone/userId) -->
-            <input type="hidden" name="userId" th:value="${userId}">
-            <input type="hidden" name="email" th:value="${email}">
-            <input type="hidden" name="phone" th:value="${phone}">
+        <form th:action="@{/otp/verify-otp}" method="post" id="otpForm">
+
+            <!-- Hidden field for loginUuid -->
+            <input type="hidden" name="loginUuid" th:value="${loginUuid}">
 
             <!-- Error Messages -->
             <div th:if="${error}" class="error-message"
@@ -37,29 +41,61 @@
                 <p style="margin:0; color:#dc2626; font-size:14px;" th:text="${error}"></p>
             </div>
 
-            <!-- OTP Input Row -->
-            <div class="form-row" style="justify-content:center;">
-                <div class="form-field" style="max-width: 250px;">
-                    <label>OTP Code</label>
-                    <input type="text" name="otp" required minlength="6" maxlength="6"
-                           pattern="^[0-9]{6}$" placeholder="Enter 6-digit OTP">
+            <!-- Email OTP Input -->
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Email OTP</label>
+                    <small style="display:block; color:#6b7280; margin-bottom:8px; font-size:13px;">
+                        Sent to: <span th:text="${email}">email@example.com</span>
+                    </small>
+                    <input type="text" name="emailOtp" required minlength="6" maxlength="6" pattern="^[0-9]{6}$"
+                        placeholder="Enter 6-digit email OTP" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Phone OTP Input -->
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Phone OTP</label>
+                    <small style="display:block; color:#6b7280; margin-bottom:8px; font-size:13px;">
+                        Sent to: <span th:text="${phoneNumber}">+1234567890</span>
+                    </small>
+                    <input type="text" name="phoneOtp" required minlength="6" maxlength="6" pattern="^[0-9]{6}$"
+                        placeholder="Enter 6-digit phone OTP" autocomplete="off">
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="primary-btn" id="submitBtn">Verify</button>
+            <button type="submit" class="primary-btn" id="submitBtn">Verify & Continue</button>
 
-            <!-- Resend OTP -->
-            <p style="text-align:center; margin-top:20px; font-size:14px; color:#6b7280;">
-                Didn’t receive the code?
-                <a th:href="@{/resend-otp(userId=${userId})}"
-                   style="color:#667eea; font-weight:600; text-decoration:none;">
-                    Resend OTP
+            <!-- Help text -->
+            <p style="text-align:center; margin-top:20px; font-size:13px; color:#6b7280;">
+                Didn't receive the codes? Check your spam folder or
+                <a href="#" onclick="alert('Resend OTP feature coming soon'); return false;"
+                    style="color:#667eea; font-weight:600; text-decoration:none;">
+                    contact support
                 </a>
             </p>
 
         </form>
     </div>
+
+    <script>
+        // Auto-focus on first OTP input
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstInput = document.querySelector('input[name="emailOtp"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+
+        // Auto-move to next field when 6 digits entered
+        document.querySelector('input[name="emailOtp"]').addEventListener('input', function (e) {
+            if (e.target.value.length === 6) {
+                document.querySelector('input[name="phoneOtp"]').focus();
+            }
+        });
+    </script>
 
 </body>
 

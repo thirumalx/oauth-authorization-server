@@ -94,7 +94,7 @@ public class SignupController {
         };
     }
 
-    //TODO Captcha protection is need
+    // TODO Captcha protection is need
     @PostMapping("/signup")
     public String doSignup(@ModelAttribute @Valid UserResource userResource,
             BindingResult bindingResult, Model model) {
@@ -106,48 +106,15 @@ public class SignupController {
         // Set authorities based on client_id
         userResource.setAuthorities(getDefaultAuthoritiesForClient(userResource.getRegisteredClientId()));
 
-        userService.createAccount(userResource);
+        userResource = userService.createAccount(userResource);
         logger.debug("Account is created with id {}. Initiating redirect", userResource.getLoginUuid());
         // redirect to consent page, if registered client is available
         if (userResource.getRegisteredClientId() != null) {
-        	
+
         }
         return "redirect:/verify-otp?loginUuid=" + userResource.getLoginUuid();
-       // return "redirect:/login?signup=success"; // User logs in → OAuth2 flow starts automatically
+        // return "redirect:/login?signup=success"; // User logs in → OAuth2 flow starts
+        // automatically
     }
-    
-    // Verify OTP
-    
-    /** Show Verify OTP page */
-    @GetMapping("/verify-otp")
-    public String showVerifyOtpPage(@RequestParam(name = "client_id", required = false) String registeredClientId,
-            Model model) {
-        logger.debug("showSignupPage with client_id: {}", registeredClientId);
-        UserResource userResource = new UserResource();
-        // Set registered client ID from request parameter (sent by BFF/React app)
-        userResource.setRegisteredClientId(registeredClientId);
-        model.addAttribute("userResource", userResource);
-        return "signup"; // Thymeleaf template name
-    }
-    
-    @PostMapping("/verify-otp")
-    public String verifyOtp(@RequestParam String loginUuid,
-                            @RequestParam String emailOtp,
-                            @RequestParam String mobileOtp,
-                            Model model) {
-//
-//        boolean emailOk = otpService.verifyEmailOtp(loginUuid, emailOtp);
-//        boolean mobileOk = otpService.verifyMobileOtp(loginUuid, mobileOtp);
-
-//        if(!emailOk || !mobileOk){
-//            model.addAttribute("error", "Invalid OTP");
-//            return "verify-otp";
-//        }
-
-      //  userService.markVerified(loginUuid);
-
-        return "redirect:/login?verified";
-    }
-
 
 }
