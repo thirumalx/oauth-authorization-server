@@ -58,7 +58,9 @@ public class UserController {
 	 * WARNING - Don't use it for production
 	 * @param userResource
 	 * @return
+	 * @deprecated in favor of {@link SignupController#doSignup(UserResource, org.springframework.validation.BindingResult, Model)}
 	 */
+	@Deprecated(forRemoval = true)
 	@PostMapping("/create-account")
 	public UserResource createAccount(@RequestBody UserResource userResource) {
 		return userService.createAccount(userResource);

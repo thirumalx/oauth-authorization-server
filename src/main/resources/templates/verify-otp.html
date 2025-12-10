@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Verify OTP to complete your account setup">
+    <title>Verify OTP - Authorization Server</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/style/signup.css}" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="content">
+
+        <h2 class="title">Verify OTP</h2>
+
+        <!-- Info message -->
+        <p style="text-align:center; margin-top:-10px; margin-bottom:20px; color:#6b7280;">
+            Enter the 6-digit code sent to your email/phone
+        </p>
+
+        <form th:action="@{/verify-otp}" method="post" id="otpForm">
+
+            <!-- Hidden fields to carry identifier (email/phone/userId) -->
+            <input type="hidden" name="userId" th:value="${userId}">
+            <input type="hidden" name="email" th:value="${email}">
+            <input type="hidden" name="phone" th:value="${phone}">
+
+            <!-- Error Messages -->
+            <div th:if="${error}" class="error-message"
+                style="background: #fee2e2; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+                <p style="margin:0; color:#dc2626; font-size:14px;" th:text="${error}"></p>
+            </div>
+
+            <!-- OTP Input Row -->
+            <div class="form-row" style="justify-content:center;">
+                <div class="form-field" style="max-width: 250px;">
+                    <label>OTP Code</label>
+                    <input type="text" name="otp" required minlength="6" maxlength="6"
+                           pattern="^[0-9]{6}$" placeholder="Enter 6-digit OTP">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="primary-btn" id="submitBtn">Verify</button>
+
+            <!-- Resend OTP -->
+            <p style="text-align:center; margin-top:20px; font-size:14px; color:#6b7280;">
+                Didn’t receive the code?
+                <a th:href="@{/resend-otp(userId=${userId})}"
+                   style="color:#667eea; font-weight:600; text-decoration:none;">
+                    Resend OTP
+                </a>
+            </p>
+
+        </form>
+    </div>
+
+</body>
+
+</html>
