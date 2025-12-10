@@ -58,8 +58,7 @@ public class SignupController {
 
     /** Show signup page */
     @GetMapping("/signup")
-    public String showSignupPage(
-            @RequestParam(name = "client_id", required = false, defaultValue = "Thirumal") String registeredClientId,
+    public String showSignupPage(@RequestParam(name = "client_id", required = false) String registeredClientId,
             Model model) {
         logger.debug("showSignupPage with client_id: {}", registeredClientId);
         UserResource userResource = new UserResource();
@@ -99,10 +98,6 @@ public class SignupController {
     public String doSignup(@ModelAttribute @Valid UserResource userResource,
             BindingResult bindingResult, Model model) {
         logger.debug("doSignup {}", userResource);
-        // if (userService.existsByEmail(userResource.getEmail())) {
-        // bindingResult.rejectValue("email", "error.userResource", "Email already
-        // registered");
-        // }
 
         if (bindingResult.hasErrors()) {
             return "signup"; // return to form with errors
@@ -111,7 +106,11 @@ public class SignupController {
         userResource.setAuthorities(getDefaultAuthoritiesForClient(userResource.getRegisteredClientId()));
 
         userService.createAccount(userResource);
-
+        logger.debug("Account is created with id {}. Initiating redirect", userResource.getLoginUuid());
+        // redirect to consent page, if registered client is available
+        if (userResource.getRegisteredClientId() != null) {
+        	
+        }
         return "redirect:/login?signup=success"; // User logs in → OAuth2 flow starts automatically
     }
 

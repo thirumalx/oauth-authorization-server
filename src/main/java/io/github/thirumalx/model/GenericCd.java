@@ -26,6 +26,8 @@ public class GenericCd implements Serializable {
 
 	public static final Long DEFAULT_LOCALE_CD = 1L;
 	public static final String CONTACT_LOCALE = "contact_locale";
+	// Table Name
+	public static final String CONTACT_CD = "contact";
 	
 	//Declarating fields
 	private Long codeCd;

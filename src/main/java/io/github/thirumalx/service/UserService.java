@@ -106,7 +106,7 @@ public class UserService {
 	public UserResource createAccount(UserResource userResource) {
 		logger.debug("Creating new user.... {}", userResource);
 		// Validation
-		List<GenericCd> genericCds = genericCdRepository.list("contact", GenericCd.DEFAULT_LOCALE_CD);
+		List<GenericCd> genericCds = genericCdRepository.list(GenericCd.CONTACT_CD, GenericCd.DEFAULT_LOCALE_CD);
 		validateEmailAndPhoneNumber(userResource, genericCds);
 		// Login user create
 		Long loginUserId = loginUserRepository.save(LoginUser.builder().dateOfBirth(userResource.getDateOfBirth())
@@ -116,11 +116,11 @@ public class UserService {
 		if (Objects.isNull(loginUser)) {
 			throw new ResourceNotFoundException("Not able create an account, Contact support");
 		}
-		// Consent
-		oAuth2AuthorizationConsentService.save(OAuth2AuthorizationConsent
-				.withId(userResource.getRegisteredClientId(), loginUser.getLoginUuid().toString())
-				.authorities(t -> t.addAll(userResource.getAuthorities()))
-				.build());
+		// Consent should not be part of signup
+//		oAuth2AuthorizationConsentService.save(OAuth2AuthorizationConsent
+//				.withId(userResource.getRegisteredClientId(), loginUser.getLoginUuid().toString())
+//				.authorities(t -> t.addAll(userResource.getAuthorities()))
+//				.build());
 		// User Name
 		loginUserNameRepository.save(LoginUserName.builder().loginUserId(loginUserId)
 				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName())
@@ -177,8 +177,8 @@ public class UserService {
 
 	/**
 	 * Validation
-	 * - REGEX
-	 * - User Duplication
+	 * - REGEX validation for e-mail & phone number
+	 * - Contact/Login Id duplication
 	 * 
 	 * @param userResource
 	 * @param genericCds
@@ -186,20 +186,19 @@ public class UserService {
 	private void validateEmailAndPhoneNumber(UserResource userResource, List<GenericCd> genericCds) {
 		logger.debug("E-mail and phone number validation");
 		// E-mail validation
-		validateWithRegex(genericCds, Contact.EMAIL, userResource.getEmail(), "The Requested E-Mail is not vaild");
+		validateWithRegex(genericCds, Contact.EMAIL, userResource.getEmail(), "The Requested E-Mail is not vaild format");
 		// Phone Number validation
-		// validateWithRegex(genericCds, Contact.PHONE_NUMBER,
-		// userResource.getPhoneNumber(), "The Requested Phone Number is not vaild");
-		RegexValidation.isValidPhoneNumber(userResource.getPhoneNumber());
+		validateWithRegex(genericCds, Contact.PHONE_NUMBER, userResource.getPhoneNumber(), "The Requested Phone Number is not vaild format");
 		// User Duplication
 		List<Contact> contacts = contactRepository
 				.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()));
 		if (!contacts.isEmpty()) {
 			String contact = contacts.stream().map(Contact::getLoginId).collect(Collectors.joining(", "));
 			throw new BadRequestException(
-					"Account for " + contact + " is already available, please login or use forgot password");
+					"Account for " + contact + " is already available, please login (OR) use forgot password");
 		}
 	}
+	
 
 	private void validateWithRegex(List<GenericCd> genericCds, Long codeCd, String value, String errorMessage) {
 		Optional<String> regex = genericCds.stream()
