@@ -25,6 +25,9 @@ public class ForgotPasswordController {
 
     Logger logger = LoggerFactory.getLogger(ForgotPasswordController.class);
 
+    static final String OTP_FORM 			 = "showOtpForm";
+    static final String FORGOT_PASSWORD_PAGE = "forgot-password";
+    
     final UserService userService;
 
     public ForgotPasswordController(UserService userService) {
@@ -41,17 +44,15 @@ public class ForgotPasswordController {
     @GetMapping("/forgot-password")
     public String showForgotPasswordPage(@RequestParam(required = false) String loginId, Model model) {
         logger.debug("Showing forgot password page for loginId: {}", loginId);
-
         ResetPassword resetPassword = new ResetPassword();
+        boolean showOtpForm = false; // OTP form or user login details form
         if (loginId != null && !loginId.isEmpty()) {
             resetPassword.setLoginId(loginId);
-            model.addAttribute("showOtpForm", true);
-        } else {
-            model.addAttribute("showOtpForm", false);
+            showOtpForm = true;
         }
-
+        model.addAttribute(OTP_FORM, showOtpForm);
         model.addAttribute("resetPassword", resetPassword);
-        return "forgot-password";
+        return FORGOT_PASSWORD_PAGE;
     }
 
     /**
@@ -80,10 +81,10 @@ public class ForgotPasswordController {
             resetPassword.setPassword(password);
 
             model.addAttribute("resetPassword", resetPassword);
-            model.addAttribute("showOtpForm", true);
+            model.addAttribute(OTP_FORM, true);
             model.addAttribute("success", "Verification code sent to " + loginId);
 
-            return "forgot-password";
+            return FORGOT_PASSWORD_PAGE;
 
         } catch (Exception e) {
             logger.error("Failed to send OTP for: {}", loginId, e);
@@ -92,10 +93,10 @@ public class ForgotPasswordController {
             resetPassword.setLoginId(loginId);
 
             model.addAttribute("resetPassword", resetPassword);
-            model.addAttribute("showOtpForm", false);
+            model.addAttribute(OTP_FORM, false);
             model.addAttribute("error", e.getMessage());
 
-            return "forgot-password";
+            return FORGOT_PASSWORD_PAGE;
         }
     }
 
@@ -139,10 +140,10 @@ public class ForgotPasswordController {
             logger.error("Failed to reset password for: {}", resetPassword.getLoginId(), e);
 
             model.addAttribute("resetPassword", resetPassword);
-            model.addAttribute("showOtpForm", true);
+            model.addAttribute(OTP_FORM, true);
             model.addAttribute("error", e.getMessage());
 
-            return "forgot-password";
+            return FORGOT_PASSWORD_PAGE;
         }
     }
 }
