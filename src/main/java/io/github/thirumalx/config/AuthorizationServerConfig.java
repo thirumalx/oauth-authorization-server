@@ -108,9 +108,9 @@ public class AuthorizationServerConfig {
 	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
 				// Allow public access to login, signup, and static resources
-				.requestMatchers("/login", "/signup", "/style/**", "/error", "/forgot-password",
+				.requestMatchers("/login", "/signup", "/style/**", "/error", "/forgot-password/**",
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
-						"/favicon.ico", "/actuator/**", "/webjars/**")
+						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**")
 				.permitAll()
 				// Restrict /user endpoint to users with ADMIN role
 				.requestMatchers("/user/**").hasAuthority("ADMIN")

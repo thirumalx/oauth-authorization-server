@@ -94,6 +94,7 @@ public class SignupController {
         };
     }
 
+    // TODO Captcha protection is need
     @PostMapping("/signup")
     public String doSignup(@ModelAttribute @Valid UserResource userResource,
             BindingResult bindingResult, Model model) {
@@ -105,13 +106,15 @@ public class SignupController {
         // Set authorities based on client_id
         userResource.setAuthorities(getDefaultAuthoritiesForClient(userResource.getRegisteredClientId()));
 
-        userService.createAccount(userResource);
+        userResource = userService.createAccount(userResource);
         logger.debug("Account is created with id {}. Initiating redirect", userResource.getLoginUuid());
         // redirect to consent page, if registered client is available
         if (userResource.getRegisteredClientId() != null) {
-        	
+
         }
-        return "redirect:/login?signup=success"; // User logs in → OAuth2 flow starts automatically
+        return "redirect:/verify-otp?loginUuid=" + userResource.getLoginUuid();
+        // return "redirect:/login?signup=success"; // User logs in → OAuth2 flow starts
+        // automatically
     }
 
 }

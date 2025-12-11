@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Verify OTP to complete your account setup">
+    <title>Verify OTP - Authorization Server</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/style/signup.css}" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="content">
+
+        <h2 class="title">Verify Your Account</h2>
+
+        <!-- Welcome message with user's name -->
+        <p style="text-align:center; margin-top:-10px; margin-bottom:10px; color:#374151; font-weight:500;">
+            Welcome, <span th:text="${firstName}">User</span>!
+        </p>
+
+        <!-- Info message -->
+        <p style="text-align:center; margin-bottom:30px; color:#6b7280; font-size:14px;">
+            We've sent verification codes to your email and phone.<br />
+            Please enter both codes below to complete your registration.
+        </p>
+
+        <form th:action="@{/otp/verify-otp}" method="post" id="otpForm">
+
+            <!-- Hidden field for loginUuid -->
+            <input type="hidden" name="loginUuid" th:value="${loginUuid}">
+
+            <!-- Error Messages -->
+            <div th:if="${error}" class="error-message"
+                style="background: #fee2e2; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+                <p style="margin:0; color:#dc2626; font-size:14px;" th:text="${error}"></p>
+            </div>
+
+            <!-- Email OTP Input -->
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Email OTP</label>
+                    <small style="display:block; color:#6b7280; margin-bottom:8px; font-size:13px;">
+                        Sent to: <span th:text="${email}">email@example.com</span>
+                    </small>
+                    <input type="text" name="emailOtp" required minlength="6" maxlength="6" pattern="^[0-9]{6}$"
+                        placeholder="Enter 6-digit email OTP" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Phone OTP Input -->
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Phone OTP</label>
+                    <small style="display:block; color:#6b7280; margin-bottom:8px; font-size:13px;">
+                        Sent to: <span th:text="${phoneNumber}">+1234567890</span>
+                    </small>
+                    <input type="text" name="phoneOtp" required minlength="6" maxlength="6" pattern="^[0-9]{6}$"
+                        placeholder="Enter 6-digit phone OTP" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="primary-btn" id="submitBtn">Verify & Continue</button>
+
+            <!-- Help text -->
+            <p style="text-align:center; margin-top:20px; font-size:13px; color:#6b7280;">
+                Didn't receive the codes? Check your spam folder or
+                <a href="#" onclick="alert('Resend OTP feature coming soon'); return false;"
+                    style="color:#667eea; font-weight:600; text-decoration:none;">
+                    contact support
+                </a>
+            </p>
+
+        </form>
+    </div>
+
+    <script>
+        // Auto-dismiss messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.success-message, .error-message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.transition = 'opacity 0.5s ease-out';
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            });
+
+            // Auto-focus on first OTP input
+            const firstInput = document.querySelector('input[name="emailOtp"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+
+        // Auto-move to next field when 6 digits entered
+        document.querySelector('input[name="emailOtp"]').addEventListener('input', function (e) {
+            if (e.target.value.length === 6) {
+                document.querySelector('input[name="phoneOtp"]').focus();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
