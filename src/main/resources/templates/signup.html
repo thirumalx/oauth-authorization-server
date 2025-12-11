@@ -105,6 +105,20 @@
     </div>
 
     <script>
+        // Auto-dismiss messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.success-message, .error-message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.transition = 'opacity 0.5s ease-out';
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+
         const individual = document.querySelector("input[value='true']");
         const org = document.querySelector("input[value='false']");
         const dobLabel = document.getElementById("dobLabel");

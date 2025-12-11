@@ -117,10 +117,11 @@ public class UserService {
 			throw new ResourceNotFoundException("Not able create an account, Contact support");
 		}
 		// Consent should not be part of signup
-//		oAuth2AuthorizationConsentService.save(OAuth2AuthorizationConsent
-//				.withId(userResource.getRegisteredClientId(), loginUser.getLoginUuid().toString())
-//				.authorities(t -> t.addAll(userResource.getAuthorities()))
-//				.build());
+		// oAuth2AuthorizationConsentService.save(OAuth2AuthorizationConsent
+		// .withId(userResource.getRegisteredClientId(),
+		// loginUser.getLoginUuid().toString())
+		// .authorities(t -> t.addAll(userResource.getAuthorities()))
+		// .build());
 		// User Name
 		loginUserNameRepository.save(LoginUserName.builder().loginUserId(loginUserId)
 				.firstName(userResource.getFirstName()).middleName(userResource.getMiddleName())
@@ -186,9 +187,11 @@ public class UserService {
 	private void validateEmailAndPhoneNumber(UserResource userResource, List<GenericCd> genericCds) {
 		logger.debug("E-mail and phone number validation");
 		// E-mail validation
-		validateWithRegex(genericCds, Contact.EMAIL, userResource.getEmail(), "The Requested E-Mail is not vaild format");
+		validateWithRegex(genericCds, Contact.EMAIL, userResource.getEmail(),
+				"The Requested E-Mail is not vaild format");
 		// Phone Number validation
-		validateWithRegex(genericCds, Contact.PHONE_NUMBER, userResource.getPhoneNumber(), "The Requested Phone Number is not vaild format");
+		validateWithRegex(genericCds, Contact.PHONE_NUMBER, userResource.getPhoneNumber(),
+				"The Requested Phone Number is not vaild format");
 		// User Duplication
 		List<Contact> contacts = contactRepository
 				.findByLoginId(Set.of(userResource.getEmail(), userResource.getPhoneNumber()));
@@ -198,7 +201,6 @@ public class UserService {
 					"Account for " + contact + " is already available, please login (OR) use forgot password");
 		}
 	}
-	
 
 	private void validateWithRegex(List<GenericCd> genericCds, Long codeCd, String value, String errorMessage) {
 		Optional<String> regex = genericCds.stream()
@@ -451,9 +453,11 @@ public class UserService {
 		if (contact.getVerifiedOn() == null) { // Verify the contact
 			contactRepository.verify(contact.getContactId());
 		}
-		messageServiceClient.send(new Email(emailSender, Set.of(contact.getLoginId()), Email.RESET_PASSWORD_SUCCESS_FTL,
-				Map.of("name", loginUserName.getFirstName()), "Your password has been successfully reset",
-				contact.getLoginUserId()));
+		// messageServiceClient.send(new Email(emailSender,
+		// Set.of(contact.getLoginId()), Email.RESET_PASSWORD_SUCCESS_FTL,
+		// Map.of("name", loginUserName.getFirstName()), "Your password has been
+		// successfully reset",
+		// contact.getLoginUserId()));
 		return true;
 
 	}
