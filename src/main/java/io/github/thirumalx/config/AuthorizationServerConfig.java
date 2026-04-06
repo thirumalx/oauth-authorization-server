@@ -105,23 +105,32 @@ public class AuthorizationServerConfig {
 	 */
 	@Bean
 	@Order(2)
-	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http, 
+			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
 				// Allow public access to login, signup, and static resources
-				.requestMatchers("/login", "/signup", "/style/**", "/error", "/forgot-password/**",
+				.requestMatchers("/login", "/signup", "/index.html", "/assets/**", "/vite.svg",
+						"/style/**", "/error", "/forgot-password/**",
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
-						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**")
+						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**", "/otp/**")
 				.permitAll()
 				// Restrict /user endpoint to users with ADMIN role
-				.requestMatchers("/user/**").hasAuthority("ADMIN")
+				.requestMatchers("/user", "/user/**").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers("/login", "/signup", "/otp/**") // Allow initial post for login/signup/otp
+				// For SPA, it's better to use CookieCsrfTokenRepository
+				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+				)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				// Form login handles the redirect to the login page from the
 				// authorization server filter chain
 				.formLogin(form -> form
 						.loginPage("/login") // Custom login page
+						.successHandler(customAuthenticationSuccessHandler)
 						.permitAll())
 				.logout(logout -> logout
+						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/logout", "GET"))
 						.logoutSuccessUrl("/login?logout")
 						.permitAll())
 				.requestCache(requestCache -> {
@@ -172,6 +181,9 @@ public class AuthorizationServerConfig {
 		http
 				.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
 				.with(authorizationServerConfigurer, authorizationServer -> authorizationServer
+						.authorizationEndpoint(authorizationEndpoint ->
+								authorizationEndpoint.consentPage("/oauth2/consent")
+						)
 						.oidc(Customizer.withDefaults()) // Enable OpenID Connect 1.0
 				)
 				.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
@@ -248,8 +260,8 @@ public class AuthorizationServerConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
 		corsConfiguration.setAllowCredentials(true); // important for cookies/session
 		corsConfiguration.setMaxAge(3600L); // 1 hour
