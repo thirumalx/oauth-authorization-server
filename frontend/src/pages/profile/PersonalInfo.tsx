@@ -1,14 +1,38 @@
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { UserCircle, Mail, Key, Shield, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
+import {
+    UserCircle, Mail, Key, Shield, RefreshCw, AlertCircle,
+    User, Calendar, Building2, Globe, MapPin, Languages,
+    BadgeCheck, Fingerprint, ShieldCheck, Edit3, X, Save
+} from 'lucide-react';
 
 interface ProfileContext {
     profile: Record<string, any> | null;
     loading: boolean;
     error: string;
+    refreshProfile: () => Promise<void>;
 }
 
 export default function PersonalInfo() {
-    const { profile, loading, error } = useOutletContext<ProfileContext>();
+    const { profile, loading, error, refreshProfile } = useOutletContext<ProfileContext>();
+    const [isEditing, setIsEditing] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [formData, setFormData] = useState<Record<string, any>>({});
+
+    // Load extended fields from localStorage and sync with profile
+    useEffect(() => {
+        if (profile) {
+            const savedData = localStorage.getItem(`profile_ext_${profile.loginUuid || 'default'}`);
+            const extended = savedData ? JSON.parse(savedData) : {};
+            
+            setFormData({
+                ...profile,
+                ...extended,
+                // Ensure date is formatted for input[type="date"]
+                dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : ''
+            });
+        }
+    }, [profile, isEditing]);
 
     if (loading) {
         return (
@@ -38,88 +62,224 @@ export default function PersonalInfo() {
 
     if (!profile) return null;
 
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            // 1. Save core fields to backend
+            const backendData = {
+                loginUuid: profile.loginUuid,
+                firstName: formData.firstName,
+                middleName: formData.middleName,
+                lastName: formData.lastName,
+                dateOfBirth: formData.dateOfBirth ? `${formData.dateOfBirth}T00:00:00Z` : null,
+                individual: formData.individual === true || formData.individual === 'true'
+            };
+
+            const response = await fetch('/user/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(backendData)
+            });
+
+            if (!response.ok) throw new Error('Failed to update core identity');
+
+            // 2. Save extended fields to localStorage
+            const extendedFields = {
+                gender: formData.gender,
+                language: formData.language,
+                country: formData.country,
+                state: formData.state,
+                address: formData.address
+            };
+            localStorage.setItem(`profile_ext_${profile.loginUuid}`, JSON.stringify(extendedFields));
+
+            await refreshProfile();
+            setIsEditing(false);
+        } catch (err) {
+            console.error(err);
+            alert('Update failed. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const InfoItem = ({ icon: Icon, label, value, subValue, field, type = "text" }: { icon: any, label: string, value: any, subValue?: string, field?: string, type?: string }) => (
+        <div className="rounded-2xl bg-slate-50/50 p-4 border border-slate-100/80 transition-all hover:bg-white hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 group flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-3 mb-2">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">{label}</p>
+                <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center border border-slate-100 shadow-sm transition-transform group-hover:rotate-6">
+                    <Icon className="w-3.5 h-3.5 text-indigo-500" />
+                </div>
+            </div>
+            
+            {isEditing && field ? (
+                <div className="space-y-1">
+                    {type === "select" ? (
+                        <select 
+                            value={String(formData[field] ?? '')} 
+                            onChange={(e) => setFormData({...formData, [field]: e.target.value})}
+                            className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 transition-colors"
+                        >
+                            <option value="">Select...</option>
+                            {field === 'individual' ? (
+                                <>
+                                    <option value="true">Individual</option>
+                                    <option value="false">Corporate</option>
+                                </>
+                            ) : null}
+                            {field === 'gender' ? (
+                                <>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </>
+                            ) : null}
+                        </select>
+                    ) : (
+                        <input 
+                            type={type}
+                            value={formData[field] ?? ''}
+                            onChange={(e) => setFormData({...formData, [field]: e.target.value})}
+                            className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 transition-colors"
+                            placeholder={`Enter ${label.toLowerCase()}...`}
+                        />
+                    )}
+                </div>
+            ) : (
+                <div className="bg-white/60 p-2.5 rounded-xl border border-slate-50 group-hover:bg-indigo-50/20 group-hover:border-indigo-50 transition-colors">
+                    <p className="text-[13px] font-black text-slate-900 break-words leading-tight">
+                        {field ? (field === 'individual' ? (profile.individual ? 'Individual' : 'Corporate') : (field.includes('Date') && value ? new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : (formData[field] || profile[field] || 'Not Specified'))) : (value || 'Not Specified')}
+                    </p>
+                    {subValue && <p className="text-[8px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">{subValue}</p>}
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <div className="grid gap-12 lg:grid-cols-5 animate-fade-in">
-            {/* Primary Info Card */}
-            <div className="lg:col-span-2 space-y-8">
-                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-10 space-y-10 shadow-2xl shadow-slate-200/40 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
-                        <UserCircle className="w-64 h-64" />
-                    </div>
-                    
-                    <div className="space-y-6 relative">
-                        <div className="flex items-center gap-4">
-                            <div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-3.5">
-                                <Key className="w-6 h-6 text-indigo-600" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Primary Subject</p>
-                                <p className="font-black text-slate-900 text-xl tracking-tighter">{profile.sub || profile.user_name || 'N/A'}</p>
-                            </div>
+        <div className="space-y-6 animate-fade-in pb-12">
+            {/* Identity Header Banner */}
+            <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
+                    <Fingerprint className="w-72 h-72 rotate-12" />
+                </div>
+                
+                <div className="flex flex-col md:flex-row items-center gap-8 relative">
+                    <div className="relative group/avatar">
+                        <div className="absolute inset-0 bg-indigo-600 blur-2xl opacity-10 group-hover/avatar:opacity-20 transition-opacity" />
+                        <div className="w-32 h-32 rounded-3xl bg-indigo-600 flex items-center justify-center text-white text-4xl font-black shadow-2xl shadow-indigo-200 relative transform transition-transform group-hover/avatar:scale-105 active:scale-95 cursor-default">
+                            {profile.firstName?.[0]}{profile.lastName?.[0] || 'U'}
                         </div>
-
-                        <div className="space-y-6 pt-6 border-t border-slate-50">
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Display Identifier</p>
-                                <p className="font-black text-slate-900 text-2xl tracking-tight leading-none">{profile.name || profile.preferred_username || 'N/A'}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Communication Channel</p>
-                                <p className="font-black text-indigo-600 text-lg flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-                                    <Mail className="w-5 h-5" />
-                                    {profile.email || 'N/A'}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Issuing Authority</p>
-                                <p className="font-bold text-slate-500 text-xs italic bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">{profile.iss || 'Local Authorization Server'}</p>
-                            </div>
+                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-white border-4 border-white shadow-xl flex items-center justify-center">
+                            <BadgeCheck className="w-6 h-6 text-emerald-500" />
                         </div>
                     </div>
 
-                    <div className="p-6 bg-slate-900 rounded-3xl text-white space-y-4 shadow-2xl shadow-slate-900/20">
-                        <h4 className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2">
-                            <Shield className="w-4 h-4 text-indigo-400" />
-                            Trust Level
-                        </h4>
-                        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500 w-full" />
+                    <div className="text-center md:text-left space-y-4 flex-1">
+                        <div className="space-y-1">
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+                                {profile.firstName} {profile.middleName} {profile.lastName}
+                            </h1>
+                            <p className="text-indigo-600 font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center md:justify-start gap-2 px-1">
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                                Persistent Digital Identity
+                            </p>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified Identity • High Assurance</p>
+                        
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                            <div className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
+                                <Mail className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="text-xs font-bold text-slate-600">{profile.email || 'N/A'}</span>
+                            </div>
+                            <div className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
+                                <Key className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="text-[10px] font-black text-slate-500 font-mono tracking-tighter">{profile.sub || profile.user_name || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <button 
+                            onClick={() => setIsEditing(!isEditing)}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl ${isEditing ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+                        >
+                            {isEditing ? <><X className="w-4 h-4" /> Cancel</> : <><Edit3 className="w-4 h-4" /> Edit Profile</>}
+                        </button>
+                        {isEditing && (
+                            <button 
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-100 disabled:opacity-50"
+                            >
+                                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save Changes</>}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Claims Explorer */}
-            <div className="lg:col-span-3">
-                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-10 shadow-2xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
-                    <div className="flex items-center justify-between border-b border-slate-50 pb-8">
-                        <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                            <span className="w-2 h-8 bg-indigo-600 rounded-full" />
-                            Identity Claims
-                        </h2>
-                        <span className="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {Object.keys(profile).length} assertions
-                        </span>
-                    </div>
-                    
-                    <div className="grid gap-6 md:grid-cols-2">
-                        {Object.entries(profile).map(([key, value]) => (
-                            <div key={key} className="rounded-3xl bg-slate-50 p-6 border border-slate-100 transition-all hover:bg-white hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 group">
-                                <div className="flex items-center justify-between gap-4 mb-4">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-indigo-600 transition-colors uppercase tracking-widest">{key}</p>
-                                    <div className="w-6 h-6 rounded-xl bg-white flex items-center justify-center border border-slate-200 shadow-sm transition-transform group-hover:rotate-12">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                    </div>
-                                </div>
-                                <div className="bg-white/80 p-3.5 rounded-2xl border border-slate-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-50 transition-colors">
-                                    <code className="text-xs font-black text-slate-900 break-words line-clamp-2">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</code>
-                                </div>
+            <div className="space-y-6">
+                {/* Identity & Type Card */}
+                <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                        <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                            <span className="w-1.5 h-5 bg-indigo-600 rounded-full" />
+                            Personal Characteristics
+                        </h3>
+                        {/* Status indicators in view mode */}
+                        {!isEditing && (
+                            <div className="flex gap-2">
+                                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[9px] font-black uppercase tracking-widest">Active</span>
+                                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full text-[9px] font-black uppercase tracking-widest">High assurance</span>
                             </div>
-                        ))}
+                        )}
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <InfoItem icon={User} label="First Name" field="firstName" value={profile.firstName} />
+                        <InfoItem icon={User} label="Middle Name" field="middleName" value={profile.middleName} />
+                        <InfoItem icon={User} label="Last Name" field="lastName" value={profile.lastName} />
+                        <InfoItem 
+                            icon={Building2} 
+                            label="Entity Type" 
+                            field="individual"
+                            type="select"
+                            value={profile.individual}
+                            subValue={profile.individual === true ? 'NATURAL PERSON' : 'LEGAL ENTITY'}
+                        />
+                        <InfoItem 
+                            icon={Calendar} 
+                            label="DOB / Incorporation" 
+                            field="dateOfBirth"
+                            type="date"
+                            value={profile.dateOfBirth} 
+                        />
+                        <InfoItem icon={UserCircle} label="Gender" field="gender" type="select" value={formData.gender} />
+                    </div>
+                </div>
+
+                {/* Localization & Residence Card */}
+                <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                        <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                            <span className="w-1.5 h-5 bg-indigo-500 rounded-full" />
+                            Regional Context
+                        </h3>
+                        <Globe className="w-3.5 h-3.5 text-slate-300" />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <InfoItem icon={Languages} label="Preferred Language" field="language" value={formData.language} />
+                        <InfoItem icon={Globe} label="Country" field="country" value={formData.country} />
+                        <InfoItem icon={MapPin} label="State / Province" field="state" value={formData.state} />
+                        <div className="sm:col-span-2 lg:col-span-1">
+                            <InfoItem icon={MapPin} label="Physical Address" field="address" value={formData.address} />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+

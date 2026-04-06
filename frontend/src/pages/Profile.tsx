@@ -9,28 +9,28 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        async function loadProfile() {
-            try {
-                const response = await fetch('/profile/personal-info/', {
-                    headers: {
-                        Accept: 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to load profile: ${response.status}`);
+    const loadProfile = async () => {
+        try {
+            const response = await fetch('/profile/personal-info/', {
+                headers: {
+                    Accept: 'application/json'
                 }
+            });
 
-                const data = await response.json();
-                setProfile(data);
-            } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : 'Unable to load profile');
-            } finally {
-                setLoading(false);
+            if (!response.ok) {
+                throw new Error(`Failed to load profile: ${response.status}`);
             }
-        }
 
+            const data = await response.json();
+            setProfile(data);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Unable to load profile');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadProfile();
     }, []);
 
@@ -58,7 +58,7 @@ export default function Profile() {
 
                         {/* Content Area */}
                         <div className="flex-1 w-full lg:min-w-0">
-                            <Outlet context={{ profile, loading, error }} />
+                            <Outlet context={{ profile, loading, error, refreshProfile: loadProfile }} />
                         </div>
                     </div>
                 </div>

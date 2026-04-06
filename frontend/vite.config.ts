@@ -14,8 +14,8 @@ const redirectInterceptor = {
                 if (location && location.includes(backendUrl)) {
                     proxyRes.headers['location'] = location.replace(backendUrl, 'http://localhost:5173');
                 } else if (location && location.startsWith('/')) {
-                   // If the backend returns a relative redirect, we don't need to rewrite the domain,
-                   // but we ensure it's tracked if necessary. The browser will handle it natively relative to 5173.
+                    // If the backend returns a relative redirect, we don't need to rewrite the domain,
+                    // but we ensure it's tracked if necessary. The browser will handle it natively relative to 5173.
                 }
             }
         });
@@ -39,6 +39,18 @@ export default defineConfig({
             '/oauth2/token': redirectInterceptor,
             '/oauth2/jwks': redirectInterceptor,
             '/oauth2/introspect': redirectInterceptor,
+            '/profile': {
+                ...redirectInterceptor,
+                bypass: (req: any) => {
+                    if (req.method === 'GET' && req.headers.accept?.includes('text/html')) {
+                        const path = req.url?.split('?')[0] || '';
+                        if (path === '/profile' || path === '/profile/' || path.startsWith('/profile/')) {
+                            return '/index.html';
+                        }
+                    }
+                    return undefined;
+                }
+            },
             '/login': {
                 ...redirectInterceptor,
                 bypass: (req: any) => req.method === 'GET' ? '/index.html' : undefined

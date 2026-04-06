@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Shield, Home, User as UserIcon, Code, Mail, LogOut, X, Github, Linkedin, Globe } from 'lucide-react';
 
 export default function Navbar() {
@@ -34,18 +35,18 @@ export default function Navbar() {
         <>
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 shadow-sm">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <a href="/user" className="flex items-center gap-3 group">
+                    <Link to="/user" className="flex items-center gap-3 group">
                         <div className="p-2 bg-indigo-600 rounded-lg shadow-md shadow-indigo-200 group-hover:scale-110 transition-transform">
                             <Shield className="w-6 h-6 text-white" />
                         </div>
                         <span className="text-xl font-extrabold tracking-tight text-slate-900">Auth Server</span>
-                    </a>
+                    </Link>
 
                     <div className="hidden md:flex items-center gap-1">
-                        <a href="/user" className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
+                        <Link to="/user" className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
                             <Home className="w-4 h-4" />
                             Home
-                        </a>
+                        </Link>
                         <button onClick={() => setIsAboutOpen(true)} className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
                             <UserIcon className="w-4 h-4" />
                             About
@@ -62,9 +63,9 @@ export default function Navbar() {
                         <div className="w-px h-6 bg-slate-200 mx-2" />
 
                         <div className="flex items-center gap-2">
-                            <a href="/profile" title="Profile" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                            <Link to="/profile/personal-info" title="Profile" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
                                 <UserIcon className="w-5 h-5" />
-                            </a>
+                            </Link>
                             <a href="/logout" className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-red-500 hover:bg-red-50 hover:border-red-100 rounded-xl transition-all shadow-sm">
                                 <LogOut className="w-4 h-4" />
                                 <span className="text-sm font-bold">Logout</span>
@@ -127,3 +128,4 @@ export default function Navbar() {
         </>
     );
 }
+
