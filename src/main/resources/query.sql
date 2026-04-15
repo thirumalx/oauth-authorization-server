@@ -8,6 +8,8 @@ Contact.getByLoginUserId=${Contact} login_user_id = ? ORDER BY contact_id DESC L
 Contact.listByLoginUserId=${Contact} login_user_id = ? AND end_time = 'infinity'
 Contact.listByLoginId=${Contact} login_id = ? AND end_time = 'infinity'
 Contact.listInLoginId=${Contact} login_id IN (?) AND end_time = 'infinity'
+Contact.delete=UPDATE public.contact SET end_time = now() WHERE contact_id = ?
+Contact.update=UPDATE public.contact SET login_id = ?, verified_on = NULL WHERE contact_id = ?
 #-- Login User
 LoginUser = SELECT * FROM public.login_user 
 LoginUser.create=INSERT INTO public.login_user(login_uuid, date_of_birth, individual) VALUES (?, ?, ?)

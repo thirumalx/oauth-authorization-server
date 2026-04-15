@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Home, User as UserIcon, Code, Mail, LogOut, X, Github, Linkedin, Globe } from 'lucide-react';
+import { Shield, Home, User as UserIcon, Code, Mail, LogOut, X, Github, Linkedin, Globe, Phone } from 'lucide-react';
 
 export default function Navbar() {
-    const [isAboutOpen, setIsAboutOpen] = useState(false);
     const [isServicesOpen, setIsServicesOpen] = useState(false);
     const [isContactOpen, setIsContactOpen] = useState(false);
 
@@ -47,10 +46,6 @@ export default function Navbar() {
                             <Home className="w-4 h-4" />
                             Home
                         </Link>
-                        <button onClick={() => setIsAboutOpen(true)} className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
-                            <UserIcon className="w-4 h-4" />
-                            About
-                        </button>
                         <button onClick={() => setIsServicesOpen(true)} className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
                             <Code className="w-4 h-4" />
                             Services
@@ -75,23 +70,6 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* About Modal */}
-            <Modal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} title="About Thirumal" icon={UserIcon} colorClass="text-indigo-600">
-                <div className="flex flex-col md:flex-row gap-8">
-                    <img src="https://avatars.githubusercontent.com/u/12644168?v=4" className="w-32 h-32 rounded-3xl border-2 border-indigo-500/20" alt="Thirumal" />
-                    <div className="space-y-4">
-                        <div>
-                            <h4 className="text-2xl font-bold">Thirumal</h4>
-                            <p className="text-slate-400 font-medium italic">Full Stack Developer | OAuth2 Specialist</p>
-                        </div>
-                        <div className="space-y-2 text-slate-300">
-                            <p>Building secure, scalable authorization systems using Spring Boot and modern architectures.</p>
-                            <p className="flex items-center gap-2"><Shield className="w-4 h-4 text-indigo-400" /> Specialist in Spring Security & OAuth2.1</p>
-                        </div>
-                    </div>
-                </div>
-            </Modal>
-
             {/* Services Modal */}
             <Modal isOpen={isServicesOpen} onClose={() => setIsServicesOpen(false)} title="Projects & Services" icon={Code} colorClass="text-emerald-600">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -110,7 +88,8 @@ export default function Navbar() {
 
             {/* Contact Modal */}
             <Modal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} title="Get in Touch" icon={Mail} colorClass="text-pink-600">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <p>Developed by Thirumal M</p>
+                <div className="grid grid-cols-4 md:grid-cols-2 gap-2">
                     <a href="https://github.com/thirumalx" target="_blank" className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all">
                         <Github className="w-6 h-6 text-slate-800" />
                         <div><p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">GitHub</p><p className="font-bold text-slate-900">@thirumalx</p></div>
@@ -122,6 +101,14 @@ export default function Navbar() {
                     <a href="https://thirumalx.github.io" target="_blank" className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all col-span-full">
                         <Globe className="w-6 h-6 text-emerald-600" />
                         <div><p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Portfolio</p><p className="font-bold text-slate-900">thirumalx.github.io</p></div>
+                    </a>
+                    <a href="mailto:[racetortoise@gmail.com]" target="_blank" className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all col-span-full">
+                        <Mail className="w-6 h-6 text-pink-600" />
+                        <div><p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Email</p><p className="font-bold text-slate-900">[racetortoise@gmail.com]</p></div>
+                    </a>
+                    <a href="tel:+918973697871" className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all col-span-full">
+                        <Phone className="w-6 h-6 text-pink-600" />
+                        <div><p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Call me</p><p className="font-bold text-slate-900">[+91-8973697871]</p></div>
                     </a>
                 </div>
             </Modal>

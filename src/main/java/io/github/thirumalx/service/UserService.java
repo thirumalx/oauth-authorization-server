@@ -229,6 +229,25 @@ public class UserService {
 		return buildUserResource(loginUser, loginUserName, contacts, password);
 	}
 
+	/**
+	 * List of contact (i.e email, phone number)
+	 * 
+	 * @param loginUuid
+	 * @param contactCd
+	 * @return
+	 */
+	public List<String> getContact(UUID loginUuid, Long contactCd) {
+		logger.debug("Getting the user {}", loginUuid);
+		LoginUser loginUser = loginUserRepository.findByUuid(loginUuid);
+		if (Objects.isNull(loginUser)) {
+			throw new ResourceNotFoundException("The requested user " + loginUuid + " is not available");
+		}
+		// Contact
+		List<Contact> contacts = contactRepository.findAllByLoginUserId(loginUser.getLoginUserId());
+		return contacts.stream().filter(c -> contactCd.equals(c.getContactCd())).map(Contact::getLoginId)
+				.collect(Collectors.toList());
+	}
+
 	private UserResource get(Long loginUserId) {
 		LoginUser loginUser = loginUserRepository.findById(loginUserId);
 		if (Objects.isNull(loginUser)) {
