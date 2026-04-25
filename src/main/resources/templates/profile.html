@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Profile - Authorization Server</title>
+    <link th:rel="stylesheet" th:href="@{/style/profile.css}" />
+    <link th:rel="stylesheet" th:href="@{webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}" />
+</head>
+
+<body>
+    <div class="profile-container">
+        <nav class="side-nav">
+            <ul>
+                <li><a href="#profile-section">Profile</a></li>
+                <li><a href="#security-section">Security</a></li>
+                <li><a href="#login-history-section">Login History</a></li>
+                <li><a href="#settings-section">Settings</a></li>
+            </ul>
+        </nav>
+        <main class="main-content">
+            <!-- Profile Section -->
+            <section id="profile-section" class="section">
+                <h2>Profile</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Your name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select class="form-control" id="gender">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" class="form-control" id="country" placeholder="Country" />
+                    </div>
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <input type="text" class="form-control" id="language" placeholder="Preferred language" />
+                    </div>
+                    <div class="form-group">
+                        <label for="timezone">Timezone</label>
+                        <input type="text" class="form-control" id="timezone" placeholder="Timezone" />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Email address" />
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Phone</label>
+                        <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone" />
+                    </div>
+                </form>
+            </section>
+            <!-- Security Section -->
+            <section id="security-section" class="section">
+                <h2>Security</h2>
+                <button class="btn btn-primary mb-2">Change Password</button>
+                <button class="btn btn-secondary mb-2">Multi‑Factor Authentication</button>
+            </section>
+            <!-- Login History Section -->
+            <section id="login-history-section" class="section">
+                <h2>Login History</h2>
+                <p>Recent login activity will be displayed here.</p>
+            </section>
+            <!-- Settings Section -->
+            <section id="settings-section" class="section">
+                <h2>Settings</h2>
+                <div class="form-group">
+                    <label for="theme-select">Theme</label>
+                    <select class="form-control" id="theme-select">
+                        <option>Light</option>
+                        <option>Dark</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date-format">Date Format</label>
+                    <select class="form-control" id="date-format">
+                        <option>MM/dd/yyyy</option>
+                        <option>dd/MM/yyyy</option>
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="notifications" />
+                    <label class="form-check-label" for="notifications">Enable Notifications</label>
+                </div>
+                <div class="mt-3">
+                    <h5>Linked Apps</h5>
+                    <p>Connected applications will be listed here.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

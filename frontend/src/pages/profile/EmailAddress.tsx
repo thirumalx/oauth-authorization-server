@@ -121,33 +121,25 @@ export default function EmailAddress() {
     return (
         <div className="space-y-6 animate-fade-in pb-12">
             {/* Header Card */}
-            <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
-                    <Mail className="w-72 h-72 rotate-12" />
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center gap-8 relative">
-                    <div className="w-24 h-24 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner relative">
-                        <Mail className="w-10 h-10" />
-                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center">
-                            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+                <div className="flex items-center gap-3 relative">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 relative">
+                        <Mail className="w-4 h-4" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center">
+                            <ShieldCheck className="w-2.5 h-2.5 text-emerald-500" />
                         </div>
                     </div>
-
-                    <div className="text-center md:text-left space-y-2 flex-1">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                            Email Addresses
-                        </h1>
-                        <p className="text-slate-500 font-bold text-sm max-w-md">
-                            Manage your authenticated email addresses for system notifications, account recovery, and cryptographic identity verification.
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-sm font-black text-slate-900 tracking-tight">Email Addresses</h1>
+                        <p className="text-[10px] font-bold text-slate-400 mt-0.5 leading-snug truncate">
+                            Manage your email addresses for notifications, recovery and identity verification.
                         </p>
                     </div>
-
-                    <button 
+                    <button
                         onClick={() => setIsAdding(!isAdding)}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl ${isAdding ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shrink-0 ${isAdding ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-100'}`}
                     >
-                        {isAdding ? <><X className="w-4 h-4" /> Cancel</> : <><Plus className="w-4 h-4" /> Add Email</>}
+                        {isAdding ? <><X className="w-3 h-3" /> Cancel</> : <><Plus className="w-3 h-3" /> Add Email</>}
                     </button>
                 </div>
             </div>

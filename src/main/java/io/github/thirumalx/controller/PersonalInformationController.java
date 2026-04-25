@@ -1,10 +1,12 @@
 package io.github.thirumalx.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,6 +64,27 @@ public class PersonalInformationController {
     @GetMapping("/phone-number")
     public ResponseEntity<List<String>> getPhoneNumber() {
         return ResponseEntity.ok(personalInformationService.getContact(Contact.PHONE_NUMBER));
+    }
+
+    /**
+     * Step 1 of password change: request OTP.
+     * The user is already authenticated — no loginId needed from the client.
+     * Body: { "password": "<new-password>" }
+     */
+    @PatchMapping("/change-password/request-otp")
+    public ResponseEntity<Map<String, Object>> requestPasswordChangeOtp(@RequestBody Map<String, String> body) {
+        boolean sent = personalInformationService.requestPasswordChangeOtp(body.get("password"));
+        return ResponseEntity.ok(Map.of("sent", sent));
+    }
+
+    /**
+     * Step 2 of password change: verify OTP and apply new password.
+     * Body: { "otp": "123456", "password": "<new-password>" }
+     */
+    @PatchMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> body) {
+        boolean changed = personalInformationService.changePassword(body.get("otp"), body.get("password"));
+        return ResponseEntity.ok(Map.of("changed", changed));
     }
 
 }

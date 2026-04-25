@@ -1,6 +1,7 @@
 package io.github.thirumalx.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import io.github.thirumalx.exception.UnAuthorizedException;
 import io.github.thirumalx.model.Contact;
 import io.github.thirumalx.model.ContactResource;
 import io.github.thirumalx.model.LoginUser;
+import io.github.thirumalx.model.ResetPassword;
 import io.github.thirumalx.model.UserResource;
 import io.github.thirumalx.repository.ContactRepository;
 import io.github.thirumalx.repository.LoginUserRepository;
@@ -73,6 +75,39 @@ public class PersonalInformationService {
                 .filter(c -> contactCd.equals(c.getContactCd()))
                 .map(this::mapToResource)
                 .toList();
+    }
+
+    /**
+     * Request OTP to verify identity before changing password.
+     * The loginId is resolved from the Spring Security context — no need to send it from the client.
+     *
+     * @param password the new password to validate against history
+     */
+    public boolean requestPasswordChangeOtp(String password) {
+        logger.debug("Requesting password-change OTP for current user");
+        UserResource user = getPersonalInfo();
+        String loginId = user.getEmail() != null ? user.getEmail() : user.getPhoneNumber();
+        if (loginId == null) {
+            throw new ResourceNotFoundException("No login ID (email/phone) found for the current user");
+        }
+        return userService.requestOtp(Map.of("loginId", loginId, "password", password), "reset-password");
+    }
+
+    /**
+     * Change password after OTP verification.
+     * The loginId is resolved from the Spring Security context.
+     *
+     * @param otp      the OTP received by the user
+     * @param password the new password
+     */
+    public boolean changePassword(String otp, String password) {
+        logger.debug("Changing password for current user");
+        UserResource user = getPersonalInfo();
+        String loginId = user.getEmail() != null ? user.getEmail() : user.getPhoneNumber();
+        if (loginId == null) {
+            throw new ResourceNotFoundException("No login ID (email/phone) found for the current user");
+        }
+        return userService.resetPassword(new ResetPassword(loginId, password, otp));
     }
 
     public void addEmail(String email) {

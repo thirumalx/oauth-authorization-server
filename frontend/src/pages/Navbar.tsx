@@ -58,8 +58,8 @@ export default function Navbar() {
                         <div className="w-px h-6 bg-slate-200 mx-2" />
 
                         <div className="flex items-center gap-2">
-                            <Link to="/profile/personal-info" title="Profile" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
-                                <UserIcon className="w-5 h-5" />
+                            <Link to="/profile/personal-info" title="Profile" className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-bold text-sm">
+                                <UserIcon className="w-5 h-5" /> My Profile
                             </Link>
                             <a href="/logout" className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-red-500 hover:bg-red-50 hover:border-red-100 rounded-xl transition-all shadow-sm group">
                                 <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

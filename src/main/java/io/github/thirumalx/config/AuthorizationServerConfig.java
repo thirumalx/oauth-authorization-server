@@ -105,8 +105,9 @@ public class AuthorizationServerConfig {
 	 */
 	@Bean
 	@Order(2)
-	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http, 
-			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
+	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http,
+			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler)
+			throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
 				// Allow public access to login, signup, and static resources
 				.requestMatchers("/login", "/signup", "/index.html", "/assets/**", "/vite.svg",
@@ -114,11 +115,17 @@ public class AuthorizationServerConfig {
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
 						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**", "/otp/**")
 				.permitAll()
+				// Allow unauthenticated access to forgot-password REST endpoints
+				.requestMatchers("/user/request-otp", "/user/reset-password").permitAll()
 				// Restrict /user endpoint to users with ADMIN role
 				.requestMatchers("/user", "/user/**").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
 				.csrf(csrf -> csrf
-						.ignoringRequestMatchers("/login", "/signup", "/otp/**") // Allow initial post for login/signup/otp
+						// Allow unauthenticated/SPA calls for login, signup, otp, and forgot-password
+						// REST endpoints
+						.ignoringRequestMatchers("/login", "/signup", "/otp/**",
+								"/user/request-otp", "/user/reset-password",
+								"/profile/change-password/**")
 				// For SPA, it's better to use CookieCsrfTokenRepository
 				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				)
@@ -130,7 +137,8 @@ public class AuthorizationServerConfig {
 						.successHandler(customAuthenticationSuccessHandler)
 						.permitAll())
 				.logout(logout -> logout
-						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/logout", "GET"))
+						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
+								"/logout", "GET"))
 						.logoutSuccessUrl("/login?logout")
 						.permitAll())
 				.requestCache(requestCache -> {
@@ -181,9 +189,8 @@ public class AuthorizationServerConfig {
 		http
 				.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
 				.with(authorizationServerConfigurer, authorizationServer -> authorizationServer
-						.authorizationEndpoint(authorizationEndpoint ->
-								authorizationEndpoint.consentPage("/oauth2/consent")
-						)
+						.authorizationEndpoint(
+								authorizationEndpoint -> authorizationEndpoint.consentPage("/oauth2/consent"))
 						.oidc(Customizer.withDefaults()) // Enable OpenID Connect 1.0
 				)
 				.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
