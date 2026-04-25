@@ -160,59 +160,51 @@ export default function PersonalInfo() {
     return (
         <div className="space-y-6 animate-fade-in pb-12">
             {/* Identity Header Banner */}
-            <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
-                    <Fingerprint className="w-72 h-72 rotate-12" />
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center gap-8 relative">
-                    <div className="relative group/avatar">
-                        <div className="absolute inset-0 bg-indigo-600 blur-2xl opacity-10 group-hover/avatar:opacity-20 transition-opacity" />
-                        <div className="w-32 h-32 rounded-3xl bg-indigo-600 flex items-center justify-center text-white text-4xl font-black shadow-2xl shadow-indigo-200 relative transform transition-transform group-hover/avatar:scale-105 active:scale-95 cursor-default">
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+                <div className="flex items-center gap-4 relative">
+                    {/* Avatar */}
+                    <div className="relative shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-200">
                             {profile.firstName?.[0]}{profile.lastName?.[0] || 'U'}
                         </div>
-                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-white border-4 border-white shadow-xl flex items-center justify-center">
-                            <BadgeCheck className="w-6 h-6 text-emerald-500" />
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-white border-2 border-white shadow flex items-center justify-center">
+                            <BadgeCheck className="w-3.5 h-3.5 text-emerald-500" />
                         </div>
                     </div>
 
-                    <div className="text-center md:text-left space-y-4 flex-1">
-                        <div className="space-y-1">
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                                {profile.firstName} {profile.middleName} {profile.lastName}
-                            </h1>
-                            <p className="text-indigo-600 font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center md:justify-start gap-2 px-1">
-                                <ShieldCheck className="w-3.5 h-3.5" />
-                                Persistent Digital Identity
-                            </p>
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                            <div className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
-                                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                                <span className="text-xs font-bold text-slate-600">{profile.email || 'N/A'}</span>
+                    {/* Name + meta */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                        <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
+                            {profile.firstName} {profile.middleName} {profile.lastName}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5">
+                                <Mail className="w-3 h-3 text-slate-400" />
+                                <span className="text-[10px] font-bold text-slate-500 truncate">{profile.email || 'N/A'}</span>
                             </div>
-                            <div className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
-                                <Key className="w-3.5 h-3.5 text-slate-400" />
-                                <span className="text-[10px] font-black text-slate-500 font-mono tracking-tighter">{profile.sub || profile.user_name || 'N/A'}</span>
+                            <span className="text-slate-200">|</span>
+                            <div className="flex items-center gap-1.5">
+                                <ShieldCheck className="w-3 h-3 text-indigo-400" />
+                                <span className="text-[10px] font-black text-indigo-500 truncate">{profile.sub || profile.user_name || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <button 
+                    {/* Edit actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
                             onClick={() => setIsEditing(!isEditing)}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl ${isEditing ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${isEditing ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-100'}`}
                         >
-                            {isEditing ? <><X className="w-4 h-4" /> Cancel</> : <><Edit3 className="w-4 h-4" /> Edit Profile</>}
+                            {isEditing ? <><X className="w-3 h-3" /> Cancel</> : <><Edit3 className="w-3 h-3" /> Edit</>}
                         </button>
                         {isEditing && (
-                            <button 
+                            <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-100 disabled:opacity-50"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-md shadow-emerald-100 disabled:opacity-50"
                             >
-                                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save Changes</>}
+                                {saving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Save className="w-3 h-3" /> Save</>}
                             </button>
                         )}
                     </div>
