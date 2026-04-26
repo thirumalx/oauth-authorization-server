@@ -159,6 +159,55 @@ public class PersonalInformationService {
         }
     }
 
+    public void addPhoneNumber(String mobile) {
+        logger.debug("Adding new phone number: {}", mobile);
+        Long loginUserId = getCurrentUserLoginUserId();
+        List<Contact> existing = contactRepository.findByLoginId(java.util.Set.of(mobile));
+        if (!existing.isEmpty()) {
+            throw new io.github.thirumalx.exception.BadRequestException("Mobile number already exists");
+        }
+        Contact contact = Contact.builder()
+                .loginUserId(loginUserId)
+                .contactCd(Contact.PHONE_NUMBER)
+                .loginId(mobile)
+                .build();
+        contactRepository.save(contact);
+    }
+
+    public void updatePhoneNumber(Long contactId, String newMobile) {
+        logger.debug("Updating contact {} to new mobile: {}", contactId, newMobile);
+        if (newMobile == null || newMobile.isBlank()) {
+            throw new io.github.thirumalx.exception.BadRequestException("Invalid mobile number");
+        }
+        Long loginUserId = getCurrentUserLoginUserId();
+        Contact contact = contactRepository.findById(contactId);
+        if (contact == null || !contact.getLoginUserId().equals(loginUserId)) {
+            throw new ResourceNotFoundException("Contact not found or unauthorized");
+        }
+        if (!contact.getLoginId().equals(newMobile)) {
+            List<Contact> existing = contactRepository.findByLoginId(java.util.Set.of(newMobile));
+            if (!existing.isEmpty()) {
+                throw new io.github.thirumalx.exception.BadRequestException("Mobile number is already in use");
+            }
+            contact.setLoginId(newMobile);
+            contactRepository.update(contact);
+        }
+    }
+
+    /**
+     * Request OTP to verify a contact (email or phone number).
+     * Resolves the phone number from contactId — no need to send it from the client.
+     */
+    public boolean requestOtpForContact(Long contactId) {
+        logger.debug("Requesting OTP for contact: {}", contactId);
+        Long loginUserId = getCurrentUserLoginUserId();
+        Contact contact = contactRepository.findById(contactId);
+        if (contact == null || !contact.getLoginUserId().equals(loginUserId)) {
+            throw new ResourceNotFoundException("Contact not found or unauthorized");
+        }
+        return userService.requestOtp(Map.of("loginId", contact.getLoginId()), "verify-contact");
+    }
+
     private ContactResource mapToResource(Contact contact) {
         return ContactResource.builder()
                 .contactId(contact.getContactId())

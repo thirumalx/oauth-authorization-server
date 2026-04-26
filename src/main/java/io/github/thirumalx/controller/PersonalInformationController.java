@@ -62,8 +62,36 @@ public class PersonalInformationController {
     }
 
     @GetMapping("/phone-number")
-    public ResponseEntity<List<String>> getPhoneNumber() {
-        return ResponseEntity.ok(personalInformationService.getContact(Contact.PHONE_NUMBER));
+    public ResponseEntity<List<ContactResource>> getPhoneNumber() {
+        return ResponseEntity.ok(personalInformationService.getContactResources(Contact.PHONE_NUMBER));
+    }
+
+    @PostMapping("/phone-number")
+    public ResponseEntity<Void> addPhoneNumber(@RequestBody ContactRequest contactRequest) {
+        personalInformationService.addPhoneNumber(contactRequest.getMobile());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/phone-number/{contactId}")
+    public ResponseEntity<Void> deletePhoneNumber(@PathVariable Long contactId) {
+        personalInformationService.deleteContact(contactId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/phone-number/{contactId}")
+    public ResponseEntity<Void> updatePhoneNumber(@PathVariable Long contactId, @RequestBody ContactRequest contactRequest) {
+        personalInformationService.updatePhoneNumber(contactId, contactRequest.getMobile());
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Step 1 of phone verification: request OTP sent to the phone number.
+     * Resolves the phone number from contactId server-side.
+     */
+    @PostMapping("/phone-number/{contactId}/request-otp")
+    public ResponseEntity<Map<String, Object>> requestPhoneVerificationOtp(@PathVariable Long contactId) {
+        boolean sent = personalInformationService.requestOtpForContact(contactId);
+        return ResponseEntity.ok(Map.of("sent", sent));
     }
 
     /**

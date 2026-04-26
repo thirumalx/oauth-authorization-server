@@ -125,7 +125,9 @@ public class AuthorizationServerConfig {
 						// REST endpoints
 						.ignoringRequestMatchers("/login", "/signup", "/otp/**",
 								"/user/request-otp", "/user/reset-password",
-								"/profile/change-password/**")
+								"/profile/change-password/**",
+								"/profile/email", "/profile/email/**",
+								"/profile/phone-number", "/profile/phone-number/**")
 				// For SPA, it's better to use CookieCsrfTokenRepository
 				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				)
