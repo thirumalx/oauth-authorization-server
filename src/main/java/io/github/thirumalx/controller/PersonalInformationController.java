@@ -38,17 +38,18 @@ public class PersonalInformationController {
         return ResponseEntity.ok(personalInformationService.getPersonalInfo());
     }
 
+    // ------------- Email --------------------------//
     @GetMapping("/email")
     public ResponseEntity<List<ContactResource>> getEmail() {
         return ResponseEntity.ok(personalInformationService.getContactResources(Contact.EMAIL));
     }
 
     @PostMapping("/email")
-    public ResponseEntity<Void> addEmail(@RequestBody ContactRequest contactRequest) {
-        personalInformationService.addEmail(contactRequest.getEmail());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Long> addEmail(@RequestBody ContactRequest contactRequest) {
+        return ResponseEntity.ok(personalInformationService.addEmail(contactRequest.getEmail()));
     }
 
+    // Delete email - secondary emails only
     @DeleteMapping("/email/{contactId}")
     public ResponseEntity<Void> deleteEmail(@PathVariable Long contactId) {
         personalInformationService.deleteContact(contactId);

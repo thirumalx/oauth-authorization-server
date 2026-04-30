@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.github.thirumalx.exception.ResourceNotFoundException;
 import io.github.thirumalx.exception.UnAuthorizedException;
@@ -32,7 +33,8 @@ public class PersonalInformationService {
     private final ContactRepository contactRepository;
     private final LoginUserRepository loginUserRepository;
 
-    public PersonalInformationService(UserService userService, ContactRepository contactRepository, LoginUserRepository loginUserRepository) {
+    public PersonalInformationService(UserService userService, ContactRepository contactRepository,
+            LoginUserRepository loginUserRepository) {
         this.userService = userService;
         this.contactRepository = contactRepository;
         this.loginUserRepository = loginUserRepository;
@@ -110,7 +112,13 @@ public class PersonalInformationService {
         return userService.resetPassword(new ResetPassword(loginId, password, otp));
     }
 
-    public void addEmail(String email) {
+    /**
+     * Add multiple contacts/email
+     * 
+     * @param email
+     */
+    @Transactional
+    public Long addEmail(String email) {
         logger.debug("Adding new email: {}", email);
         Long loginUserId = getCurrentUserLoginUserId();
         // Check if email already exists
@@ -123,9 +131,17 @@ public class PersonalInformationService {
                 .contactCd(Contact.EMAIL)
                 .loginId(email)
                 .build();
-        contactRepository.save(contact);
+        Long contactId = contactRepository.save(contact);
+        logger.debug("Added new email with contact id: {}", contactId);
+        return contactId;
     }
 
+    /**
+     * Delete email - secondary emails only
+     * 
+     * @param contactId
+     */
+    @Transactional
     public void deleteContact(Long contactId) {
         logger.debug("Deleting contact: {}", contactId);
         Long loginUserId = getCurrentUserLoginUserId();

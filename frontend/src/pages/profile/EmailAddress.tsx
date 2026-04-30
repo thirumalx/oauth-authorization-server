@@ -11,7 +11,7 @@ interface ContactResource {
 export default function EmailAddress() {
     const [emails, setEmails] = useState<ContactResource[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [newEmail, setNewEmail] = useState('');
     const [editingId, setEditingId] = useState<number | null>(null);

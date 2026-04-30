@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
-    UserCircle, Mail, Key, Shield, RefreshCw, AlertCircle,
+    UserCircle, Mail, Key, RefreshCw, AlertCircle,
     User, Calendar, Building2, Globe, MapPin, Languages,
     BadgeCheck, Fingerprint, ShieldCheck, Edit3, X, Save
 } from 'lucide-react';
