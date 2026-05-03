@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -27,6 +29,7 @@ import io.github.thirumalx.client.MessageServiceClient;
 import io.github.thirumalx.exception.BadRequestException;
 import io.github.thirumalx.exception.NotImplementedException;
 import io.github.thirumalx.exception.ResourceNotFoundException;
+import io.github.thirumalx.exception.UnAuthorizedException;
 import io.github.thirumalx.model.Contact;
 import io.github.thirumalx.model.ContactVerify;
 import io.github.thirumalx.model.Email;
@@ -438,6 +441,26 @@ public class UserService {
 	public PaginatedLoginHistory loginHistories(UUID loginUuid, int page, int size) {
 		logger.debug("Listing login histories {} from page {} to {}", loginUuid, page, size);
 		LoginUser loginUser = loginUserRepository.findByUuid(loginUuid);
+		if (Objects.isNull(loginUser)) {
+			throw new ResourceNotFoundException("The reuested user is not present in the database");
+		}
+		return new PaginatedLoginHistory(
+				loginHistoryRepository.list(loginUser.getLoginUserId(), size, ((page - 1) * size)),
+				loginHistoryRepository.count(loginUser.getLoginUserId()));
+	}
+
+	private UUID getCurrentUserUuid() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(authentication.getName())) {
+			throw new UnAuthorizedException("User is not authenticated");
+		}
+		return UUID.fromString(authentication.getName());
+	}
+
+	public PaginatedLoginHistory loginHistories(int page, int size) {
+		logger.debug("Listing login histories {} from page {} to {}", page, size);
+		LoginUser loginUser = loginUserRepository.findByUuid(getCurrentUserUuid());
 		if (Objects.isNull(loginUser)) {
 			throw new ResourceNotFoundException("The reuested user is not present in the database");
 		}

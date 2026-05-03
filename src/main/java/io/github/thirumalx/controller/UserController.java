@@ -140,9 +140,16 @@ public class UserController {
 
 	@GetMapping("/login-histories/{loginUuid}")
 	public PaginatedLoginHistory loginHistories(@PathVariable UUID loginUuid,
-			@RequestParam(required = false, defaultValue = "20") int page,
-			@RequestParam(required = false, defaultValue = "0") int size) {
+			@RequestParam(required = false, defaultValue = "1") int page,
+			@RequestParam(required = false, defaultValue = "20") int size) {
 		return userService.loginHistories(loginUuid, page, size);
+	}
+
+	@GetMapping("/login-histories")
+	public PaginatedLoginHistory loginHistories(
+			@RequestParam(required = false, defaultValue = "1") int page,
+			@RequestParam(required = false, defaultValue = "20") int size) {
+		return userService.loginHistories(page, size);
 	}
 
 	@GetMapping("")
