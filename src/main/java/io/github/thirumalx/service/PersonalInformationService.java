@@ -81,7 +81,8 @@ public class PersonalInformationService {
 
     /**
      * Request OTP to verify identity before changing password.
-     * The loginId is resolved from the Spring Security context — no need to send it from the client.
+     * The loginId is resolved from the Spring Security context — no need to send it
+     * from the client.
      *
      * @param password the new password to validate against history
      */
@@ -212,7 +213,8 @@ public class PersonalInformationService {
 
     /**
      * Request OTP to verify a contact (email or phone number).
-     * Resolves the phone number from contactId — no need to send it from the client.
+     * Resolves the phone number from contactId — no need to send it from the
+     * client.
      */
     public boolean requestOtpForContact(Long contactId) {
         logger.debug("Requesting OTP for contact: {}", contactId);
@@ -221,7 +223,7 @@ public class PersonalInformationService {
         if (contact == null || !contact.getLoginUserId().equals(loginUserId)) {
             throw new ResourceNotFoundException("Contact not found or unauthorized");
         }
-        return userService.requestOtp(Map.of("loginId", contact.getLoginId()), "verify-contact");
+        return userService.requestOtp(Map.of("loginId", contact.getLoginId()), "verify-signup");
     }
 
     private ContactResource mapToResource(Contact contact) {
