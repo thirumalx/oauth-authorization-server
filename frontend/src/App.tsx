@@ -17,7 +17,6 @@ import GeoFencing from './pages/profile/GeoFencing'
 import AllowedIP from './pages/profile/AllowedIP'
 import DeviceSignIn from './pages/profile/DeviceSignIn'
 import MultifactorAuth from './pages/profile/MultifactorAuth'
-import ActiveSession from './pages/profile/ActiveSession'
 import ActivityHistory from './pages/profile/ActivityHistory'
 import ConnectedApp from './pages/profile/ConnectedApp'
 import AppSignIn from './pages/profile/AppSignIn'
@@ -45,7 +44,6 @@ function App() {
                         <Route path="allowed-ip" element={<AllowedIP />} />
                         <Route path="device-signin" element={<DeviceSignIn />} />
                         <Route path="mfa" element={<MultifactorAuth />} />
-                        <Route path="active-session" element={<ActiveSession />} />
                         <Route path="activity-history" element={<ActivityHistory />} />
                         <Route path="connected-app" element={<ConnectedApp />} />
                         <Route path="app-signin" element={<AppSignIn />} />

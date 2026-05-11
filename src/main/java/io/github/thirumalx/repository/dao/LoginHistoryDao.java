@@ -34,7 +34,7 @@ public class LoginHistoryDao extends GenericDao implements LoginHistoryRepositor
 	private static final String LIST                 = "LoginHistory.list";
 	private static final String LISTBY_LOGIN_USER_ID = LIST + "ByLoginUserId";
 	private static final String LAST_N_LOGIN_FAILED  = "LoginHistory.lastNFailedLogin";
-	
+	private static final String LAST_SUCCESSFUL_LOGIN = "LoginHistory.lastSuccessfulLogin";
 	@Override
 	public Long save(LoginHistory loginHistory) {
 		KeyHolder holder = new GeneratedKeyHolder();
@@ -83,6 +83,12 @@ public class LoginHistoryDao extends GenericDao implements LoginHistoryRepositor
 		 return failedCount != null && failedCount >= lastNLogin;
 	}
 
+	@Override
+	public LoginHistory findLastSuccessfulLogin(Long loginUserId) {
+		logger.debug("Finding latest/current login history for the user {}", loginUserId);
+		return jdbcTemplate.queryForObject(getSql(LAST_SUCCESSFUL_LOGIN), loginHistoryRowMapper, loginUserId, 1);
+	}
+
 	RowMapper<LoginHistory> loginHistoryRowMapper = (rs, rowNum) -> {
 
 		LoginHistory loginHistory = new LoginHistory();
@@ -99,5 +105,6 @@ public class LoginHistoryDao extends GenericDao implements LoginHistoryRepositor
  
 		return loginHistory;
 	};
+
 
 }

@@ -32,8 +32,7 @@ const navigation = [
     {
         title: 'Session',
         items: [
-            { name: 'Active Session', path: 'active-session', icon: Activity },
-            { name: 'Activity History', path: 'activity-history', icon: Clock },
+            { name: 'Login Histories', path: 'activity-history', icon: Activity },
             { name: 'Connected App', path: 'connected-app', icon: AppWindow },
             { name: 'App Sign-in', path: 'app-signin', icon: LogIn },
         ]
