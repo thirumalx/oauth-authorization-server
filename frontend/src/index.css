@@ -126,7 +126,7 @@ body {
 .page-main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: .5rem 1.5rem 4rem;
   position: relative;
   z-index: 1;
 }

@@ -33,8 +33,8 @@ export default function UserForm() {
         try {
             const response = await fetch('/signup', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams(formData as any).toString()
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             });
             if (response.ok) {
                 setStatus('success');

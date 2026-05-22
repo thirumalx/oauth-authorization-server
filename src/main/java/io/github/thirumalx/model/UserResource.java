@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import io.github.thirumalx.util.PhoneNumberUtility;
@@ -42,6 +43,7 @@ public class UserResource implements Serializable {
 	private String phoneNumber;
 	@NotNull
 	private String password;
+	@JsonDeserialize(using = OffsetDateTimeJsonDeserializer.class)
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private OffsetDateTime dateOfBirth;// Or date of Incorporation if user is not an individual
 	private boolean individual;
