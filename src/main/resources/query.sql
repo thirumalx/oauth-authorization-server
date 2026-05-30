@@ -16,7 +16,11 @@ LoginUser.create=INSERT INTO public.login_user(login_uuid, date_of_birth, indivi
 LoginUser.get=${LoginUser} WHERE login_user_id = ?
 LoginUser.getByUuid=${LoginUser} WHERE login_uuid = ?
 LoginUser.list=${LoginUser} LIMIT ? OFFSET ?
+LoginUser.listIndividual=${LoginUser} WHERE individual IS TRUE LIMIT ? OFFSET ?
+LoginUser.listOrg=${LoginUser} WHERE individual IS FALSE LIMIT ? OFFSET ?
 LoginUser.count=SELECT COUNT(*) FROM public.login_user
+LoginUser.countIndividual=SELECT COUNT(*) FROM public.login_user WHERE individual IS TRUE
+LoginUser.countOrg=SELECT COUNT(*) FROM public.login_user WHERE individual IS FALSE
 LoginUser.update=UPDATE public.login_user SET date_of_birth = ?, individual = ? WHERE login_user_id = ?
 #-- Login User Name
 LoginUserName=SELECT * FROM public.login_user_name WHERE 

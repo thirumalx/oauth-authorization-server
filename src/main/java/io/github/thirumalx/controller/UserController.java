@@ -152,13 +152,23 @@ public class UserController {
 		return userService.loginHistories(page, size);
 	}
 
+	/**
+	 * 
+	 * @param page
+	 * @param size
+	 * @param personType - can be "all", "organization" and "individual"
+	 * @param sortBy
+	 * @param asc
+	 * @return
+	 */
 	@GetMapping("")
 	@ResponseBody
 	public PaginatedUser list(@RequestParam(defaultValue = "0", required = false) long page,
 			@RequestParam(defaultValue = "30", required = false) long size,
+			@RequestParam(defaultValue = "all", required = false) String personType,
 			@RequestParam(defaultValue = "rowCreatedOn", required = false) String sortBy,
 			@RequestParam(required = false) boolean asc) {
-		return userService.list(new Pagination(page, size, sortBy, asc));
+		return userService.list(personType, new Pagination(page, size, sortBy, asc));
 	}
 
 }

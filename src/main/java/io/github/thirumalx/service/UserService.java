@@ -517,10 +517,23 @@ public class UserService {
 		}
 	}
 
-	public PaginatedUser list(Pagination pagination) {
-		logger.debug("Lsting users with {}", pagination);
+	/**
+	 * 
+	 * @param typeOfPerson - for the filter
+	 * @param pagination
+	 * @return
+	 */
+	public PaginatedUser list(String typeOfPerson, Pagination pagination) {
+		logger.debug("Lsting {} users with {}", typeOfPerson, pagination);
 		var userResources = new ArrayList<UserResource>();
-		List<LoginUser> loginUsers = loginUserRepository.findAll(pagination);
+		List<LoginUser> loginUsers;
+		if (typeOfPerson.equalsIgnoreCase("organization")) {
+			loginUsers = loginUserRepository.findNonIndividual(pagination);
+		} else if (typeOfPerson.equalsIgnoreCase("individual")) {
+			loginUsers = loginUserRepository.findIndividual(pagination);
+		} else {
+			loginUsers = loginUserRepository.findAll(pagination);
+		}
 		for (LoginUser loginUser : loginUsers) {
 			userResources.add(get(loginUser.getLoginUuid()));
 		}

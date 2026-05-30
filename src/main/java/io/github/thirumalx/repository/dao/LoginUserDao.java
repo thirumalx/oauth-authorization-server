@@ -20,6 +20,7 @@ import io.github.thirumalx.exception.ResourceNotFoundException;
 import io.github.thirumalx.model.LoginUser;
 import io.github.thirumalx.model.Pagination;
 import io.github.thirumalx.repository.LoginUserRepository;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author Thirumal
@@ -29,25 +30,27 @@ import io.github.thirumalx.repository.LoginUserRepository;
 public class LoginUserDao extends GenericDao implements LoginUserRepository {
 
 	private static final String PK = "login_user_id";
-	
-	private static final String CREATE     = "LoginUser.create";
-	private static final String GET        = "LoginUser.get";
-	private static final String GETBY_UUID = GET + "ByUuid"; 
-	private static final String LIST       = "LoginUser.list";
-	private static final String UPDATE     = "LoginUser.update";
-	
+
+	private static final String CREATE = "LoginUser.create";
+	private static final String GET = "LoginUser.get";
+	private static final String GETBY_UUID = GET + "ByUuid";
+	private static final String LIST = "LoginUser.list";
+	private static final @NotNull String LIST_INDIVIDUAL = "LoginUser.listIndividual";
+	private static final String LIST_ORG = "LoginUser.listOrg";
+	private static final String UPDATE = "LoginUser.update";
+
 	@Override
 	public Long save(LoginUser loginUser) {
 		KeyHolder holder = new GeneratedKeyHolder();
-        try {
-            jdbcTemplate.update(con -> setPreparedStatement(loginUser, con.prepareStatement(getSql(CREATE),
-                    new String[] { PK })), holder);
-            return Optional.ofNullable(holder.getKey())
-                    .orElseThrow(()->new ResourceNotFoundException(primaryKeyErr)).longValue();
-        } catch (DataIntegrityViolationException e) {
-           logger.error("Login user insert exception: {}", e.getMessage());
-           throw new BadRequestException("Login user is not added, Contact admin");
-        }       
+		try {
+			jdbcTemplate.update(con -> setPreparedStatement(loginUser, con.prepareStatement(getSql(CREATE),
+					new String[] { PK })), holder);
+			return Optional.ofNullable(holder.getKey())
+					.orElseThrow(() -> new ResourceNotFoundException(primaryKeyErr)).longValue();
+		} catch (DataIntegrityViolationException e) {
+			logger.error("Login user insert exception: {}", e.getMessage());
+			throw new BadRequestException("Login user is not added, Contact admin");
+		}
 	}
 
 	private PreparedStatement setPreparedStatement(LoginUser loginUser, PreparedStatement ps) throws SQLException {
@@ -72,25 +75,55 @@ public class LoginUserDao extends GenericDao implements LoginUserRepository {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public List<LoginUser> findAll(Pagination pagination) {
 		logger.debug("Finding all login user with pagination {}", pagination);
 		return jdbcTemplate.query(getSql(LIST), loginUserRowMapper, pagination.size(), pagination.getOffset());
 	}
-	
+
+	@Override
+	public List<LoginUser> findIndividual(Pagination pagination) {
+		logger.debug("Finding all Indiviual users from {}", pagination);
+		return jdbcTemplate.query(getSql(LIST_INDIVIDUAL), loginUserRowMapper, pagination.size(),
+				pagination.getOffset());
+	}
+
+	@Override
+	public List<LoginUser> findNonIndividual(Pagination pagination) {
+		logger.debug("Finding Non-Indiviual users from {}", pagination);
+		return jdbcTemplate.query(getSql(LIST_ORG), loginUserRowMapper, pagination.size(),
+				pagination.getOffset());
+	}
+
 	@Override
 	public long count() {
-		Long count = jdbcTemplate.queryForObject(getSql("LoginUser.count"), (ResultSet rs, int rowNum)  -> rs.getLong("count"));
+		Long count = jdbcTemplate.queryForObject(getSql("LoginUser.count"),
+				(ResultSet rs, int rowNum) -> rs.getLong("count"));
 		return count == null ? 0 : count.longValue();
 	}
-	
+
+	@Override
+	public long countIndividual() {
+		Long count = jdbcTemplate.queryForObject(getSql("LoginUser.countIndividual"),
+				(ResultSet rs, int rowNum) -> rs.getLong("count"));
+		return count == null ? 0 : count.longValue();
+	}
+
+	@Override
+	public long countNonIndividual() {
+		Long count = jdbcTemplate.queryForObject(getSql("LoginUser.countOrg"),
+				(ResultSet rs, int rowNum) -> rs.getLong("count"));
+		return count == null ? 0 : count.longValue();
+	}
+
 	@Override
 	public int update(LoginUser loginUser) {
 		logger.debug("Updateing login user dob {}", loginUser.getLoginUserId());
-		return  jdbcTemplate.update(getSql(UPDATE), loginUser.getDateOfBirth(), loginUser.isIndividual(), loginUser.getLoginUserId());
-	}	
-	
+		return jdbcTemplate.update(getSql(UPDATE), loginUser.getDateOfBirth(), loginUser.isIndividual(),
+				loginUser.getLoginUserId());
+	}
+
 	RowMapper<LoginUser> loginUserRowMapper = (rs, rowNum) -> {
 
 		LoginUser loginUser = new LoginUser();
@@ -98,13 +131,15 @@ public class LoginUserDao extends GenericDao implements LoginUserRepository {
 		loginUser.setLoginUserId(rs.getObject(PK) != null ? rs.getLong(PK) : null);
 
 		loginUser.setLoginUuid(rs.getObject("login_uuid") != null ? rs.getObject("login_uuid", UUID.class) : null);
-		
-		loginUser.setDateOfBirth(rs.getObject("date_of_birth") != null ? rs.getObject("date_of_birth", OffsetDateTime.class) : null);
-		
+
+		loginUser.setDateOfBirth(
+				rs.getObject("date_of_birth") != null ? rs.getObject("date_of_birth", OffsetDateTime.class) : null);
+
 		loginUser.setIndividual(rs.getBoolean("individual"));
 
-		loginUser.setRowCreatedOn(rs.getObject("row_created_on") != null ? rs.getObject("row_created_on", OffsetDateTime.class) : null);
- 
+		loginUser.setRowCreatedOn(
+				rs.getObject("row_created_on") != null ? rs.getObject("row_created_on", OffsetDateTime.class) : null);
+
 		return loginUser;
 	};
 

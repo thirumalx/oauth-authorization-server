@@ -4,8 +4,7 @@ import {
     Users, Search, Plus, Mail, Phone, Calendar,
     ChevronLeft, ChevronRight, Edit3, Trash2,
     UserCircle, Hash, X, Check, ShieldCheck,
-    ShieldAlert, RefreshCw, Layers, TrendingUp,
-    Cpu
+    ShieldAlert, RefreshCw
 } from 'lucide-react';
 
 interface UserResource {
@@ -53,7 +52,8 @@ export default function UserManagement() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/user?page=${page}&size=10&sortBy=rowCreatedOn&asc=false`);
+            const backendPersonType = activeTab === 'personal' ? 'individual' : (activeTab === 'corporate' ? 'organization' : 'all');
+            const response = await fetch(`/user?page=${page}&size=10&sortBy=rowCreatedOn&asc=false&personType=${backendPersonType}`);
             const data = await response.json();
             setUsers(data.userResources || []);
             setTotalUsers(data.count || 0);
@@ -64,27 +64,21 @@ export default function UserManagement() {
         }
     };
 
+    const handleTabChange = (tab: 'all' | 'personal' | 'corporate') => {
+        setActiveTab(tab);
+        setPage(0);
+    };
+
     useEffect(() => {
         fetchUsers();
-    }, [page]);
+    }, [page, activeTab]);
 
-    // Live calculations for overview grid metrics
-    const personalCount = users.filter(u => u.individual).length;
-    const corporateCount = users.filter(u => !u.individual).length;
-
-    // Filter users dynamically based on active filter tab
     const filteredUsers = users.filter(user => {
-        const matchesSearch =
+        return (
             user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
-        if (activeTab === 'personal') {
-            return matchesSearch && user.individual;
-        } else if (activeTab === 'corporate') {
-            return matchesSearch && !user.individual;
-        }
-        return matchesSearch;
+            user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
     });
 
     const openDrawer = async (user: UserResource) => {
@@ -203,19 +197,19 @@ export default function UserManagement() {
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
                         <div className="flex p-1.5 bg-slate-50 border border-slate-100 rounded-2xl w-full sm:w-auto shadow-inner">
                             <button
-                                onClick={() => setActiveTab('all')}
+                                onClick={() => handleTabChange('all')}
                                 className={`flex-1 sm:flex-initial py-2.5 px-5 rounded-xl text-xs font-black transition-all ${activeTab === 'all' ? 'bg-white text-indigo-600 shadow-md scale-[1.01]' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 All Users
                             </button>
                             <button
-                                onClick={() => setActiveTab('personal')}
+                                onClick={() => handleTabChange('personal')}
                                 className={`flex-1 sm:flex-initial py-2.5 px-5 rounded-xl text-xs font-black transition-all ${activeTab === 'personal' ? 'bg-white text-indigo-600 shadow-md scale-[1.01]' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 Personal
                             </button>
                             <button
-                                onClick={() => setActiveTab('corporate')}
+                                onClick={() => handleTabChange('corporate')}
                                 className={`flex-1 sm:flex-initial py-2.5 px-5 rounded-xl text-xs font-black transition-all ${activeTab === 'corporate' ? 'bg-white text-indigo-600 shadow-md scale-[1.01]' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 Corporate
