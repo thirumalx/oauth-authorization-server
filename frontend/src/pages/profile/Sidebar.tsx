@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import { 
-    User, Mail, Phone, Lock, Globe, Shield, 
-    Smartphone, Fingerprint, Activity, Clock, 
-    AppWindow, LogIn, ChevronRight 
+import {
+    User, Mail, Phone, Lock, Globe, Shield,
+    Smartphone, Fingerprint, Activity,
+    AppWindow, LogIn, ChevronRight
 } from 'lucide-react';
 
 const navigation = [
@@ -26,7 +26,7 @@ const navigation = [
     {
         title: 'Authentication',
         items: [
-            { name: 'Multifactor authentication', path: 'mfa', icon: Fingerprint },
+            { name: 'MFA', path: 'mfa', icon: Fingerprint },
         ]
     },
     {
@@ -41,7 +41,7 @@ const navigation = [
 
 export default function Sidebar() {
     return (
-        <aside className="w-full lg:w-80 flex-shrink-0">
+        <aside className="w-full lg:w-60 flex-shrink-0">
             <nav className="sticky top-24 space-y-8 pb-12">
                 {navigation.map((group) => (
                     <div key={group.title} className="space-y-3">
@@ -55,8 +55,8 @@ export default function Sidebar() {
                                     to={item.path}
                                     className={({ isActive }) => `
                                         group flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300
-                                        ${isActive 
-                                            ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 translate-x-2' 
+                                        ${isActive
+                                            ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 translate-x-2'
                                             : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}
                                     `}
                                 >

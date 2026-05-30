@@ -1,23 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-indigo-50: #F4F7F6;
+  --color-indigo-100: #E2EAE7;
+  --color-indigo-200: #C2D5CE;
+  --color-indigo-300: #98B7AC;
+  --color-indigo-400: #6B9487;
+  --color-indigo-500: #155E4A;
+  --color-indigo-600: #0D3E31;
+  /* Sprintly Brand Forest Green */
+  --color-indigo-700: #082B21;
+  --color-indigo-800: #051C15;
+  --color-indigo-900: #03110D;
+
+  --color-slate-50: #FAF9F5;
+  /* Premium off-white Alabaster background */
+  --color-slate-100: #EAE8E2;
+  /* Warm delicate border */
+  --color-slate-200: #DFDDD6;
+  --color-slate-300: #CBC8BF;
+  --color-slate-400: #A8A49A;
+  --color-slate-500: #817D73;
+  --color-slate-600: #625E56;
+  --color-slate-700: #4B4842;
+  --color-slate-800: #2C2B27;
+  --color-slate-900: #121210;
+  /* Rich charcoal text */
+}
+
 :root {
-  --color-primary: #4f46e5; /* Indigo 600 */
-  --color-primary-strong: #4338ca; /* Indigo 700 */
-  --color-secondary: #6366f1; /* Indigo 500 */
-  --color-accent: #818cf8; /* Indigo 400 */
-  --color-success: #10b981; /* Emerald 500 */
-  --color-warning: #f59e0b; /* Amber 500 */
-  --color-danger: #ef4444; /* Red 500 */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --bg-main: #f8fafc; /* Slate 50 */
+  --color-primary: #0D3E31;
+  /* Sprintly brand forest green */
+  --color-primary-strong: #082B21;
+  --color-secondary: #155E4A;
+  --color-accent: #6B9487;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --bg-main: #FAF9F5;
   --card-bg: #ffffff;
-  --card-border: #e2e8f0; /* Slate 200 */
-  --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --card-border: #EAE8E2;
+  --card-shadow: 0 10px 30px -5px rgba(13, 62, 49, 0.015), 0 5px 15px -3px rgba(13, 62, 49, 0.005);
 }
 
 body {
   background-color: var(--bg-main);
-  color: #1e293b; /* Slate 800 */
+  color: #1e293b;
+  /* Slate 800 */
   font-family: var(--font-sans);
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -80,7 +113,8 @@ body {
   justify-content: center;
   padding: 1rem 1.5rem;
   background-color: #ffffff;
-  color: #475569; /* Slate 600 */
+  color: #475569;
+  /* Slate 600 */
   font-weight: 700;
   border-radius: 0.75rem;
   border: 1px solid var(--card-border);
@@ -124,7 +158,7 @@ body {
 }
 
 .page-main {
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: .5rem 1.5rem 4rem;
   position: relative;
@@ -168,7 +202,8 @@ body {
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 800;
   line-height: 1.1;
-  color: #0f172a; /* Slate 900 */
+  color: #0f172a;
+  /* Slate 900 */
   letter-spacing: -0.02em;
 }
 
@@ -892,19 +927,45 @@ body {
 
 /* Custom Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px) rotate(-1deg); }
-  75% { transform: translateX(2px) rotate(1deg); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-2px) rotate(-1deg);
+  }
+
+  75% {
+    transform: translateX(2px) rotate(1deg);
+  }
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.9; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
 }
 
 .animate-fade-in {
@@ -917,4 +978,33 @@ body {
 
 .pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Slide-over details drawer animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-overlay {
+  animation: fadeInOverlay 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

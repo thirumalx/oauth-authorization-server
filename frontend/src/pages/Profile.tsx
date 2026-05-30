@@ -40,7 +40,7 @@ export default function Profile() {
 
             <main className="page-main pt-12">
                 <div className="w-full max-w-8xl mx-auto animate-fade-in space-y-6">
-                    
+
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-center gap-8 relative z-10 px-4">
                         <div className="p-5 rounded-[2rem] bg-indigo-600 shadow-2xl shadow-indigo-200 group hover:rotate-6 transition-all duration-500">

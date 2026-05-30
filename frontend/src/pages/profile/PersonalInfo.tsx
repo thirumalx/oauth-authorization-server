@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
-    UserCircle, Mail, Key, RefreshCw, AlertCircle,
+    UserCircle, Mail, RefreshCw, AlertCircle,
     User, Calendar, Building2, Globe, MapPin, Languages,
-    BadgeCheck, Fingerprint, ShieldCheck, Edit3, X, Save
+    BadgeCheck, ShieldCheck, Edit3, X, Save
 } from 'lucide-react';
 
 interface ProfileContext {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Lock, Key, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { Lock, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 type Step = 'request' | 'verify' | 'success';
 
