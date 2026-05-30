@@ -16,6 +16,7 @@ public class ForwardController {
             "/signup",
             "/forgot-password",
             "/user/**",
+            "/profile/**",
             "/consented-apps",
             "/oauth2/consent",
             "/{path:[^\\.]*}"

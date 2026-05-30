@@ -165,7 +165,10 @@ export default function PersonalInfo() {
                     {/* Avatar */}
                     <div className="relative shrink-0">
                         <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-200">
-                            {profile.firstName?.[0]}{profile.lastName?.[0] || 'U'}
+                            {profile.individual 
+                                ? `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}` 
+                                : (profile.firstName?.slice(0, 2).toUpperCase() || 'OR')
+                            }
                         </div>
                         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-white border-2 border-white shadow flex items-center justify-center">
                             <BadgeCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -175,7 +178,10 @@ export default function PersonalInfo() {
                     {/* Name + meta */}
                     <div className="flex-1 min-w-0 space-y-1">
                         <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
-                            {profile.firstName} {profile.middleName} {profile.lastName}
+                            {profile.individual 
+                                ? `${profile.firstName} ${profile.lastName}` 
+                                : profile.firstName
+                            }
                         </h1>
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="flex items-center gap-1.5">
@@ -217,7 +223,7 @@ export default function PersonalInfo() {
                     <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                         <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2.5">
                             <span className="w-1.5 h-5 bg-indigo-600 rounded-full" />
-                            Personal Characteristics
+                            {profile.individual ? 'Personal Characteristics' : 'Organization Details'}
                         </h3>
                         {/* Status indicators in view mode */}
                         {!isEditing && (
@@ -229,25 +235,43 @@ export default function PersonalInfo() {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <InfoItem icon={User} label="First Name" field="firstName" value={profile.firstName} />
-                        <InfoItem icon={User} label="Middle Name" field="middleName" value={profile.middleName} />
-                        <InfoItem icon={User} label="Last Name" field="lastName" value={profile.lastName} />
-                        <InfoItem 
-                            icon={Building2} 
-                            label="Entity Type" 
-                            field="individual"
-                            type="select"
-                            value={profile.individual}
-                            subValue={profile.individual === true ? 'NATURAL PERSON' : 'LEGAL ENTITY'}
-                        />
+                        {profile.individual ? (
+                            <>
+                                <InfoItem icon={User} label="First Name" field="firstName" value={profile.firstName} />
+                                <InfoItem icon={User} label="Middle Name" field="middleName" value={profile.middleName} />
+                                <InfoItem icon={User} label="Last Name" field="lastName" value={profile.lastName} />
+                                <InfoItem 
+                                    icon={Calendar} 
+                                    label="Date of Birth" 
+                                    field="dateOfBirth"
+                                    type="date"
+                                    value={profile.dateOfBirth} 
+                                />
+                                <InfoItem icon={UserCircle} label="Gender" field="gender" type="select" value={formData.gender} />
+                            </>
+                        ) : (
+                            <>
+                                <InfoItem icon={Building2} label="Organization Name" field="firstName" value={profile.firstName} />
+                                <InfoItem 
+                                    icon={UserCircle} 
+                                    label="Type of User" 
+                                    value="Corporate" 
+                                    subValue="LEGAL ENTITY"
+                                />
+                                <InfoItem 
+                                    icon={Calendar} 
+                                    label="Date of Incorporation" 
+                                    field="dateOfBirth"
+                                    type="date"
+                                    value={profile.dateOfBirth} 
+                                />
+                            </>
+                        )}
                         <InfoItem 
                             icon={Calendar} 
-                            label="DOB / Incorporation" 
-                            field="dateOfBirth"
-                            type="date"
-                            value={profile.dateOfBirth} 
+                            label="Date of Registration" 
+                            value={profile.accountCreatedOn ? new Date(profile.accountCreatedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Not Specified'} 
                         />
-                        <InfoItem icon={UserCircle} label="Gender" field="gender" type="select" value={formData.gender} />
                     </div>
                 </div>
 

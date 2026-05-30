@@ -11,7 +11,7 @@ export default function Profile() {
 
     const loadProfile = async () => {
         try {
-            const response = await fetch('/profile/personal-info/', {
+            const response = await fetch('/profile/personal-info', {
                 headers: {
                     Accept: 'application/json'
                 }
