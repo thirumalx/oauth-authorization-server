@@ -44,7 +44,7 @@ LoginHistory.lastNFailedLogin=SELECT COUNT(*) FROM(select * from login_history w
 LoginHistory.lastSuccessfulLogin=SELECT * FROM public.login_history WHERE login_user_id = ? ORDER BY login_history_id DESC LIMIT 1
 #---------MFA--------
 Mfa=SELECT * FROM public.mfa WHERE
-Mfa.create=INSERT INTO public.mfa(ogin_user_id, contact_id, mfa_cd, secret) VALUES (?, ?, ?, ?)
+Mfa.create=INSERT INTO public.mfa(ogin_user_id, contact_id, mfa_cd, secret, verified, primary_mfa) VALUES (?, ?, ?, ?, ?, ?)
 Mfa.disable=UPDATE public.mfa SET end_time=CURRENT_TIMESTAMP WHERE login_user_id = ?
 #-- Password
 Password=SELECT * FROM public.password WHERE 
