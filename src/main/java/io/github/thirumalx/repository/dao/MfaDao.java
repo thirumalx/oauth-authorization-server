@@ -33,6 +33,8 @@ public class MfaDao extends GenericDao implements MfaRepository {
 	private static final String GET = "Mfa.get";
 	private static final String LIST = "Mfa.list";
 	private static final String LISTBY_LOGIN_USER_ID = LIST + "ByLoginUserId";
+	private static final String UPDATE = "Mfa.update";
+	private static final String DELETE = "Mfa.delete";
 	private static final String DISABLE = "Mfa.disable";
 
 	@Override
@@ -90,6 +92,25 @@ public class MfaDao extends GenericDao implements MfaRepository {
 	@Override
 	public int disable(Long loginUserId) {
 		return jdbcTemplate.update(getSql(DISABLE), loginUserId);
+	}
+
+	@Override
+	public int update(Mfa mfa) {
+		logger.debug("Updating MFA with ID {}", mfa.getMfaId());
+		return jdbcTemplate.update(getSql(UPDATE),
+				mfa.getContactId(),
+				mfa.getMfaCd(),
+				mfa.getSecret(),
+				mfa.isVerified(),
+				mfa.isPrimaryMfa(),
+				mfa.getMfaId(),
+				mfa.getLoginUserId());
+	}
+
+	@Override
+	public int delete(Long mfaId, Long loginUserId) {
+		logger.debug("Soft-deleting MFA with ID {} for user {}", mfaId, loginUserId);
+		return jdbcTemplate.update(getSql(DELETE), mfaId, loginUserId);
 	}
 
 	RowMapper<Mfa> mfaRowMapper = (rs, rowNum) -> {

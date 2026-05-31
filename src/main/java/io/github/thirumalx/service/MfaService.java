@@ -40,12 +40,46 @@ public class MfaService {
 		logger.debug("Enabling MFA {}", mfa);
 		Long loginUserId = authenticationFacade.getLoginId();
 		mfa.setLoginUserId(loginUserId);
+		if (mfa.isPrimaryMfa()) {
+			List<Mfa> existingList = mfaRepository.findByLoginUserId(loginUserId);
+			for (Mfa existing : existingList) {
+				if (existing.isPrimaryMfa()) {
+					existing.setPrimaryMfa(false);
+					mfaRepository.update(existing);
+				}
+			}
+		}
 		Long id = mfaRepository.save(mfa);
 		return get(id);
 	}
 
 	public Mfa get(Long id) {
 		return mfaRepository.findById(id);
+	}
+
+	@Transactional
+	public Mfa update(Mfa mfa) {
+		logger.debug("Updating MFA {}", mfa);
+		Long loginUserId = authenticationFacade.getLoginId();
+		mfa.setLoginUserId(loginUserId);
+		if (mfa.isPrimaryMfa()) {
+			List<Mfa> existingList = mfaRepository.findByLoginUserId(loginUserId);
+			for (Mfa existing : existingList) {
+				if (existing.isPrimaryMfa() && !existing.getMfaId().equals(mfa.getMfaId())) {
+					existing.setPrimaryMfa(false);
+					mfaRepository.update(existing);
+				}
+			}
+		}
+		mfaRepository.update(mfa);
+		return get(mfa.getMfaId());
+	}
+
+	@Transactional
+	public void delete(Long mfaId) {
+		logger.debug("Deleting MFA with ID {}", mfaId);
+		Long loginUserId = authenticationFacade.getLoginId();
+		mfaRepository.delete(mfaId, loginUserId);
 	}
 
 	@Transactional

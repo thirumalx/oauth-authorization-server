@@ -529,6 +529,8 @@ CREATE TABLE public.mfa (
 	contact_id bigint,
 	mfa_cd smallint NOT NULL,
 	secret varchar(5000),
+	verified boolean NOT NULL DEFAULT false,
+	primary_mfa boolean NOT NULL DEFAULT false,
 	start_time timestamptz NOT NULL DEFAULT current_timestamp,
 	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
 	row_created_on timestamp NOT NULL DEFAULT current_timestamp,

@@ -33,6 +33,7 @@ export default defineConfig({
         proxy: {
             '/api': redirectInterceptor,
             '/otp': redirectInterceptor,
+            '/mfa': redirectInterceptor,
             '/userinfo': redirectInterceptor,
             '/logout': redirectInterceptor,
             '/oauth2/authorize': redirectInterceptor,
