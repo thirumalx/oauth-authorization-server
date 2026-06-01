@@ -32,6 +32,7 @@ public class Mfa implements Serializable {
 	private Long contactId;
 	private Long mfaCd; // Google/Microsoft Top, SMS OTP, Email OTP..
 	private String secret;
+	private String code; // Transient verification code
 	//
 	private boolean verified;
 	private boolean primaryMfa;

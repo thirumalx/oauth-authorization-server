@@ -33,6 +33,12 @@ public class MfaController {
 		this.mfaService = mfaService;
 	}
 
+	@GetMapping("/totp/setup")
+	public ResponseEntity<java.util.Map<String, String>> setupTotp() {
+		logger.debug("Setting up TOTP secret and QR URI");
+		return ResponseEntity.ok(mfaService.setupTotp());
+	}
+
 	@PostMapping("")
 	public ResponseEntity<Mfa> enableMfa(@RequestBody Mfa mfa) {
 		logger.debug("Enabling MFA: {}", mfa);

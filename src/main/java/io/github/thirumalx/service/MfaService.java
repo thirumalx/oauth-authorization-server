@@ -40,6 +40,14 @@ public class MfaService {
 		logger.debug("Enabling MFA {}", mfa);
 		Long loginUserId = authenticationFacade.getLoginId();
 		mfa.setLoginUserId(loginUserId);
+		
+		// Actual verification for TOTP with Authenticator app
+		if (mfa.getMfaCd() != null && mfa.getMfaCd() == 4) {
+			if (!io.github.thirumalx.util.TotpUtil.verifyCode(mfa.getSecret(), mfa.getCode())) {
+				throw new BadRequestException("Invalid 6-digit verification code. Please check your authenticator app.");
+			}
+		}
+
 		if (mfa.isPrimaryMfa()) {
 			List<Mfa> existingList = mfaRepository.findByLoginUserId(loginUserId);
 			for (Mfa existing : existingList) {
@@ -51,6 +59,21 @@ public class MfaService {
 		}
 		Long id = mfaRepository.save(mfa);
 		return get(id);
+	}
+
+	public java.util.Map<String, String> setupTotp() {
+		Long loginUserId = authenticationFacade.getLoginId();
+		LoginUser loginUser = loginUserRepository.findById(loginUserId);
+		String secret = io.github.thirumalx.util.TotpUtil.generateSecret();
+		String username = (loginUser != null && loginUser.getLoginUuid() != null)
+				? loginUser.getLoginUuid().toString()
+				: "User_" + loginUserId;
+		String qrUri = io.github.thirumalx.util.TotpUtil.getQrUri(secret, "OAuthServer", username);
+		
+		java.util.Map<String, String> result = new java.util.HashMap<>();
+		result.put("secret", secret);
+		result.put("qrUri", qrUri);
+		return result;
 	}
 
 	public Mfa get(Long id) {

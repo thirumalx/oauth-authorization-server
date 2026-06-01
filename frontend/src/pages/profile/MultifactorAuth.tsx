@@ -4,6 +4,7 @@ import {
   AlertCircle, RefreshCw, X, ShieldCheck, CheckCircle2, ChevronRight, 
   HelpCircle, Star, QrCode, Copy, Check
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface MfaConfig {
   mfaId: number;
@@ -41,6 +42,7 @@ export default function MultifactorAuth() {
   
   // TOTP setup state
   const [totpSecret, setTotpSecret] = useState('');
+  const [totpQrUri, setTotpQrUri] = useState('');
   const [totpCode, setTotpCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
@@ -81,15 +83,22 @@ export default function MultifactorAuth() {
     fetchData();
   }, []);
 
-  const generateRandomSecret = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    let secret = '';
-    for (let i = 0; i < 16; i++) {
-      secret += chars.charAt(Math.floor(Math.random() * chars.length));
+  const fetchTotpSetup = async () => {
+    try {
+      setActionLoading(-1);
+      setVerificationError(null);
+      const res = await fetch('/mfa/totp/setup');
+      if (!res.ok) throw new Error('Failed to generate secure TOTP credentials');
+      const data = await res.json();
+      // Format secret with spaces for easier reading
+      const formatted = data.secret.match(/.{1,4}/g)?.join(' ') || data.secret;
+      setTotpSecret(formatted);
+      setTotpQrUri(data.qrUri);
+    } catch (err: any) {
+      setVerificationError(err.message);
+    } finally {
+      setActionLoading(null);
     }
-    // Format secret with spaces for easier reading
-    const formatted = secret.match(/.{1,4}/g)?.join(' ') || secret;
-    setTotpSecret(formatted);
   };
 
   const handleStartAddFlow = () => {
@@ -99,7 +108,6 @@ export default function MultifactorAuth() {
     setSelectedContactId('');
     setTotpCode('');
     setVerificationError(null);
-    generateRandomSecret();
   };
 
   const copySecretToClipboard = () => {
@@ -111,6 +119,7 @@ export default function MultifactorAuth() {
   const handleMfaTypeSelect = () => {
     if (selectedMfaCd === 4) {
       setAddStep('configure_totp');
+      fetchTotpSetup();
     } else {
       setAddStep('configure_channel');
       // Auto select first available verified contact
@@ -135,6 +144,7 @@ export default function MultifactorAuth() {
 
       if (selectedMfaCd === 4) {
         payload.secret = totpSecret.replace(/\s/g, '');
+        (payload as any).code = totpCode;
       } else if (selectedMfaCd === 1 || selectedMfaCd === 2) {
         payload.contactId = parseInt(selectedContactId, 10);
         // Find corresponding secret (which is the loginId/email/phone itself for reference)
@@ -151,27 +161,42 @@ export default function MultifactorAuth() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to configure MFA method');
+        let errorMsg = 'Failed to configure MFA method';
+        try {
+          const errData = await response.json();
+          if (errData && errData.message) {
+            errorMsg = errData.message;
+          }
+        } catch (e) {
+          try {
+            const txt = await response.text();
+            if (txt) errorMsg = txt;
+          } catch (e2) {}
+        }
+        throw new Error(errorMsg);
       }
 
       setAddStep('success');
       await fetchData();
     } catch (err: any) {
-      alert(err.message);
+      throw err;
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleVerifyTotp = (e: React.FormEvent) => {
+  const handleVerifyTotp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (totpCode.trim().length !== 6) {
       setVerificationError('Verification code must be 6 digits.');
       return;
     }
-    // Simple verification simulation for Google Authenticator code
     setVerificationError(null);
-    handleSaveMfa(true);
+    try {
+      await handleSaveMfa(true);
+    } catch (err: any) {
+      setVerificationError(err.message);
+    }
   };
 
   const handleSetPrimary = async (mfa: MfaConfig) => {
@@ -352,11 +377,15 @@ export default function MultifactorAuth() {
               </div>
 
               <div className="flex flex-col md:flex-row gap-6 items-center bg-slate-50 border border-slate-100 p-6 rounded-3xl">
-                <div className="w-32 h-32 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center relative shrink-0 overflow-hidden shadow-inner group">
-                  <QrCode className="w-24 h-24 text-slate-900" />
-                  <div className="absolute inset-0 bg-indigo-600/90 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center">
-                    <QrCode className="w-8 h-8 mb-1 animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-wider leading-none">Instant Mock QR Scanner</span>
+                <div className="w-32 h-32 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center relative shrink-0 overflow-hidden shadow-inner group p-2">
+                  {totpQrUri ? (
+                    <QRCodeSVG value={totpQrUri} size={112} level="M" />
+                  ) : (
+                    <QrCode className="w-24 h-24 text-slate-300 animate-pulse" />
+                  )}
+                  <div className="absolute inset-0 bg-indigo-600/95 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center rounded-xl cursor-default">
+                    <QrCode className="w-8 h-8 mb-1" />
+                    <span className="text-[9px] font-black uppercase tracking-wider leading-none">Scan with Authenticator App</span>
                   </div>
                 </div>
 
@@ -477,7 +506,13 @@ export default function MultifactorAuth() {
                   Back
                 </button>
                 <button
-                  onClick={() => handleSaveMfa(true)}
+                  onClick={async () => {
+                    try {
+                      await handleSaveMfa(true);
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }}
                   disabled={actionLoading === -1 || !selectedContactId}
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-50"
                 >
