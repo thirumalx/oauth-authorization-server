@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
     UserCircle, Mail, RefreshCw, AlertCircle,
-    User, Calendar, Building2, Globe, MapPin, Languages,
+    User, Calendar, Building2, Languages,
     BadgeCheck, ShieldCheck, Edit3, X, Save
 } from 'lucide-react';
 
@@ -13,11 +13,38 @@ interface ProfileContext {
     refreshProfile: () => Promise<void>;
 }
 
+const FALLBACK_LANGUAGES = [
+    { codeCd: 1, description: 'English' },
+    { codeCd: 2, description: 'Tamil' },
+    { codeCd: 3, description: 'Hindi' },
+    { codeCd: 4, description: 'German' },
+    { codeCd: 5, description: 'French' }
+];
+
 export default function PersonalInfo() {
     const { profile, loading, error, refreshProfile } = useOutletContext<ProfileContext>();
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<Record<string, any>>({});
+    const [languages, setLanguages] = useState<{ codeCd: number; description: string }[]>([]);
+
+    useEffect(() => {
+        const fetchLanguages = async () => {
+            try {
+                const res = await fetch('/user/languages');
+                if (res.ok) {
+                    const data = await res.json();
+                    setLanguages(data.length > 0 ? data : FALLBACK_LANGUAGES);
+                } else {
+                    setLanguages(FALLBACK_LANGUAGES);
+                }
+            } catch (err) {
+                console.error('Failed to fetch dynamic languages lookup', err);
+                setLanguages(FALLBACK_LANGUAGES);
+            }
+        };
+        fetchLanguages();
+    }, []);
 
     // Load extended fields from localStorage and sync with profile
     useEffect(() => {
@@ -72,7 +99,8 @@ export default function PersonalInfo() {
                 middleName: formData.middleName,
                 lastName: formData.lastName,
                 dateOfBirth: formData.dateOfBirth ? `${formData.dateOfBirth}T00:00:00Z` : null,
-                individual: formData.individual === true || formData.individual === 'true'
+                individual: formData.individual === true || formData.individual === 'true',
+                languageCd: formData.languageCd ? Number(formData.languageCd) : null
             };
 
             const response = await fetch('/user/update', {
@@ -86,7 +114,6 @@ export default function PersonalInfo() {
             // 2. Save extended fields to localStorage
             const extendedFields = {
                 gender: formData.gender,
-                language: formData.language,
                 country: formData.country,
                 state: formData.state
             };
@@ -134,6 +161,13 @@ export default function PersonalInfo() {
                                     <option value="Prefer not to say">Prefer not to say</option>
                                 </>
                             ) : null}
+                            {field === 'languageCd' ? (
+                                <>
+                                    {languages.map(l => (
+                                        <option key={l.codeCd} value={l.codeCd}>{l.description}</option>
+                                    ))}
+                                </>
+                            ) : null}
                         </select>
                     ) : (
                         <input
@@ -148,7 +182,12 @@ export default function PersonalInfo() {
             ) : (
                 <div className="bg-white/60 p-2.5 rounded-xl border border-slate-50 group-hover:bg-indigo-50/20 group-hover:border-indigo-50 transition-colors">
                     <p className="text-[13px] font-black text-slate-900 break-words leading-tight">
-                        {field ? (field === 'individual' ? (profile.individual ? 'Individual' : 'Corporate') : (field.includes('Date') && value ? new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : (formData[field] || profile[field] || 'Not Specified'))) : (value || 'Not Specified')}
+                        {field ? (
+                            field === 'individual' ? (profile.individual ? 'Individual' : 'Corporate') :
+                            field === 'languageCd' ? (languages.find(l => String(l.codeCd) === String(formData.languageCd || profile.languageCd))?.description || profile.languageLocale || 'Not Specified') :
+                            field.includes('Date') && value ? new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) :
+                            (formData[field] || profile[field] || 'Not Specified')
+                        ) : (value || 'Not Specified')}
                     </p>
                     {subValue && <p className="text-[8px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">{subValue}</p>}
                 </div>
@@ -271,7 +310,7 @@ export default function PersonalInfo() {
                             label="Date of Registration"
                             value={profile.accountCreatedOn ? new Date(profile.accountCreatedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Not Specified'}
                         />
-                        <InfoItem icon={Languages} label="Preferred Language" field="language" value={formData.language} />
+                        <InfoItem icon={Languages} label="Preferred Language" field="languageCd" type="select" value={profile.languageLocale} />
                     </div>
                 </div>
             </div>

@@ -124,7 +124,7 @@ public class AuthorizationServerConfig {
 						// Allow unauthenticated/SPA calls for login, signup, otp, and forgot-password
 						// REST endpoints
 						.ignoringRequestMatchers("/login", "/signup", "/otp/**",
-								"/user/request-otp", "/user/reset-password",
+								"/user/request-otp", "/user/reset-password", "/user/update",
 								"/profile/change-password/**",
 								"/profile/email", "/profile/email/**",
 								"/profile/phone-number", "/profile/phone-number/**",

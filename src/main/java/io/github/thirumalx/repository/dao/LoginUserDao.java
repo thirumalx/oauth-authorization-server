@@ -54,9 +54,10 @@ public class LoginUserDao extends GenericDao implements LoginUserRepository {
 	}
 
 	private PreparedStatement setPreparedStatement(LoginUser loginUser, PreparedStatement ps) throws SQLException {
-		ps.setObject(1, UUID.randomUUID());
-		ps.setObject(2, loginUser.getDateOfBirth());
-		ps.setBoolean(3, loginUser.isIndividual());
+		ps.setObject(1, loginUser.getLanguageCd());
+		ps.setObject(2, UUID.randomUUID());
+		ps.setObject(3, loginUser.getDateOfBirth());
+		ps.setBoolean(4, loginUser.isIndividual());
 		return ps;
 	}
 
@@ -119,9 +120,9 @@ public class LoginUserDao extends GenericDao implements LoginUserRepository {
 
 	@Override
 	public int update(LoginUser loginUser) {
-		logger.debug("Updateing login user dob {}", loginUser.getLoginUserId());
+		logger.debug("Updating login user details for {}", loginUser.getLoginUserId());
 		return jdbcTemplate.update(getSql(UPDATE), loginUser.getDateOfBirth(), loginUser.isIndividual(),
-				loginUser.getLoginUserId());
+				loginUser.getLanguageCd(), loginUser.getLoginUserId());
 	}
 
 	RowMapper<LoginUser> loginUserRowMapper = (rs, rowNum) -> {
@@ -129,6 +130,10 @@ public class LoginUserDao extends GenericDao implements LoginUserRepository {
 		LoginUser loginUser = new LoginUser();
 
 		loginUser.setLoginUserId(rs.getObject(PK) != null ? rs.getLong(PK) : null);
+
+		loginUser.setLanguageCd(rs.getObject("language_cd") != null ? rs.getInt("language_cd") : null);
+
+		loginUser.setLanguageLocale(rs.getObject("language_locale") != null ? rs.getString("language_locale") : null);
 
 		loginUser.setLoginUuid(rs.getObject("login_uuid") != null ? rs.getObject("login_uuid", UUID.class) : null);
 

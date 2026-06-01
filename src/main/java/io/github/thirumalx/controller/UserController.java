@@ -29,6 +29,7 @@ import io.github.thirumalx.model.Login;
 import io.github.thirumalx.model.PaginatedLoginHistory;
 import io.github.thirumalx.model.PaginatedUser;
 import io.github.thirumalx.model.Pagination;
+import io.github.thirumalx.model.GenericCd;
 import io.github.thirumalx.model.ResetPassword;
 import io.github.thirumalx.model.UserResource;
 import io.github.thirumalx.service.UserService;
@@ -129,6 +130,12 @@ public class UserController {
 	@GetMapping("/get-account/{loginUuid}")
 	public UserResource createAccount(@PathVariable UUID loginUuid) {
 		return userService.get(loginUuid);
+	}
+
+	@GetMapping("/languages")
+	public List<GenericCd> getLanguages() {
+		logger.debug("Request to retrieve preferred languages lookup");
+		return userService.getLanguages();
 	}
 
 	@GetMapping("/user-by-role/{roleCd}")

@@ -265,6 +265,8 @@ public class UserService {
 		// Login User
 		userResource.setLoginUuid(loginUser.getLoginUuid());
 		userResource.setDateOfBirth(loginUser.getDateOfBirth());
+		userResource.setLanguageCd(loginUser.getLanguageCd());
+		userResource.setLanguageLocale(loginUser.getLanguageLocale());
 		userResource.setIndividual(loginUser.isIndividual());
 		userResource.setAccountCreatedOn(loginUser.getRowCreatedOn());
 		// Login User Name
@@ -316,6 +318,7 @@ public class UserService {
 		LoginUser loginUser = new LoginUser(loginUserDb);
 		loginUser.setDateOfBirth(userResource.getDateOfBirth());
 		loginUser.setIndividual(userResource.isIndividual());
+		loginUser.setLanguageCd(userResource.getLanguageCd());
 		if (!loginUser.equals(loginUserDb)) {
 			loginUserRepository.update(loginUser);
 			newChange = true;
@@ -558,4 +561,7 @@ public class UserService {
 		return userResources;
 	}
 
+	public List<GenericCd> getLanguages() {
+		return genericCdRepository.list("language", GenericCd.DEFAULT_LOCALE_CD);
+	}
 }

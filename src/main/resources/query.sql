@@ -11,17 +11,17 @@ Contact.listInLoginId=${Contact} login_id IN (?) AND end_time = 'infinity'
 Contact.delete=UPDATE public.contact SET end_time = now() WHERE contact_id = ?
 Contact.update=UPDATE public.contact SET login_id = ?, verified_on = NULL WHERE contact_id = ?
 #-- Login User
-LoginUser = SELECT * FROM public.login_user 
-LoginUser.create=INSERT INTO public.login_user(login_uuid, date_of_birth, individual) VALUES (?, ?, ?)
-LoginUser.get=${LoginUser} WHERE login_user_id = ?
-LoginUser.getByUuid=${LoginUser} WHERE login_uuid = ?
+LoginUser = SELECT lu.*, ll.description AS language_locale FROM public.login_user lu LEFT JOIN lookup.language_locale ll ON ll.language_cd = lu.language_cd AND ll.locale_cd = 1 AND ll.end_time = 'infinity'::timestamp
+LoginUser.create=INSERT INTO public.login_user(language_cd, login_uuid, date_of_birth, individual) VALUES (?, ?, ?, ?)
+LoginUser.get=${LoginUser} WHERE lu.login_user_id = ?
+LoginUser.getByUuid=${LoginUser} WHERE lu.login_uuid = ?
 LoginUser.list=${LoginUser} LIMIT ? OFFSET ?
-LoginUser.listIndividual=${LoginUser} WHERE individual IS TRUE LIMIT ? OFFSET ?
-LoginUser.listOrg=${LoginUser} WHERE individual IS FALSE LIMIT ? OFFSET ?
+LoginUser.listIndividual=${LoginUser} WHERE lu.individual IS TRUE LIMIT ? OFFSET ?
+LoginUser.listOrg=${LoginUser} WHERE lu.individual IS FALSE LIMIT ? OFFSET ?
 LoginUser.count=SELECT COUNT(*) FROM public.login_user
 LoginUser.countIndividual=SELECT COUNT(*) FROM public.login_user WHERE individual IS TRUE
 LoginUser.countOrg=SELECT COUNT(*) FROM public.login_user WHERE individual IS FALSE
-LoginUser.update=UPDATE public.login_user SET date_of_birth = ?, individual = ? WHERE login_user_id = ?
+LoginUser.update=UPDATE public.login_user SET date_of_birth = ?, individual = ?, language_cd = ? WHERE login_user_id = ?
 #-- Login User Name
 LoginUserName=SELECT * FROM public.login_user_name WHERE 
 LoginUserName.create=INSERT INTO public.login_user_name(login_user_id, first_name, middle_name, last_name) VALUES (?, ?, ?, ?)
