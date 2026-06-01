@@ -106,6 +106,13 @@ public class MfaService {
 	}
 
 	@Transactional
+	public int disableCurrent() {
+		Long loginUserId = authenticationFacade.getLoginId();
+		logger.debug("Disabling all MFA for user ID {}", loginUserId);
+		return mfaRepository.disable(loginUserId);
+	}
+
+	@Transactional
 	public int disable(String loginUuid) {
 		LoginUser loginUser = loginUserRepository.findByUuid(UUID.fromString(loginUuid));
 		if (loginUser == null) {

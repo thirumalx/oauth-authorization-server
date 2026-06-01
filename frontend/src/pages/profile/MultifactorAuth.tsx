@@ -236,6 +236,24 @@ export default function MultifactorAuth() {
     }
   };
 
+  const handleDisableAllMfa = async () => {
+    if (!confirm('Are you sure you want to disable all Multi-Factor Authentication methods? This will make your account significantly less secure.')) {
+      return;
+    }
+    setActionLoading(-2); // Use -2 for global disabling
+    try {
+      const response = await fetch('/mfa/disable-all', {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to disable all MFA methods');
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getMfaDetails = (mfaCd: number) => {
     switch (mfaCd) {
       case 1:
@@ -297,13 +315,29 @@ export default function MultifactorAuth() {
               Secure your account by adding standard multi-factor verification options.
             </p>
           </div>
-          <button
-            onClick={handleStartAddFlow}
-            disabled={isAdding}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shrink-0 shadow-md shadow-indigo-100"
-          >
-            <Plus className="w-3 h-3" /> Setup MFA
-          </button>
+          <div className="flex items-center gap-3 shrink-0">
+            {mfaConfigs.some(m => m.verified) && (
+              <button
+                onClick={handleDisableAllMfa}
+                disabled={actionLoading === -2}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 disabled:opacity-50 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-sm"
+              >
+                {actionLoading === -2 ? (
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                ) : (
+                  <X className="w-3 h-3" />
+                )}
+                Disable All MFA
+              </button>
+            )}
+            <button
+              onClick={handleStartAddFlow}
+              disabled={isAdding}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-indigo-100"
+            >
+              <Plus className="w-3 h-3" /> Setup MFA
+            </button>
+          </div>
         </div>
       </div>
 

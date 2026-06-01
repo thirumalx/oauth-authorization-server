@@ -65,6 +65,12 @@ public class MfaController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping("/disable-all")
+	public ResponseEntity<Integer> disableAllMfa() {
+		logger.debug("Disabling all MFA for currently authenticated user");
+		return ResponseEntity.ok(mfaService.disableCurrent());
+	}
+
 	@DeleteMapping("/disable-all/{loginUuid}")
 	public ResponseEntity<Integer> disableMfa(@PathVariable String loginUuid) {
 		logger.debug("Disabling all MFA for user UUID {}", loginUuid);
