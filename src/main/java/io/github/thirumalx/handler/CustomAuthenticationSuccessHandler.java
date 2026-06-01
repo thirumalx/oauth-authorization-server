@@ -23,18 +23,30 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws ServletException, IOException {
 
-        SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+        Object savedRequestObj = request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+        String redirectUrl = null;
 
-        // If there is a saved request (e.g., from an OAuth2 /authorize flow),
-        // let the parent handler redirect the user back to that request URL.
-        if (savedRequest != null) {
-            super.onAuthenticationSuccess(request, response, authentication);
-            return;
+        if (savedRequestObj instanceof SavedRequest) {
+            redirectUrl = ((SavedRequest) savedRequestObj).getRedirectUrl();
+        } else if (savedRequestObj instanceof String) {
+            redirectUrl = (String) savedRequestObj;
         }
 
-        // Check if there was a manually stored redirect_url in session (from ForwardController logic)
-        String redirectUrl = (String) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
         if (redirectUrl != null) {
+            logger.debug("Checking saved request redirect URL: " + redirectUrl);
+            if (redirectUrl.contains("/login-histories") || redirectUrl.contains("/phone-number") 
+                    || redirectUrl.contains("/email") || redirectUrl.contains("/allowed-ip") 
+                    || redirectUrl.contains("/mfa") || redirectUrl.contains("/personal-info")
+                    || redirectUrl.contains("/client") || redirectUrl.contains("/userinfo")
+                    || redirectUrl.contains("/address")) {
+                logger.debug("Clearing REST API saved request from session: " + redirectUrl);
+                request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
+                redirectUrl = null;
+            }
+        }
+
+        if (redirectUrl != null) {
+            logger.debug("Redirecting to saved request: " + redirectUrl);
             request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);
             return;

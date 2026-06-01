@@ -24,7 +24,7 @@ export default function PersonalInfo() {
         if (profile) {
             const savedData = localStorage.getItem(`profile_ext_${profile.loginUuid || 'default'}`);
             const extended = savedData ? JSON.parse(savedData) : {};
-            
+
             setFormData({
                 ...profile,
                 ...extended,
@@ -88,8 +88,7 @@ export default function PersonalInfo() {
                 gender: formData.gender,
                 language: formData.language,
                 country: formData.country,
-                state: formData.state,
-                address: formData.address
+                state: formData.state
             };
             localStorage.setItem(`profile_ext_${profile.loginUuid}`, JSON.stringify(extendedFields));
 
@@ -111,13 +110,13 @@ export default function PersonalInfo() {
                     <Icon className="w-3.5 h-3.5 text-indigo-500" />
                 </div>
             </div>
-            
+
             {isEditing && field ? (
                 <div className="space-y-1">
                     {type === "select" ? (
-                        <select 
-                            value={String(formData[field] ?? '')} 
-                            onChange={(e) => setFormData({...formData, [field]: e.target.value})}
+                        <select
+                            value={String(formData[field] ?? '')}
+                            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
                             className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 transition-colors"
                         >
                             <option value="">Select...</option>
@@ -137,10 +136,10 @@ export default function PersonalInfo() {
                             ) : null}
                         </select>
                     ) : (
-                        <input 
+                        <input
                             type={type}
                             value={formData[field] ?? ''}
-                            onChange={(e) => setFormData({...formData, [field]: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
                             className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 transition-colors"
                             placeholder={`Enter ${label.toLowerCase()}...`}
                         />
@@ -165,8 +164,8 @@ export default function PersonalInfo() {
                     {/* Avatar */}
                     <div className="relative shrink-0">
                         <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-200">
-                            {profile.individual 
-                                ? `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}` 
+                            {profile.individual
+                                ? `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}`
                                 : (profile.firstName?.slice(0, 2).toUpperCase() || 'OR')
                             }
                         </div>
@@ -178,8 +177,8 @@ export default function PersonalInfo() {
                     {/* Name + meta */}
                     <div className="flex-1 min-w-0 space-y-1">
                         <h1 className="text-base font-black text-slate-900 tracking-tight truncate">
-                            {profile.individual 
-                                ? `${profile.firstName} ${profile.lastName}` 
+                            {profile.individual
+                                ? `${profile.firstName} ${profile.lastName}`
                                 : profile.firstName
                             }
                         </h1>
@@ -240,58 +239,39 @@ export default function PersonalInfo() {
                                 <InfoItem icon={User} label="First Name" field="firstName" value={profile.firstName} />
                                 <InfoItem icon={User} label="Middle Name" field="middleName" value={profile.middleName} />
                                 <InfoItem icon={User} label="Last Name" field="lastName" value={profile.lastName} />
-                                <InfoItem 
-                                    icon={Calendar} 
-                                    label="Date of Birth" 
+                                <InfoItem
+                                    icon={Calendar}
+                                    label="Date of Birth"
                                     field="dateOfBirth"
                                     type="date"
-                                    value={profile.dateOfBirth} 
+                                    value={profile.dateOfBirth}
                                 />
                                 <InfoItem icon={UserCircle} label="Gender" field="gender" type="select" value={formData.gender} />
                             </>
                         ) : (
                             <>
                                 <InfoItem icon={Building2} label="Organization Name" field="firstName" value={profile.firstName} />
-                                <InfoItem 
-                                    icon={UserCircle} 
-                                    label="Type of User" 
-                                    value="Corporate" 
+                                <InfoItem
+                                    icon={UserCircle}
+                                    label="Type of User"
+                                    value="Corporate"
                                     subValue="LEGAL ENTITY"
                                 />
-                                <InfoItem 
-                                    icon={Calendar} 
-                                    label="Date of Incorporation" 
+                                <InfoItem
+                                    icon={Calendar}
+                                    label="Date of Incorporation"
                                     field="dateOfBirth"
                                     type="date"
-                                    value={profile.dateOfBirth} 
+                                    value={profile.dateOfBirth}
                                 />
                             </>
                         )}
-                        <InfoItem 
-                            icon={Calendar} 
-                            label="Date of Registration" 
-                            value={profile.accountCreatedOn ? new Date(profile.accountCreatedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Not Specified'} 
+                        <InfoItem
+                            icon={Calendar}
+                            label="Date of Registration"
+                            value={profile.accountCreatedOn ? new Date(profile.accountCreatedOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Not Specified'}
                         />
-                    </div>
-                </div>
-
-                {/* Localization & Residence Card */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-2xl shadow-slate-200/40 space-y-6">
-                    <div className="flex items-center justify-between border-b border-slate-50 pb-4">
-                        <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-                            <span className="w-1.5 h-5 bg-indigo-500 rounded-full" />
-                            Regional Context
-                        </h3>
-                        <Globe className="w-3.5 h-3.5 text-slate-300" />
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <InfoItem icon={Languages} label="Preferred Language" field="language" value={formData.language} />
-                        <InfoItem icon={Globe} label="Country" field="country" value={formData.country} />
-                        <InfoItem icon={MapPin} label="State / Province" field="state" value={formData.state} />
-                        <div className="sm:col-span-2 lg:col-span-1">
-                            <InfoItem icon={MapPin} label="Physical Address" field="address" value={formData.address} />
-                        </div>
                     </div>
                 </div>
             </div>

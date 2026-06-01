@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
     User, Mail, Phone, Lock, Globe, Shield,
     Smartphone, Fingerprint, Activity,
-    AppWindow, LogIn, ChevronRight
+    AppWindow, LogIn, ChevronRight, MapPin
 } from 'lucide-react';
 
 const navigation = [
@@ -10,6 +10,7 @@ const navigation = [
         title: 'Profile',
         items: [
             { name: 'Personal Information', path: 'personal-info', icon: User },
+            { name: 'Address', path: 'address', icon: MapPin },
             { name: 'Email Address', path: 'email', icon: Mail },
             { name: 'Mobile Number', path: 'mobile', icon: Phone },
         ]

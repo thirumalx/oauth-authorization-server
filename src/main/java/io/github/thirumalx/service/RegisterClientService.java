@@ -77,4 +77,9 @@ public class RegisterClientService {
 		return registeredClient;
 	}
 
+	public java.util.List<java.util.Map<String, Object>> listClients() {
+		logger.debug("Listing registered clients from DB");
+		return jdbcTemplate.queryForList("SELECT id, client_name, client_id FROM public.oauth2_registered_client ORDER BY client_name ASC");
+	}
+
 }

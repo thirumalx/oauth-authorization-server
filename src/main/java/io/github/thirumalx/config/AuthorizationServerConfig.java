@@ -128,7 +128,9 @@ public class AuthorizationServerConfig {
 								"/profile/change-password/**",
 								"/profile/email", "/profile/email/**",
 								"/profile/phone-number", "/profile/phone-number/**",
-								"/mfa", "/mfa/**")
+								"/mfa", "/mfa/**",
+								"/allowed-ip", "/allowed-ip/**",
+								"/address", "/address/**")
 				// For SPA, it's better to use CookieCsrfTokenRepository
 				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				)
@@ -155,13 +157,27 @@ public class AuthorizationServerConfig {
 							if (redirectUrl != null) {
 								request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST", redirectUrl);
 							} else {
-								super.saveRequest(request, response);
+								// Only cache main page GET requests expecting HTML, never background JSON/AJAX API requests
+								String accept = request.getHeader("Accept");
+								String method = request.getMethod();
+								if ("GET".equalsIgnoreCase(method) && accept != null && accept.contains("text/html")) {
+									super.saveRequest(request, response);
+								}
 							}
 						}
 					};
 					requestCache.requestCache(cache);
 				})
 				.exceptionHandling(exceptions -> exceptions
+						.authenticationEntryPoint((request, response, authException) -> {
+							String accept = request.getHeader("Accept");
+							String requestedWith = request.getHeader("X-Requested-With");
+							if ((accept != null && accept.contains("application/json")) || "XMLHttpRequest".equals(requestedWith)) {
+								response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Session expired");
+							} else {
+								response.sendRedirect(request.getContextPath() + "/login");
+							}
+						})
 						.accessDeniedHandler((request, response, accessDeniedException) -> {
 							// Custom access denied handler for /user endpoint
 							if (request.getRequestURI().startsWith("/user")) {
@@ -173,6 +189,11 @@ public class AuthorizationServerConfig {
 						}));
 
 		return http.build();
+	}
+
+	@Bean
+	public org.springframework.security.web.session.HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new org.springframework.security.web.session.HttpSessionEventPublisher();
 	}
 
 	/**

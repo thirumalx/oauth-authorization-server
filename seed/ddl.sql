@@ -1,5 +1,5 @@
 -- ** Database generated with pgModeler (PostgreSQL Database Modeler).
--- ** pgModeler version: 2.0.0-alpha
+-- ** pgModeler version: 2.0.0-alpha1
 -- ** PostgreSQL version: 18.0
 -- ** Project Site: pgmodeler.io
 -- ** Model Author: Thirumal
@@ -238,6 +238,7 @@ ALTER TABLE public.contact OWNER TO postgres;
 -- DROP TABLE IF EXISTS public.login_user CASCADE;
 CREATE TABLE public.login_user (
 	login_user_id bigint NOT NULL DEFAULT nextval('public.login_user_login_user_id_seq'::regclass),
+	language_cd smallint,
 	login_uuid uuid NOT NULL,
 	date_of_birth timestamptz,
 	individual boolean NOT NULL DEFAULT true,
@@ -917,6 +918,366 @@ CREATE FOREIGN TABLE icms.party (
 SERVER icms;
 -- ddl-end --
 ALTER FOREIGN TABLE icms.party OWNER TO postgres;
+-- ddl-end --
+
+-- object: public.allowed_ip | type: TABLE --
+-- DROP TABLE IF EXISTS public.allowed_ip CASCADE;
+CREATE TABLE public.allowed_ip (
+	allowed_ip_id bigserial NOT NULL,
+	login_user_id bigint,
+	id varchar(100),
+	ip_range cidr NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	created_at timestamptz NOT NULL DEFAULT current_timestamp,
+	CONSTRAINT allowed_ip_pk PRIMARY KEY (allowed_ip_id)
+);
+-- ddl-end --
+COMMENT ON COLUMN public.allowed_ip.ip_range IS E'Why CIDR?\nCIDR (Classless Inter-Domain Routing) is a method for allocating IP addresses and routing internet traffic. It replaces the outdated, rigid class-based system by allowing networks to be divided into custom sizes, preventing the waste of IP addresses';
+-- ddl-end --
+ALTER TABLE public.allowed_ip OWNER TO postgres;
+-- ddl-end --
+
+-- object: login_user_fk | type: CONSTRAINT --
+-- ALTER TABLE public.allowed_ip DROP CONSTRAINT IF EXISTS login_user_fk CASCADE;
+ALTER TABLE public.allowed_ip ADD CONSTRAINT login_user_fk FOREIGN KEY (login_user_id)
+REFERENCES public.login_user (login_user_id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: oauth2_registered_client_fk | type: CONSTRAINT --
+-- ALTER TABLE public.allowed_ip DROP CONSTRAINT IF EXISTS oauth2_registered_client_fk CASCADE;
+ALTER TABLE public.allowed_ip ADD CONSTRAINT oauth2_registered_client_fk FOREIGN KEY (id)
+REFERENCES public.oauth2_registered_client (id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: public.address | type: TABLE --
+-- DROP TABLE IF EXISTS public.address CASCADE;
+CREATE TABLE public.address (
+	address_id bigserial NOT NULL,
+	login_user_id bigint,
+	address_cd smallint,
+	address_usage_cd smallint,
+	country_cd smallint,
+	state_cd smallint,
+	address_line_1 text,
+	address_line_2 text,
+	city_town varchar(100),
+	postal_code varchar(10),
+	district varchar(100),
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	CONSTRAINT address_pk PRIMARY KEY (address_id)
+);
+-- ddl-end --
+ALTER TABLE public.address OWNER TO postgres;
+-- ddl-end --
+
+-- object: login_user_fk | type: CONSTRAINT --
+-- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS login_user_fk CASCADE;
+ALTER TABLE public.address ADD CONSTRAINT login_user_fk FOREIGN KEY (login_user_id)
+REFERENCES public.login_user (login_user_id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.country_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.country_cd CASCADE;
+CREATE TABLE lookup.country_cd (
+	country_cd smallint NOT NULL,
+	code varchar(10) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar,
+	CONSTRAINT country_cd_pk PRIMARY KEY (country_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.country_cd OWNER TO postgres;
+-- ddl-end --
+
+-- object: lookup.country_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.country_locale CASCADE;
+CREATE TABLE lookup.country_locale (
+	country_cd smallint,
+	locale_cd integer,
+	description varchar(100) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar(200)
+
+);
+-- ddl-end --
+ALTER TABLE lookup.country_locale OWNER TO postgres;
+-- ddl-end --
+
+-- object: country_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.country_locale DROP CONSTRAINT IF EXISTS country_cd_fk CASCADE;
+ALTER TABLE lookup.country_locale ADD CONSTRAINT country_cd_fk FOREIGN KEY (country_cd)
+REFERENCES lookup.country_cd (country_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.country_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.country_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.state_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.state_cd CASCADE;
+CREATE TABLE lookup.state_cd (
+	state_cd smallint NOT NULL,
+	country_cd smallint,
+	code varchar(50) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar(200),
+	CONSTRAINT state_cd_pk PRIMARY KEY (state_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.state_cd OWNER TO postgres;
+-- ddl-end --
+
+-- object: country_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.state_cd DROP CONSTRAINT IF EXISTS country_cd_fk CASCADE;
+ALTER TABLE lookup.state_cd ADD CONSTRAINT country_cd_fk FOREIGN KEY (country_cd)
+REFERENCES lookup.country_cd (country_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.state_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.state_locale CASCADE;
+CREATE TABLE lookup.state_locale (
+	state_cd smallint,
+	locale_cd integer,
+	description varchar(50) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar
+
+);
+-- ddl-end --
+ALTER TABLE lookup.state_locale OWNER TO postgres;
+-- ddl-end --
+
+-- object: state_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.state_locale DROP CONSTRAINT IF EXISTS state_cd_fk CASCADE;
+ALTER TABLE lookup.state_locale ADD CONSTRAINT state_cd_fk FOREIGN KEY (state_cd)
+REFERENCES lookup.state_cd (state_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.state_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.state_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.language_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.language_cd CASCADE;
+CREATE TABLE lookup.language_cd (
+	language_cd smallint NOT NULL,
+	code varchar(50) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_by varchar NOT NULL DEFAULT 'Thirumal',
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar(200),
+	CONSTRAINT language_cd_pk PRIMARY KEY (language_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.language_cd OWNER TO postgres;
+-- ddl-end --
+
+-- object: lookup.language_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.language_locale CASCADE;
+CREATE TABLE lookup.language_locale (
+	language_cd smallint,
+	locale_cd integer,
+	description varchar(250) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar(250)
+
+);
+-- ddl-end --
+ALTER TABLE lookup.language_locale OWNER TO postgres;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.language_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.language_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: language_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.language_locale DROP CONSTRAINT IF EXISTS language_cd_fk CASCADE;
+ALTER TABLE lookup.language_locale ADD CONSTRAINT language_cd_fk FOREIGN KEY (language_cd)
+REFERENCES lookup.language_cd (language_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: language_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.login_user DROP CONSTRAINT IF EXISTS language_cd_fk CASCADE;
+ALTER TABLE public.login_user ADD CONSTRAINT language_cd_fk FOREIGN KEY (language_cd)
+REFERENCES lookup.language_cd (language_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: country_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS country_cd_fk CASCADE;
+ALTER TABLE public.address ADD CONSTRAINT country_cd_fk FOREIGN KEY (country_cd)
+REFERENCES lookup.country_cd (country_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: state_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS state_cd_fk CASCADE;
+ALTER TABLE public.address ADD CONSTRAINT state_cd_fk FOREIGN KEY (state_cd)
+REFERENCES lookup.state_cd (state_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.address_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.address_cd CASCADE;
+CREATE TABLE lookup.address_cd (
+	address_cd smallint NOT NULL,
+	code varchar(100) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_info varchar(200),
+	CONSTRAINT address_cd_pk PRIMARY KEY (address_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.address_cd OWNER TO postgres;
+-- ddl-end --
+
+-- object: lookup.address_usage_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.address_usage_cd CASCADE;
+CREATE TABLE lookup.address_usage_cd (
+	address_usage_cd smallint NOT NULL,
+	code varchar(250) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar(500),
+	CONSTRAINT address_usage_cd_pk PRIMARY KEY (address_usage_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.address_usage_cd OWNER TO postgres;
+-- ddl-end --
+
+-- object: lookup.address_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.address_locale CASCADE;
+CREATE TABLE lookup.address_locale (
+	address_cd smallint,
+	locale_cd integer,
+	description varchar(250) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar(200)
+
+);
+-- ddl-end --
+ALTER TABLE lookup.address_locale OWNER TO postgres;
+-- ddl-end --
+
+-- object: address_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.address_locale DROP CONSTRAINT IF EXISTS address_cd_fk CASCADE;
+ALTER TABLE lookup.address_locale ADD CONSTRAINT address_cd_fk FOREIGN KEY (address_cd)
+REFERENCES lookup.address_cd (address_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.address_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.address_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.address_usage_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.address_usage_locale CASCADE;
+CREATE TABLE lookup.address_usage_locale (
+	address_usage_cd smallint,
+	locale_cd integer,
+	description varchar(100) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar
+
+);
+-- ddl-end --
+ALTER TABLE lookup.address_usage_locale OWNER TO postgres;
+-- ddl-end --
+
+-- object: address_usage_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.address_usage_locale DROP CONSTRAINT IF EXISTS address_usage_cd_fk CASCADE;
+ALTER TABLE lookup.address_usage_locale ADD CONSTRAINT address_usage_cd_fk FOREIGN KEY (address_usage_cd)
+REFERENCES lookup.address_usage_cd (address_usage_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.address_usage_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.address_usage_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: address_usage_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS address_usage_cd_fk CASCADE;
+ALTER TABLE public.address ADD CONSTRAINT address_usage_cd_fk FOREIGN KEY (address_usage_cd)
+REFERENCES lookup.address_usage_cd (address_usage_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: address_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS address_cd_fk CASCADE;
+ALTER TABLE public.address ADD CONSTRAINT address_cd_fk FOREIGN KEY (address_cd)
+REFERENCES lookup.address_cd (address_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: oauth2_registered_client_fk | type: CONSTRAINT --

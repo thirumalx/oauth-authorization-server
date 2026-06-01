@@ -10,6 +10,7 @@ import Profile from './pages/Profile'
 import ConsentedApps from './pages/ConsentedApps'
 import Consent from './pages/Consent'
 import PersonalInfo from './pages/profile/PersonalInfo'
+import AddressPage from './pages/profile/AddressPage'
 import EmailAddress from './pages/profile/EmailAddress'
 import MobileNumber from './pages/profile/MobileNumber'
 import PasswordChange from './pages/profile/PasswordChange'
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/profile" element={<Profile />}>
                         <Route index element={<Navigate to="personal-info" replace />} />
                         <Route path="personal-info" element={<PersonalInfo />} />
+                        <Route path="address" element={<AddressPage />} />
                         <Route path="email" element={<EmailAddress />} />
                         <Route path="mobile" element={<MobileNumber />} />
                         <Route path="password" element={<PasswordChange />} />
