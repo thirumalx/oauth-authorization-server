@@ -186,7 +186,10 @@ public class AuthorizationServerConfig {
 							} else {
 								response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
 							}
-						}));
+						})
+				);
+
+		http.addFilterAfter(new io.github.thirumalx.security.MfaEnforcementFilter(), org.springframework.security.web.context.SecurityContextHolderFilter.class);
 
 		return http.build();
 	}

@@ -4,15 +4,12 @@
 package io.github.thirumalx.controller;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -82,7 +79,8 @@ public class SignupController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             logger.error("Unexpected signup error", e);
-            return ResponseEntity.internalServerError().body(Map.of("message", "An unexpected error occurred. Please try again."));
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "An unexpected error occurred. Please try again."));
         }
     }
 

@@ -1,4 +1,5 @@
 GenericCd.listByTableName=SELECT * FROM lookup.{TABLE_NAME}_cd AS c LEFT JOIN lookup.{TABLE_NAME}_locale AS l ON l.{TABLE_NAME}_cd = c.{TABLE_NAME}_cd WHERE l.locale_cd = ? AND l.end_time = 'infinity'
+GenericCodeCd.getLocalCd=SELECT locale_cd FROM lookup.locale_cd WHERE code=? AND end_time = 'infinity'
 #-- Contact
 Contact=SELECT * FROM public.contact WHERE
 Contact.create=INSERT INTO public.contact(login_user_id, contact_cd, login_id) VALUES (?, ?, ?)

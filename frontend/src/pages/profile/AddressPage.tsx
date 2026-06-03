@@ -24,35 +24,6 @@ interface LookupOption {
     description: string;
 }
 
-// Robust fallback lookups in case DB lookup tables are unseeded
-const FALLBACK_COUNTRIES: LookupOption[] = [
-    { codeCd: 1, description: 'India' },
-    { codeCd: 2, description: 'United States' },
-    { codeCd: 3, description: 'United Kingdom' },
-    { codeCd: 4, description: 'Canada' },
-    { codeCd: 5, description: 'Germany' }
-];
-
-const FALLBACK_STATES: LookupOption[] = [
-    { codeCd: 1, description: 'Tamil Nadu' },
-    { codeCd: 2, description: 'California' },
-    { codeCd: 3, description: 'London' },
-    { codeCd: 4, description: 'Ontario' },
-    { codeCd: 5, description: 'Berlin' }
-];
-
-const FALLBACK_TYPES: LookupOption[] = [
-    { codeCd: 1, description: 'Permanent' },
-    { codeCd: 2, description: 'Current Residence' },
-    { codeCd: 3, description: 'Office Address' }
-];
-
-const FALLBACK_USAGES: LookupOption[] = [
-    { codeCd: 1, description: 'Personal' },
-    { codeCd: 2, description: 'Billing' },
-    { codeCd: 3, description: 'Shipping' }
-];
-
 export default function AddressPage() {
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [loading, setLoading] = useState(true);
@@ -98,46 +69,42 @@ export default function AddressPage() {
     const fetchLookups = async () => {
         try {
             // Load Countries
-            const resCountries = await fetch('/address/countries');
+            const resCountries = await fetch('/lookup/country', { cache: 'no-store' });
             if (resCountries.ok) {
                 const data = await resCountries.json();
-                setCountries(data.length > 0 ? data : FALLBACK_COUNTRIES);
+                setCountries(data);
             } else {
-                setCountries(FALLBACK_COUNTRIES);
+                throw new Error('Failed to load countries');
             }
 
             // Load States
-            const resStates = await fetch('/address/states');
+            const resStates = await fetch('/lookup/state', { cache: 'no-store' });
             if (resStates.ok) {
                 const data = await resStates.json();
-                setStates(data.length > 0 ? data : FALLBACK_STATES);
+                setStates(data);
             } else {
-                setStates(FALLBACK_STATES);
+                throw new Error('Failed to load states');
             }
 
             // Load Types
-            const resTypes = await fetch('/address/types');
+            const resTypes = await fetch('/lookup/address', { cache: 'no-store' });
             if (resTypes.ok) {
                 const data = await resTypes.json();
-                setTypes(data.length > 0 ? data : FALLBACK_TYPES);
+                setTypes(data);
             } else {
-                setTypes(FALLBACK_TYPES);
+                throw new Error('Failed to load address types');
             }
 
             // Load Usages
-            const resUsages = await fetch('/address/usages');
+            const resUsages = await fetch('/lookup/address_usage', { cache: 'no-store' });
             if (resUsages.ok) {
                 const data = await resUsages.json();
-                setUsages(data.length > 0 ? data : FALLBACK_USAGES);
+                setUsages(data);
             } else {
-                setUsages(FALLBACK_USAGES);
+                throw new Error('Failed to load address usages');
             }
         } catch (err) {
-            console.error('Failed to load DB lookups, falling back to static options.', err);
-            setCountries(FALLBACK_COUNTRIES);
-            setStates(FALLBACK_STATES);
-            setTypes(FALLBACK_TYPES);
-            setUsages(FALLBACK_USAGES);
+            throw new Error('Failed to load lookups');
         }
     };
 
@@ -185,7 +152,7 @@ export default function AddressPage() {
             setPostalCode('');
             setDistrict('');
             setIsAdding(false);
-            
+
             triggerSuccess('New address successfully added to registry');
             await fetchAddresses();
         } catch (err: any) {
@@ -335,8 +302,8 @@ export default function AddressPage() {
                             {/* Type */}
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Classification</label>
-                                <select 
-                                    value={addressCd} 
+                                <select
+                                    value={addressCd}
                                     onChange={(e) => setAddressCd(Number(e.target.value))}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all"
                                 >
@@ -347,8 +314,8 @@ export default function AddressPage() {
                             {/* Usage */}
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Intended Usage</label>
-                                <select 
-                                    value={addressUsageCd} 
+                                <select
+                                    value={addressUsageCd}
                                     onChange={(e) => setAddressUsageCd(Number(e.target.value))}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all"
                                 >
@@ -361,9 +328,9 @@ export default function AddressPage() {
                         <div className="space-y-4">
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Line 1</label>
-                                <input 
-                                    type="text" 
-                                    required 
+                                <input
+                                    type="text"
+                                    required
                                     value={addressLine1}
                                     onChange={(e) => setAddressLine1(e.target.value)}
                                     placeholder="House/Apartment/Suite number, street name"
@@ -373,8 +340,8 @@ export default function AddressPage() {
 
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Line 2 (Optional)</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={addressLine2}
                                     onChange={(e) => setAddressLine2(e.target.value)}
                                     placeholder="Building name, landmark, nearby area"
@@ -387,9 +354,9 @@ export default function AddressPage() {
                         <div className="grid gap-4 sm:grid-cols-3">
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">City / Town</label>
-                                <input 
-                                    type="text" 
-                                    required 
+                                <input
+                                    type="text"
+                                    required
                                     value={cityTown}
                                     onChange={(e) => setCityTown(e.target.value)}
                                     placeholder="Enter city..."
@@ -399,8 +366,8 @@ export default function AddressPage() {
 
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">District / Region</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={district}
                                     onChange={(e) => setDistrict(e.target.value)}
                                     placeholder="Enter district..."
@@ -410,9 +377,9 @@ export default function AddressPage() {
 
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Postal Code (ZIP)</label>
-                                <input 
-                                    type="text" 
-                                    required 
+                                <input
+                                    type="text"
+                                    required
                                     value={postalCode}
                                     onChange={(e) => setPostalCode(e.target.value)}
                                     placeholder="Enter postal code..."
@@ -425,8 +392,8 @@ export default function AddressPage() {
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Country</label>
-                                <select 
-                                    value={countryCd} 
+                                <select
+                                    value={countryCd}
                                     onChange={(e) => setCountryCd(Number(e.target.value))}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all"
                                 >
@@ -436,8 +403,8 @@ export default function AddressPage() {
 
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">State / Province</label>
-                                <select 
-                                    value={stateCd} 
+                                <select
+                                    value={stateCd}
                                     onChange={(e) => setStateCd(Number(e.target.value))}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all"
                                 >
@@ -463,9 +430,9 @@ export default function AddressPage() {
             <div className="grid gap-6">
                 {addresses.map((address) => {
                     const isEditingThis = editingId === address.addressId;
-                    
+
                     return (
-                        <div 
+                        <div
                             key={address.addressId}
                             className={`bg-white rounded-[2rem] border transition-all p-8 relative overflow-hidden group ${isEditingThis ? 'border-indigo-500 shadow-2xl shadow-indigo-100' : 'border-slate-200 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5'}`}
                         >
@@ -479,7 +446,7 @@ export default function AddressPage() {
                                             <Edit3 className="w-4 h-4 text-indigo-600" />
                                             <h3 className="text-sm font-black text-slate-800 tracking-tight">Edit Physical Address</h3>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={() => setEditingId(null)}
                                             className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600"
                                         >
@@ -490,8 +457,8 @@ export default function AddressPage() {
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Classification</label>
-                                            <select 
-                                                value={addressCd} 
+                                            <select
+                                                value={addressCd}
                                                 onChange={(e) => setAddressCd(Number(e.target.value))}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             >
@@ -501,8 +468,8 @@ export default function AddressPage() {
 
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Intended Usage</label>
-                                            <select 
-                                                value={addressUsageCd} 
+                                            <select
+                                                value={addressUsageCd}
                                                 onChange={(e) => setAddressUsageCd(Number(e.target.value))}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             >
@@ -514,9 +481,9 @@ export default function AddressPage() {
                                     <div className="space-y-4">
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Line 1</label>
-                                            <input 
-                                                type="text" 
-                                                required 
+                                            <input
+                                                type="text"
+                                                required
                                                 value={addressLine1}
                                                 onChange={(e) => setAddressLine1(e.target.value)}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
@@ -525,8 +492,8 @@ export default function AddressPage() {
 
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Line 2 (Optional)</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={addressLine2}
                                                 onChange={(e) => setAddressLine2(e.target.value)}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
@@ -537,9 +504,9 @@ export default function AddressPage() {
                                     <div className="grid gap-4 sm:grid-cols-3">
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">City / Town</label>
-                                            <input 
-                                                type="text" 
-                                                required 
+                                            <input
+                                                type="text"
+                                                required
                                                 value={cityTown}
                                                 onChange={(e) => setCityTown(e.target.value)}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
@@ -548,8 +515,8 @@ export default function AddressPage() {
 
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">District / Region</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={district}
                                                 onChange={(e) => setDistrict(e.target.value)}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
@@ -558,9 +525,9 @@ export default function AddressPage() {
 
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Postal Code (ZIP)</label>
-                                            <input 
-                                                type="text" 
-                                                required 
+                                            <input
+                                                type="text"
+                                                required
                                                 value={postalCode}
                                                 onChange={(e) => setPostalCode(e.target.value)}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
@@ -571,8 +538,8 @@ export default function AddressPage() {
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Country</label>
-                                            <select 
-                                                value={countryCd} 
+                                            <select
+                                                value={countryCd}
                                                 onChange={(e) => setCountryCd(Number(e.target.value))}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             >
@@ -582,8 +549,8 @@ export default function AddressPage() {
 
                                         <div className="space-y-1.5">
                                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">State / Province</label>
-                                            <select 
-                                                value={stateCd} 
+                                            <select
+                                                value={stateCd}
                                                 onChange={(e) => setStateCd(Number(e.target.value))}
                                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                             >
@@ -593,14 +560,14 @@ export default function AddressPage() {
                                     </div>
 
                                     <div className="flex gap-3 pt-2">
-                                        <button 
+                                        <button
                                             onClick={() => handleUpdate(address.addressId!)}
                                             disabled={actionLoading === address.addressId}
                                             className="flex-1 flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
                                         >
                                             {actionLoading === address.addressId ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save Details</>}
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setEditingId(null)}
                                             className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
                                         >
@@ -645,14 +612,14 @@ export default function AddressPage() {
 
                                     {/* Action Buttons */}
                                     <div className="flex items-center gap-3 self-end md:self-start shrink-0">
-                                        <button 
+                                        <button
                                             onClick={() => startEditing(address)}
                                             className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all flex items-center justify-center shadow-sm"
                                             title="Edit Address"
                                         >
                                             <Edit3 className="w-4 h-4" />
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleDelete(address.addressId!)}
                                             disabled={actionLoading === address.addressId}
                                             className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all flex items-center justify-center shadow-sm"
@@ -683,7 +650,7 @@ export default function AddressPage() {
                     </div>
                 )}
             </div>
-            
+
             {/* Help guidelines */}
             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 flex items-start gap-4 shadow-inner">
                 <Info className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.thirumalx.model.Address;
-import io.github.thirumalx.model.GenericCd;
 import io.github.thirumalx.service.AddressService;
 
 /**
@@ -59,30 +58,5 @@ public class AddressController {
         logger.debug("Request to delete Address ID {}", addressId);
         addressService.delete(addressId);
         return ResponseEntity.ok().build();
-    }
-
-    // Dropdown lookups
-    @GetMapping("/countries")
-    public ResponseEntity<List<GenericCd>> getCountries() {
-        logger.debug("Retrieving country lookups");
-        return ResponseEntity.ok(addressService.getCountries());
-    }
-
-    @GetMapping("/states")
-    public ResponseEntity<List<GenericCd>> getStates() {
-        logger.debug("Retrieving state lookups");
-        return ResponseEntity.ok(addressService.getStates());
-    }
-
-    @GetMapping("/types")
-    public ResponseEntity<List<GenericCd>> getAddressTypes() {
-        logger.debug("Retrieving address type lookups");
-        return ResponseEntity.ok(addressService.getAddressTypes());
-    }
-
-    @GetMapping("/usages")
-    public ResponseEntity<List<GenericCd>> getAddressUsages() {
-        logger.debug("Retrieving address usage lookups");
-        return ResponseEntity.ok(addressService.getAddressUsages());
     }
 }

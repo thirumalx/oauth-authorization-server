@@ -36,6 +36,7 @@ export default defineConfig({
             '/mfa': redirectInterceptor,
             '/allowed-ip': redirectInterceptor,
             '/address': redirectInterceptor,
+            '/lookup': redirectInterceptor,
             '/client': redirectInterceptor,
             '/userinfo': redirectInterceptor,
             '/logout': redirectInterceptor,

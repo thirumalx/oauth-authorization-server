@@ -31,7 +31,7 @@ export default function PersonalInfo() {
     useEffect(() => {
         const fetchLanguages = async () => {
             try {
-                const res = await fetch('/user/languages');
+                const res = await fetch('/lookup/language', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     setLanguages(data.length > 0 ? data : FALLBACK_LANGUAGES);

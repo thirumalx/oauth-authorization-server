@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.thirumalx.model.Address;
-import io.github.thirumalx.model.GenericCd;
 import io.github.thirumalx.repository.AddressRepository;
-import io.github.thirumalx.repository.GenericCdRepository;
 import io.github.thirumalx.security.IAuthenticationFacade;
 
 /**
@@ -26,9 +24,6 @@ public class AddressService {
 
     @Autowired
     private AddressRepository addressRepository;
-
-    @Autowired
-    private GenericCdRepository genericCdRepository;
 
     @Autowired
     private IAuthenticationFacade authenticationFacade;
@@ -67,22 +62,5 @@ public class AddressService {
         Long loginUserId = authenticationFacade.getLoginId();
         logger.debug("Deleting address with ID {} for user {}", addressId, loginUserId);
         addressRepository.delete(addressId, loginUserId);
-    }
-
-    // Lookup loaders
-    public List<GenericCd> getCountries() {
-        return genericCdRepository.list("country", GenericCd.DEFAULT_LOCALE_CD);
-    }
-
-    public List<GenericCd> getStates() {
-        return genericCdRepository.list("state", GenericCd.DEFAULT_LOCALE_CD);
-    }
-
-    public List<GenericCd> getAddressTypes() {
-        return genericCdRepository.list("address", GenericCd.DEFAULT_LOCALE_CD);
-    }
-
-    public List<GenericCd> getAddressUsages() {
-        return genericCdRepository.list("address_usage", GenericCd.DEFAULT_LOCALE_CD);
     }
 }

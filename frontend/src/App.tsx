@@ -6,6 +6,7 @@ import VerifyOTP from './pages/VerifyOTP'
 import UserManagement from './pages/UserManagement'
 import UserForm from './pages/UserForm'
 import Profile from './pages/Profile'
+import LoginMfa from './pages/LoginMfa'
 
 import ConsentedApps from './pages/ConsentedApps'
 import Consent from './pages/Consent'
@@ -28,6 +29,7 @@ function App() {
             <div className="min-h-screen bg-slate-50">
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/login/mfa" element={<LoginMfa />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -58,3 +60,4 @@ function App() {
 }
 
 export default App
+

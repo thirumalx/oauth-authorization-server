@@ -561,7 +561,32 @@ public class UserService {
 		return userResources;
 	}
 
-	public List<GenericCd> getLanguages() {
-		return genericCdRepository.list("language", GenericCd.DEFAULT_LOCALE_CD);
+	@Transactional
+	public boolean sendLoginMfaOtp(Contact contact) {
+		logger.debug("Generating login MFA OTP for contact: {}", contact.getLoginId());
+		String otp = generateOtp(6);
+		tokenRepository.save(Token.builder()
+				.contactId(contact.getContactId())
+				.otp(passwordEncoder.encode(otp))
+				.expiresOn(OffsetDateTime.now().plusMinutes(Token.EXPIRY_TIME_IN_MINUTES))
+				.build());
+		LoginUserName userName = loginUserNameRepository.findByLoginUserId(contact.getLoginUserId());
+		String name = userName != null ? userName.getFirstName() : "User";
+		String subject = "Login Verification OTP - ";
+		String template = Email.ACCOUNT_VERIFY_FTL_TEMPLATE;
+		sendOtp(name, contact, otp, template, subject);
+		return true;
+	}
+
+	public boolean verifyLoginMfaOtp(Contact contact, String otp) {
+		logger.debug("Executing temporary login MFA OTP validation for: {}", contact.getLoginId());
+		Token token = tokenRepository.findByContactId(contact.getContactId());
+		if (token == null) {
+			throw new BadRequestException("OTP has expired or was not requested");
+		}
+		if (!passwordEncoder.matches(otp, token.getOtp())) {
+			throw new BadRequestException("The verification code is incorrect");
+		}
+		return true;
 	}
 }

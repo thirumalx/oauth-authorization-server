@@ -1,7 +1,10 @@
 package io.github.thirumalx.handler;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -10,14 +13,32 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
+import io.github.thirumalx.model.LoginUser;
+import io.github.thirumalx.model.Mfa;
+import io.github.thirumalx.repository.LoginUserRepository;
+import io.github.thirumalx.repository.MfaRepository;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Authentication success handler that intercepts successful password logins.
+ * If the user has active, verified MFA configurations enabled, they are redirected
+ * to the visual MFA challenge route (/login/mfa) and a pending block is placed on the session.
+ *
+ * @author Antigravity
+ */
 @Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
+
+    @Autowired
+    private LoginUserRepository loginUserRepository;
+
+    @Autowired
+    private MfaRepository mfaRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -45,14 +66,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
             }
         }
 
-        if (redirectUrl != null) {
-            logger.debug("Redirecting to saved request: " + redirectUrl);
-            request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
-            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-            return;
-        }
-
-        // If it's a direct login (no saved request), redirect based on role
+        // Determine default target redirect URL based on user role if no saved request exists
+        String targetUrl = "/profile";
         boolean isAdmin = false;
 
         for (GrantedAuthority authority : authentication.getAuthorities()) {
@@ -64,10 +79,36 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         }
 
         if (isAdmin) {
-            getRedirectStrategy().sendRedirect(request, response, "/user");
-        } else {
-            getRedirectStrategy().sendRedirect(request, response, "/profile");
+            targetUrl = "/user";
         }
+
+        String finalDestination = redirectUrl != null ? redirectUrl : targetUrl;
+
+        // Perform Multi-Factor Authentication Check
+        try {
+            String loginUuidStr = authentication.getName();
+            LoginUser loginUser = loginUserRepository.findByUuid(UUID.fromString(loginUuidStr));
+            if (loginUser != null) {
+                List<Mfa> mfaConfigs = mfaRepository.findByLoginUserId(loginUser.getLoginUserId());
+                boolean mfaRequired = mfaConfigs.stream().anyMatch(m -> m.isVerified() && (m.getEndTime() == null || m.getEndTime().isAfter(java.time.OffsetDateTime.now())));
+                if (mfaRequired) {
+                    logger.debug("MFA is enabled for user " + loginUuidStr + ". Redirecting to challenge page.");
+                    request.getSession().setAttribute("MFA_PENDING", true);
+                    request.getSession().setAttribute("MFA_USER_ID", loginUser.getLoginUserId());
+                    request.getSession().setAttribute("MFA_UUID", loginUuidStr);
+                    request.getSession().setAttribute("MFA_TARGET_URL", finalDestination);
+                    
+                    getRedirectStrategy().sendRedirect(request, response, "/login/mfa");
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error executing login MFA check", e);
+        }
+
+        logger.debug("Redirecting user directly to final target: " + finalDestination);
+        request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
+        getRedirectStrategy().sendRedirect(request, response, finalDestination);
     }
 
     @Override
