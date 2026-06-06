@@ -37,6 +37,7 @@ export default defineConfig({
             '/allowed-ip': redirectInterceptor,
             '/address': redirectInterceptor,
             '/lookup': redirectInterceptor,
+            '/webauthn': redirectInterceptor,
             '/client': redirectInterceptor,
             '/userinfo': redirectInterceptor,
             '/logout': redirectInterceptor,

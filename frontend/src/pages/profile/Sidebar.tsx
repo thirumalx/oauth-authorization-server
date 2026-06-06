@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
     User, Mail, Phone, Lock, Globe, Shield,
     Smartphone, Fingerprint, Activity,
-    AppWindow, LogIn, ChevronRight, MapPin
+    AppWindow, LogIn, ChevronRight, MapPin, Key
 } from 'lucide-react';
 
 const navigation = [
@@ -28,6 +28,7 @@ const navigation = [
         title: 'Authentication',
         items: [
             { name: 'MFA', path: 'mfa', icon: Fingerprint },
+            { name: 'Passkeys', path: 'passkeys', icon: Key },
         ]
     },
     {

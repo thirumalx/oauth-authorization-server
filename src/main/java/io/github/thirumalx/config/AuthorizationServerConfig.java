@@ -41,6 +41,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository;
+import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -109,11 +112,12 @@ public class AuthorizationServerConfig {
 			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler)
 			throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
-				// Allow public access to login, signup, and static resources
+				// Allow public access to login, signup, static resources, and WebAuthn auth endpoints
 				.requestMatchers("/login", "/signup", "/index.html", "/assets/**", "/vite.svg",
 						"/style/**", "/error", "/forgot-password/**",
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
-						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**", "/otp/**")
+						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**", "/otp/**",
+						"/login/webauthn.js", "/webauthn/authenticate/**")
 				.permitAll()
 				// Allow unauthenticated access to forgot-password REST endpoints
 				.requestMatchers("/user/request-otp", "/user/reset-password").permitAll()
@@ -121,7 +125,7 @@ public class AuthorizationServerConfig {
 				.requestMatchers("/user", "/user/**").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
 				.csrf(csrf -> csrf
-						// Allow unauthenticated/SPA calls for login, signup, otp, and forgot-password
+						// Allow unauthenticated/SPA calls for login, signup, otp, forgot-password, and WebAuthn
 						// REST endpoints
 						.ignoringRequestMatchers("/login", "/signup", "/otp/**",
 								"/user/request-otp", "/user/reset-password", "/user/update",
@@ -130,7 +134,8 @@ public class AuthorizationServerConfig {
 								"/profile/phone-number", "/profile/phone-number/**",
 								"/mfa", "/mfa/**",
 								"/allowed-ip", "/allowed-ip/**",
-								"/address", "/address/**")
+								"/address", "/address/**",
+								"/login/webauthn", "/webauthn/**")
 				// For SPA, it's better to use CookieCsrfTokenRepository
 				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				)
@@ -141,6 +146,11 @@ public class AuthorizationServerConfig {
 						.loginPage("/login") // Custom login page
 						.successHandler(customAuthenticationSuccessHandler)
 						.permitAll())
+				.webAuthn(webAuthn -> webAuthn
+						.rpName("OAuth Authorization Server")
+						.rpId("localhost")
+						.allowedOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:2223")
+				)
 				.logout(logout -> logout
 						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
 								"/logout", "GET"))
@@ -192,6 +202,16 @@ public class AuthorizationServerConfig {
 		http.addFilterAfter(new io.github.thirumalx.security.MfaEnforcementFilter(), org.springframework.security.web.context.SecurityContextHolderFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public JdbcPublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(JdbcOperations jdbcOperations) {
+		return new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations);
+	}
+
+	@Bean
+	public JdbcUserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
+		return new JdbcUserCredentialRepository(jdbcOperations);
 	}
 
 	@Bean

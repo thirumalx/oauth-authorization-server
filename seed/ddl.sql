@@ -382,6 +382,7 @@ CREATE TABLE public.login_history (
 	login_history_id bigserial NOT NULL,
 	login_user_id bigint NOT NULL,
 	success_login boolean NOT NULL,
+	ip_address varchar(45),
 	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
 	logout_time timestamptz
 
@@ -1000,6 +1001,9 @@ CREATE TABLE lookup.country_cd (
 ALTER TABLE lookup.country_cd OWNER TO postgres;
 -- ddl-end --
 
+INSERT INTO lookup.country_cd (country_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'IN', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
 -- object: lookup.country_locale | type: TABLE --
 -- DROP TABLE IF EXISTS lookup.country_locale CASCADE;
 CREATE TABLE lookup.country_locale (
@@ -1017,6 +1021,9 @@ CREATE TABLE lookup.country_locale (
 );
 -- ddl-end --
 ALTER TABLE lookup.country_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.country_locale (country_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'1', E'India', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- ddl-end --
 
 -- object: country_cd_fk | type: CONSTRAINT --
@@ -1052,6 +1059,13 @@ CREATE TABLE lookup.state_cd (
 ALTER TABLE lookup.state_cd OWNER TO postgres;
 -- ddl-end --
 
+INSERT INTO lookup.state_cd (state_cd, country_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'Tamil Nadu', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.state_cd (state_cd, country_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Karnataka', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.state_cd (state_cd, country_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Kerala', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
 -- object: country_cd_fk | type: CONSTRAINT --
 -- ALTER TABLE lookup.state_cd DROP CONSTRAINT IF EXISTS country_cd_fk CASCADE;
 ALTER TABLE lookup.state_cd ADD CONSTRAINT country_cd_fk FOREIGN KEY (country_cd)
@@ -1076,6 +1090,13 @@ CREATE TABLE lookup.state_locale (
 );
 -- ddl-end --
 ALTER TABLE lookup.state_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.state_locale (state_cd, locale_cd, description, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'TamilNadu', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.state_locale (state_cd, locale_cd, description, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Karnataka', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.state_locale (state_cd, locale_cd, description, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Kerala', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- ddl-end --
 
 -- object: state_cd_fk | type: CONSTRAINT --
@@ -1110,6 +1131,11 @@ CREATE TABLE lookup.language_cd (
 ALTER TABLE lookup.language_cd OWNER TO postgres;
 -- ddl-end --
 
+INSERT INTO lookup.language_cd (language_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'en_IN', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.language_cd (language_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'2', E'ta_IN', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
 -- object: lookup.language_locale | type: TABLE --
 -- DROP TABLE IF EXISTS lookup.language_locale CASCADE;
 CREATE TABLE lookup.language_locale (
@@ -1127,6 +1153,11 @@ CREATE TABLE lookup.language_locale (
 );
 -- ddl-end --
 ALTER TABLE lookup.language_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.language_locale (language_cd, locale_cd, description, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'1', E'English (India)', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.language_locale (language_cd, locale_cd, description, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'2', E'1', E'Tamil (India)', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- ddl-end --
 
 -- object: locale_cd_fk | type: CONSTRAINT --
@@ -1182,6 +1213,13 @@ CREATE TABLE lookup.address_cd (
 ALTER TABLE lookup.address_cd OWNER TO postgres;
 -- ddl-end --
 
+INSERT INTO lookup.address_cd (address_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_updated_info) VALUES (E'1', E'Home', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_cd (address_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_updated_info) VALUES (E'2', E'Registered Office', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_cd (address_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_updated_info) VALUES (E'3', E'Branch Office', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
 -- object: lookup.address_usage_cd | type: TABLE --
 -- DROP TABLE IF EXISTS lookup.address_usage_cd CASCADE;
 CREATE TABLE lookup.address_usage_cd (
@@ -1198,6 +1236,19 @@ CREATE TABLE lookup.address_usage_cd (
 );
 -- ddl-end --
 ALTER TABLE lookup.address_usage_cd OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'Billing', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'2', E'Shipping', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'3', E'Correspondence', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'4', E'Legal Notice', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'5', E'Emergency Contact', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_cd (address_usage_cd, code, start_time, end_time, row_created_on, row_created_by, row_updated_on, row_updated_by, row_update_info) VALUES (E'6', E'Geo-fence Reference', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- ddl-end --
 
 -- object: lookup.address_locale | type: TABLE --
@@ -1217,6 +1268,13 @@ CREATE TABLE lookup.address_locale (
 );
 -- ddl-end --
 ALTER TABLE lookup.address_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.address_locale (address_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'Home', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_locale (address_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Registered Office', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_locale (address_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Branch Office', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- ddl-end --
 
 -- object: address_cd_fk | type: CONSTRAINT --
@@ -1252,6 +1310,19 @@ CREATE TABLE lookup.address_usage_locale (
 ALTER TABLE lookup.address_usage_locale OWNER TO postgres;
 -- ddl-end --
 
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'Billing', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Shipping', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Correspondence', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'4', E'1', E'Legal Notice', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'5', E'1', E'Geo-fence Reference', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.address_usage_locale (address_usage_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'6', E'1', E'Emergency Contact', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
 -- object: address_usage_cd_fk | type: CONSTRAINT --
 -- ALTER TABLE lookup.address_usage_locale DROP CONSTRAINT IF EXISTS address_usage_cd_fk CASCADE;
 ALTER TABLE lookup.address_usage_locale ADD CONSTRAINT address_usage_cd_fk FOREIGN KEY (address_usage_cd)
@@ -1278,6 +1349,302 @@ ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE public.address ADD CONSTRAINT address_cd_fk FOREIGN KEY (address_cd)
 REFERENCES lookup.address_cd (address_cd) MATCH FULL
 ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: public.trusted_device | type: TABLE --
+-- DROP TABLE IF EXISTS public.trusted_device CASCADE;
+CREATE TABLE public.trusted_device (
+	trusted_device_id bigserial NOT NULL,
+	login_user_id bigint,
+	device_cd smallint,
+	access_type_cd smallint,
+	device_description varchar(255),
+	device_identifier varchar(255) NOT NULL,
+	platform_name varchar(100),
+	platform_version varchar(50),
+	client_name varchar(100),
+	client_version varchar(50),
+	trusted boolean NOT NULL DEFAULT true,
+	first_seen_at timestamptz NOT NULL DEFAULT current_timestamp,
+	last_seen_at timestamptz,
+	start_time timestamptz NOT NULL DEFAULT current_timetamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	CONSTRAINT trusted_device_pk PRIMARY KEY (trusted_device_id)
+);
+-- ddl-end --
+COMMENT ON COLUMN public.trusted_device.device_description IS E'-- Human-readable device name\n-- Google Pixel 10a';
+-- ddl-end --
+COMMENT ON COLUMN public.trusted_device.device_identifier IS E'-- Unique identifier/fingerprint';
+-- ddl-end --
+COMMENT ON COLUMN public.trusted_device.platform_name IS E'-- OS / Platform information';
+-- ddl-end --
+COMMENT ON COLUMN public.trusted_device.client_name IS E'-- Browser/App/API Client information';
+-- ddl-end --
+COMMENT ON COLUMN public.trusted_device.client_version IS E'-- Browser/App/API Client information';
+-- ddl-end --
+ALTER TABLE public.trusted_device OWNER TO postgres;
+-- ddl-end --
+
+-- object: login_user_fk | type: CONSTRAINT --
+-- ALTER TABLE public.trusted_device DROP CONSTRAINT IF EXISTS login_user_fk CASCADE;
+ALTER TABLE public.trusted_device ADD CONSTRAINT login_user_fk FOREIGN KEY (login_user_id)
+REFERENCES public.login_user (login_user_id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.device_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.device_cd CASCADE;
+CREATE TABLE lookup.device_cd (
+	device_cd smallint NOT NULL,
+	code varchar(45) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_by varchar(45) NOT NULL DEFAULT 'Thirumal',
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar(200),
+	CONSTRAINT device_cd_pk PRIMARY KEY (device_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.device_cd OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'Desktop', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'Laptop', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'Smartphone', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'4', E'Tablet', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'5', E'Smart TV', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'6', E'IoT Device', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'7', E'Server', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_cd (device_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_by, row_updated_on, row_update_info) VALUES (E'0', E'Other/Unknown', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
+-- object: lookup.device_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.device_locale CASCADE;
+CREATE TABLE lookup.device_locale (
+	device_cd smallint,
+	locale_cd integer,
+	description varchar(250) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar(200)
+
+);
+-- ddl-end --
+ALTER TABLE lookup.device_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'0', E'1', E'Other/Unknown', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'Desktop', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Laptop', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Smartphone', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'4', E'1', E'Tablet', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'5', E'1', E'Smart TV', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'6', E'1', E'IoT Device', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.device_locale (device_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'7', E'1', E'Server', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
+-- object: device_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.device_locale DROP CONSTRAINT IF EXISTS device_cd_fk CASCADE;
+ALTER TABLE lookup.device_locale ADD CONSTRAINT device_cd_fk FOREIGN KEY (device_cd)
+REFERENCES lookup.device_cd (device_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.device_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.device_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: lookup.access_type_cd | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.access_type_cd CASCADE;
+CREATE TABLE lookup.access_type_cd (
+	access_type_cd smallint NOT NULL,
+	code varchar(50) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_update_info varchar(100),
+	CONSTRAINT access_type_cd_pk PRIMARY KEY (access_type_cd)
+);
+-- ddl-end --
+ALTER TABLE lookup.access_type_cd OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'0', E'Other/Unknown', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'1', E'Web Browser', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'2', E'Mobile App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'3', E'Desktop App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'4', E'Smart TV App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'5', E'API Client', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'6', E'Service Account', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_cd (access_type_cd, code, start_time, end_time, row_created_by, row_created_on, row_updated_on, row_updated_by, row_update_info) VALUES (E'7', E'CLI Tool', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
+-- object: lookup.access_type_locale | type: TABLE --
+-- DROP TABLE IF EXISTS lookup.access_type_locale CASCADE;
+CREATE TABLE lookup.access_type_locale (
+	access_type_cd smallint,
+	locale_cd integer,
+	description varchar(100) NOT NULL,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'inifinity'::timestamp,
+	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
+	row_updated_on timestamptz NOT NULL DEFAULT current_timestamp,
+	row_update_info varchar(100)
+
+);
+-- ddl-end --
+ALTER TABLE lookup.access_type_locale OWNER TO postgres;
+-- ddl-end --
+
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'0', E'1', E'Other/Unknown', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'1', E'1', E'Web Browser', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'2', E'1', E'Mobile App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'3', E'1', E'Desktop App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'4', E'1', E'Smart TV App', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'5', E'1', E'API Client', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'6', E'1', E'Service Account', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+INSERT INTO lookup.access_type_locale (access_type_cd, locale_cd, description, start_time, end_time, row_created_on, row_created_by, row_updated_by, row_updated_on, row_update_info) VALUES (E'7', E'1', E'CLI Tool', DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+-- ddl-end --
+
+-- object: access_type_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.access_type_locale DROP CONSTRAINT IF EXISTS access_type_cd_fk CASCADE;
+ALTER TABLE lookup.access_type_locale ADD CONSTRAINT access_type_cd_fk FOREIGN KEY (access_type_cd)
+REFERENCES lookup.access_type_cd (access_type_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: locale_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE lookup.access_type_locale DROP CONSTRAINT IF EXISTS locale_cd_fk CASCADE;
+ALTER TABLE lookup.access_type_locale ADD CONSTRAINT locale_cd_fk FOREIGN KEY (locale_cd)
+REFERENCES lookup.locale_cd (locale_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: device_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.trusted_device DROP CONSTRAINT IF EXISTS device_cd_fk CASCADE;
+ALTER TABLE public.trusted_device ADD CONSTRAINT device_cd_fk FOREIGN KEY (device_cd)
+REFERENCES lookup.device_cd (device_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: access_type_cd_fk | type: CONSTRAINT --
+-- ALTER TABLE public.trusted_device DROP CONSTRAINT IF EXISTS access_type_cd_fk CASCADE;
+ALTER TABLE public.trusted_device ADD CONSTRAINT access_type_cd_fk FOREIGN KEY (access_type_cd)
+REFERENCES lookup.access_type_cd (access_type_cd) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: idx_trusted_device_identifier | type: INDEX --
+-- DROP INDEX IF EXISTS public.idx_trusted_device_identifier;
+CREATE INDEX idx_trusted_device_identifier ON public.trusted_device
+USING btree
+(
+	device_identifier
+)
+INCLUDE (device_identifier)
+TABLESPACE pg_default;
+-- ddl-end --
+
+-- object: public.user_entities | type: TABLE --
+-- DROP TABLE IF EXISTS public.user_entities CASCADE;
+CREATE TABLE public.user_entities (
+	id varchar(255) NOT NULL,
+	name varchar(255) NOT NULL,
+	display_name varchar(255) NOT NULL,
+	CONSTRAINT user_entities_pk PRIMARY KEY (id),
+	CONSTRAINT unique_user_entities_name UNIQUE (name)
+);
+-- ddl-end --
+COMMENT ON COLUMN public.user_entities.id IS E'Stores login_user.login_uuid (as a string)';
+-- ddl-end --
+COMMENT ON COLUMN public.user_entities.name IS E'-- Stores login email/phone number';
+-- ddl-end --
+COMMENT ON COLUMN public.user_entities.display_name IS E'-- Stores display name (e.g. "Thirumal M")';
+-- ddl-end --
+ALTER TABLE public.user_entities OWNER TO postgres;
+-- ddl-end --
+
+-- object: public.user_credentials | type: TABLE --
+-- DROP TABLE IF EXISTS public.user_credentials CASCADE;
+CREATE TABLE public.user_credentials (
+	id varchar(255) NOT NULL DEFAULT gen_random_uuid(),
+	user_entity_user_id varchar(255),
+	credential_id varchar(1024) NOT NULL,
+	public_key text NOT NULL,
+	signature_count bigint NOT NULL,
+	public_key_credential_type varchar(32) NOT NULL,
+	created timestamp NOT NULL,
+	last_used timestamp NOT NULL,
+	label varchar(512),
+	backup_eligible boolean NOT NULL DEFAULT FALSE,
+	backup_state boolean NOT NULL DEFAULT FALSE,
+	uv_initialized boolean NOT NULL DEFAULT FALSE,
+	authenticator_transports varchar(512),
+	attestation_object bytea,
+	attestation_client_data_json bytea,
+	CONSTRAINT user_credentials_pk PRIMARY KEY (id),
+	CONSTRAINT unique_user_credentials_credential_id UNIQUE (credential_id)
+);
+-- ddl-end --
+ALTER TABLE public.user_credentials OWNER TO postgres;
+-- ddl-end --
+
+-- object: user_entities_fk | type: CONSTRAINT --
+-- ALTER TABLE public.user_credentials DROP CONSTRAINT IF EXISTS user_entities_fk CASCADE;
+ALTER TABLE public.user_credentials ADD CONSTRAINT user_entities_fk FOREIGN KEY (user_entity_user_id)
+REFERENCES public.user_entities (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: idx_user_credentials_user | type: INDEX --
+-- DROP INDEX IF EXISTS public.idx_user_credentials_user CASCADE;
+CREATE INDEX idx_user_credentials_user ON public.user_credentials
+USING btree
+(
+	user_entity_user_id
+);
 -- ddl-end --
 
 -- object: oauth2_registered_client_fk | type: CONSTRAINT --

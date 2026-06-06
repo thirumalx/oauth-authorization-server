@@ -1,5 +1,33 @@
 import { useState, useEffect } from 'react';
-import { LogIn, Mail, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, CheckCircle2, Key, RefreshCw } from 'lucide-react';
+
+// Utility: Decode Base64URL to ArrayBuffer
+function base64urlToArrayBuffer(base64url: string): ArrayBuffer {
+  const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
+  const base64 = (base64url + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray.buffer;
+}
+
+// Utility: Encode ArrayBuffer to Base64URL
+function arrayBufferToBase64url(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const base64 = window.btoa(binary);
+  return base64
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -8,6 +36,86 @@ export default function Login() {
     const [logout, setLogout] = useState(false);
     const [signupSuccess, setSignupSuccess] = useState(false);
     const [queryParams, setQueryParams] = useState<Record<string, string>>({});
+    const [passkeyLoading, setPasskeyLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    const handlePasskeyLogin = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!username.trim()) {
+            setErrorMsg('Please enter your username first.');
+            return;
+        }
+
+        setPasskeyLoading(true);
+        setErrorMsg(null);
+
+        try {
+            // 1. Fetch request options from Spring Security
+            const optionsRes = await fetch('/webauthn/authenticate/options', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username })
+            });
+
+            if (!optionsRes.ok) {
+                throw new Error('User has no registered passkeys or username does not exist');
+            }
+
+            const options = await optionsRes.json();
+
+            // 2. Decode options binary fields (challenge and allowCredentials ids)
+            options.challenge = base64urlToArrayBuffer(options.challenge);
+            if (options.allowCredentials) {
+                options.allowCredentials = options.allowCredentials.map((cred: any) => ({
+                    ...cred,
+                    id: base64urlToArrayBuffer(cred.id)
+                }));
+            }
+
+            // 3. Invoke browser WebAuthn API
+            const assertion = (await navigator.credentials.get({
+                publicKey: options
+            })) as PublicKeyCredential;
+
+            if (!assertion) {
+                throw new Error('Authentication cancelled or rejected by user');
+            }
+
+            // 4. Encode assertion binary response back to Base64URL
+            const responseObj = assertion.response as AuthenticatorAssertionResponse;
+            const assertionPayload = {
+                id: assertion.id,
+                rawId: arrayBufferToBase64url(assertion.rawId),
+                type: assertion.type,
+                response: {
+                    clientDataJSON: arrayBufferToBase64url(responseObj.clientDataJSON),
+                    authenticatorData: arrayBufferToBase64url(responseObj.authenticatorData),
+                    signature: arrayBufferToBase64url(responseObj.signature),
+                    userHandle: responseObj.userHandle ? arrayBufferToBase64url(responseObj.userHandle) : null
+                },
+                clientExtensionResults: assertion.getClientExtensionResults() || {}
+            };
+
+            // 5. Submit assertion to /login/webauthn to log in
+            const loginRes = await fetch('/login/webauthn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assertionPayload)
+            });
+
+            if (!loginRes.ok) {
+                throw new Error('Authentication failed: Invalid credentials or signature');
+            }
+
+            // 6. Redirect to profile/target page
+            window.location.href = loginRes.url || '/profile';
+        } catch (err: any) {
+            console.error(err);
+            setErrorMsg(err.message || 'Passkey authentication failed');
+        } finally {
+            setPasskeyLoading(false);
+        }
+    };
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -39,6 +147,13 @@ export default function Login() {
                         <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-sm animate-in fade-in slide-in-from-top-1 duration-300">
                             <AlertCircle className="w-5 h-5 flex-shrink-0" />
                             <p className="font-medium">Invalid username or password.</p>
+                        </div>
+                    )}
+
+                    {errorMsg && (
+                        <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-sm animate-in fade-in slide-in-from-top-1 duration-300">
+                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                            <p className="font-medium">{errorMsg}</p>
                         </div>
                     )}
 
@@ -116,6 +231,22 @@ export default function Login() {
                         >
                             Sign In
                             <LogIn className="ml-2 w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handlePasskeyLogin}
+                            disabled={passkeyLoading}
+                            className="w-full flex items-center justify-center py-3 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 active:scale-[0.98] group"
+                        >
+                            {passkeyLoading ? (
+                                <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
+                            ) : (
+                                <>
+                                    Sign In with Passkey
+                                    <Key className="ml-2 w-4 h-4 group-hover:rotate-12 transition-transform text-indigo-600" />
+                                </>
+                            )}
                         </button>
                     </form>
 
