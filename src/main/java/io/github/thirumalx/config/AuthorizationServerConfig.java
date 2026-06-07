@@ -149,7 +149,7 @@ public class AuthorizationServerConfig {
 				.webAuthn(webAuthn -> webAuthn
 						.rpName("OAuth Authorization Server")
 						.rpId("localhost")
-						.allowedOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:2223")
+						.allowedOrigins("http://localhost:5173", "http://localhost:9000", "http://localhost:3000", "http://localhost:2223")
 				)
 				.logout(logout -> logout
 						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
