@@ -10,7 +10,7 @@ export default function Navbar() {
         if (!isOpen) return null;
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-950/40 backdrop-blur-md animate-fade-in-overlay">
-                <div className="bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-slate-100 w-full max-w-2xl relative overflow-hidden animate-slide-in-right">
+                <div className="bg-white shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-slate-100 w-full max-w-2xl relative overflow-hidden animate-slide-in-right">
                     {/* Header */}
                     <div className="flex items-center justify-between p-2 border-b border-slate-50">
                         <div className="flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function Navbar() {
     };
 
     return (
-        <div className="max-w-8xl mx-auto px-0 pt-0">
+        <div className="max-w-8xl mx-auto">
             <nav className="bg-white/80 backdrop-blur-xl border border-slate-100 px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.015)] transition-all duration-300">
                 <div className="flex items-center justify-between">
                     {/* Logo */}
