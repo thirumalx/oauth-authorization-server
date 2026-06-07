@@ -55,8 +55,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		logger.debug("The user {} accessing at {}", username, LocalDateTime.now());
-		Contact contact = contactRepository.findActiveLoginIdByLoginId(username);
-		logger.debug("Login {}", contact);
+		Contact contact = null;
+		try {
+			java.util.UUID uuid = java.util.UUID.fromString(username);
+			LoginUser loginUser = loginUserRepository.findByUuid(uuid);
+			if (loginUser != null) {
+				contact = contactRepository.findByLoginUserId(loginUser.getLoginUserId());
+				logger.debug("Found contact by UUID: {}", contact);
+			}
+		} catch (IllegalArgumentException e) {
+			// Not a UUID string, ignore and fallback to login ID
+		}
+		if (contact == null) {
+			contact = contactRepository.findActiveLoginIdByLoginId(username);
+			logger.debug("Found contact by login ID: {}", contact);
+		}
 		if (contact == null) {
 			String errorMessage = "The requested login id " + username + " is not available in the system";
 			logger.debug(errorMessage);

@@ -107,8 +107,8 @@ export default function Login() {
                 throw new Error('Authentication failed: Invalid credentials or signature');
             }
 
-            // 6. Redirect to profile/target page
-            window.location.href = loginRes.url || '/profile';
+            // 6. Redirect to profile page
+            window.location.href = '/profile';
         } catch (err: any) {
             console.error(err);
             setErrorMsg(err.message || 'Passkey authentication failed');
