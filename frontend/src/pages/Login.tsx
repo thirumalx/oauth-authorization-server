@@ -41,20 +41,15 @@ export default function Login() {
 
     const handlePasskeyLogin = async (e: React.MouseEvent) => {
         e.preventDefault();
-        if (!username.trim()) {
-            setErrorMsg('Please enter your username first.');
-            return;
-        }
-
         setPasskeyLoading(true);
         setErrorMsg(null);
 
         try {
-            // 1. Fetch request options from Spring Security
+            // 1. Fetch request options from Spring Security (username is optional for discoverable credentials)
             const optionsRes = await fetch('/webauthn/authenticate/options', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: username })
+                body: username.trim() ? JSON.stringify({ username: username }) : JSON.stringify({})
             });
 
             if (!optionsRes.ok) {
