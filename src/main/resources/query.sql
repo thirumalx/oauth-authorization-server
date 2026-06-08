@@ -36,13 +36,13 @@ LoginUserRole.listByLoginUserId=${LoginUserRole} r.login_user_id = ? AND r.end_t
 LoginUserRole.listByLoginRoleCd=${LoginUserRole} r.role_cd = ? AND (r.end_time = 'infinity' OR r.end_time > current_timestamp) ORDER BY login_user_id ASC LIMIT ? OFFSET ?
 LoginUserRole.revoke=UPDATE public.login_user_role SET end_time = now() WHERE r.login_user_id = ?
 #---- Login History -----
-LoginHistory=SELECT * FROM public.login_history WHERE
-LoginHistory.create=INSERT INTO public.login_history(login_user_id, success_login, ip_address) VALUES (?, ?, ?)
+LoginHistory=SELECT lh.*, td.device_cd, td.access_type_cd, td.device_description, td.device_identifier, td.platform_name, td.platform_version, td.client_name, td.client_version, td.trusted, td.first_seen_at, td.last_seen_at FROM public.login_history lh LEFT JOIN public.trusted_device td ON lh.trusted_device_id = td.trusted_device_id WHERE
+LoginHistory.create=INSERT INTO public.login_history(login_user_id, success_login, ip_address, trusted_device_id) VALUES (?, ?, ?, ?)
 LoginHistory.logout=UPDATE public.login_history SET logout_time = now() WHERE login_history_id = (SELECT login_history_id FROM public.login_history WHERE login_user_id = ? ORDER BY login_history_id DESC LIMIT 1)
-LoginHistory.listByLoginUserId=${LoginHistory} login_user_id = ? ORDER BY login_history_id DESC LIMIT ? OFFSET ?
+LoginHistory.listByLoginUserId=${LoginHistory} lh.login_user_id = ? ORDER BY lh.login_history_id DESC LIMIT ? OFFSET ?
 LoginHistory.count=SELECT COUNT(*) from public.login_history WHERE login_user_id = ?
 LoginHistory.lastNFailedLogin=SELECT COUNT(*) FROM(select * from login_history where login_user_id = ? ORDER BY login_history_id DESC LIMIT ?) AS last_n_rows WHERE success_login = false
-LoginHistory.lastSuccessfulLogin=SELECT * FROM public.login_history WHERE login_user_id = ? ORDER BY login_history_id DESC LIMIT 1
+LoginHistory.lastSuccessfulLogin=${LoginHistory} lh.login_user_id = ? ORDER BY lh.login_history_id DESC LIMIT 1
 #---------MFA--------
 Mfa=SELECT * FROM public.mfa WHERE
 Mfa.create=INSERT INTO public.mfa(login_user_id, contact_id, mfa_cd, secret, verified, primary_mfa) VALUES (?, ?, ?, ?, ?, ?)

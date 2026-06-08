@@ -29,6 +29,8 @@ public class LoginHistory implements Serializable {
 
 	private Long loginHistoryId;
 	private Long loginUserId;
+	private Long trustedDeviceId;
+	private TrustedDevice trustedDevice;
 	private boolean successLogin;
 	private String ipAddress;
 	private OffsetDateTime rowCreatedOn; // Login Time

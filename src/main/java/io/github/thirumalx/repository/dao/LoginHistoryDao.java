@@ -59,6 +59,11 @@ public class LoginHistoryDao extends GenericDao implements LoginHistoryRepositor
 		}
 		ps.setBoolean(2, loginHistory.isSuccessLogin());
 		ps.setString(3, loginHistory.getIpAddress());
+		if (loginHistory.getTrustedDeviceId() == null) {
+			ps.setObject(4, null);
+		} else {
+			ps.setLong(4, loginHistory.getTrustedDeviceId());
+		}
 		return ps;
 	}
 
@@ -110,6 +115,24 @@ public class LoginHistoryDao extends GenericDao implements LoginHistoryRepositor
 
 		loginHistory.setLogoutTime(
 				rs.getObject("logout_time") != null ? rs.getObject("logout_time", OffsetDateTime.class) : null);
+
+		if (rs.getObject("trusted_device_id") != null) {
+			loginHistory.setTrustedDeviceId(rs.getLong("trusted_device_id"));
+			
+			io.github.thirumalx.model.TrustedDevice td = new io.github.thirumalx.model.TrustedDevice();
+			td.setTrustedDeviceId(rs.getLong("trusted_device_id"));
+			td.setDeviceCd(rs.getObject("device_cd") != null ? rs.getShort("device_cd") : null);
+			td.setAccessTypeCd(rs.getObject("access_type_cd") != null ? rs.getShort("access_type_cd") : null);
+			td.setDeviceDescription(rs.getObject("device_description") != null ? rs.getString("device_description") : null);
+			td.setDeviceIdentifier(rs.getObject("device_identifier") != null ? rs.getString("device_identifier") : null);
+			td.setPlatformName(rs.getObject("platform_name") != null ? rs.getString("platform_name") : null);
+			td.setPlatformVersion(rs.getObject("platform_version") != null ? rs.getString("platform_version") : null);
+			td.setClientName(rs.getObject("client_name") != null ? rs.getString("client_name") : null);
+			td.setClientVersion(rs.getObject("client_version") != null ? rs.getString("client_version") : null);
+			td.setTrusted(rs.getObject("trusted") != null ? rs.getBoolean("trusted") : false);
+			
+			loginHistory.setTrustedDevice(td);
+		}
 
 		return loginHistory;
 	};

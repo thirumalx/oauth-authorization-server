@@ -75,6 +75,7 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 			userAgentStr = request.getHeader("User-Agent");
 		}
 		
+		Long trustedDeviceId = null;
 		if (userAgentStr != null) {
 			try {
 				Parser uaParser = new Parser();
@@ -102,15 +103,21 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 							.clientVersion(clientVersion)
 							.trusted(true)
 							.build();
-					trustedDeviceRepository.save(trustedDevice);
+					trustedDeviceId = trustedDeviceRepository.save(trustedDevice);
 				} else {
-					trustedDeviceRepository.updateLastSeen(trustedDevice.getTrustedDeviceId());
+					trustedDeviceId = trustedDevice.getTrustedDeviceId();
+					trustedDeviceRepository.updateLastSeen(trustedDeviceId);
 				}
 			} catch (Exception e) {
 				logger.error("Error parsing user agent or saving trusted device", e);
 			}
 		}
 
-		loginHistoryRepository.save(LoginHistory.builder().loginUserId(loginUser.getLoginUserId()).successLogin(true).ipAddress(ipAddress).build());
+		loginHistoryRepository.save(LoginHistory.builder()
+				.loginUserId(loginUser.getLoginUserId())
+				.successLogin(true)
+				.ipAddress(ipAddress)
+				.trustedDeviceId(trustedDeviceId)
+				.build());
 	}
 }

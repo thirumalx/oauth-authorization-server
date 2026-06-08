@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { Clock, ShieldCheck, ShieldAlert, LogIn, LogOut, AlertCircle, RefreshCw, Activity, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 
 
+interface TrustedDevice {
+    trustedDeviceId: number;
+    deviceCd?: number;
+    accessTypeCd?: number;
+    deviceDescription: string;
+    deviceIdentifier: string;
+    platformName: string;
+    platformVersion: string;
+    clientName: string;
+    clientVersion: string;
+    trusted: boolean;
+}
+
 interface LoginHistory {
     loginHistoryId: number;
     loginUserId: number;
@@ -9,6 +22,7 @@ interface LoginHistory {
     ipAddress: string | null;
     rowCreatedOn: string;
     logoutTime: string | null;
+    trustedDevice?: TrustedDevice | null;
 }
 
 interface PaginatedLoginHistory {
@@ -123,6 +137,20 @@ export default function ActivityHistory() {
                                                     </span>
                                                 )}
                                             </div>
+                                            {record.trustedDevice && (
+                                                <div className="mt-1 space-y-1">
+                                                    <p className="text-xs font-bold text-slate-700">
+                                                        {record.trustedDevice.clientName} {record.trustedDevice.clientVersion && `v${record.trustedDevice.clientVersion}`} on {record.trustedDevice.platformName} {record.trustedDevice.platformVersion && `v${record.trustedDevice.platformVersion}`}
+                                                    </p>
+                                                    <p className="text-[10px] font-medium text-slate-500 flex flex-wrap items-center gap-1.5">
+                                                        {record.trustedDevice.deviceDescription && <span>{record.trustedDevice.deviceDescription} •</span>}
+                                                        <span>ID: <span className="font-mono">{record.trustedDevice.deviceIdentifier}</span></span>
+                                                        {record.trustedDevice.deviceCd !== undefined && <span>• Dev CD: {record.trustedDevice.deviceCd}</span>}
+                                                        {record.trustedDevice.accessTypeCd !== undefined && <span>• Acc CD: {record.trustedDevice.accessTypeCd}</span>}
+                                                        {record.trustedDevice.trusted && <span className="ml-1 text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wider">Trusted</span>}
+                                                    </p>
+                                                </div>
+                                            )}
                                             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2 text-xs font-bold text-slate-500">
                                                 <div className="flex items-center gap-1.5">
                                                     <LogIn className="w-3.5 h-3.5 text-indigo-400" />
