@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Home, User as UserIcon, Code, Mail, LogOut, X, Github, Linkedin, Globe, Phone } from 'lucide-react';
+import { Shield, Home, User as UserIcon, Code, Mail, LogOut, X, Github, Linkedin, Globe, Phone, Menu } from 'lucide-react';
 
 export default function Navbar() {
     const [isServicesOpen, setIsServicesOpen] = useState(false);
     const [isContactOpen, setIsContactOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const Modal = ({ isOpen, onClose, title, icon: Icon, children, colorClass }: any) => {
         if (!isOpen) return null;
@@ -38,42 +39,110 @@ export default function Navbar() {
     return (
         <div className="max-w-8xl mx-auto">
             <nav className="bg-white/80 backdrop-blur-xl border border-slate-100 px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.015)] transition-all duration-300">
-                <div className="flex items-center justify-between">
-                    {/* Logo */}
-                    <Link to="/user" className="flex items-center gap-3.5 group">
-                        <div className="p-2.5 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-indigo-500/20 group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-500">
-                            <Shield className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-lg font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">Auth Server</span>
-                    </Link>
-
-                    {/* Navigation Actions */}
-                    <div className="hidden md:flex items-center gap-1.5">
-                        <Link to="/user" className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
-                            <Home className="w-4 h-4" />
-                            Home
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                        {/* Logo */}
+                        <Link to="/user" className="flex items-center gap-3.5 group">
+                            <div className="p-2.5 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-indigo-500/20 group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-500">
+                                <Shield className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-lg font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">Auth Server</span>
                         </Link>
-                        <button onClick={() => setIsServicesOpen(true)} className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
-                            <Code className="w-4 h-4" />
-                            Services
-                        </button>
-                        <button onClick={() => setIsContactOpen(true)} className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
-                            <Mail className="w-4 h-4" />
-                            Contact
-                        </button>
 
-                        <div className="w-px h-6 bg-slate-100 mx-2" />
-
-                        <div className="flex items-center gap-2">
-                            <Link to="/profile/personal-info" className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
-                                <UserIcon className="w-4.5 h-4.5" /> My Profile
+                        {/* Navigation Actions (Desktop) */}
+                        <div className="hidden md:flex items-center gap-1.5">
+                            <Link to="/user" className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
+                                <Home className="w-4 h-4" />
+                                Home
                             </Link>
-                            <a href="/logout" className="flex items-center gap-2 px-5 py-2.5 bg-red-50/30 hover:bg-red-50 text-red-500 border border-red-100/30 hover:border-red-100 rounded-2xl transition-all shadow-sm group font-bold text-sm">
-                                <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                                <span>Logout</span>
-                            </a>
+                            <button onClick={() => setIsServicesOpen(true)} className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
+                                <Code className="w-4 h-4" />
+                                Services
+                            </button>
+                            <button onClick={() => setIsContactOpen(true)} className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
+                                <Mail className="w-4 h-4" />
+                                Contact
+                            </button>
+
+                            <div className="w-px h-6 bg-slate-100 mx-2" />
+
+                            <div className="flex items-center gap-2">
+                                <Link to="/profile/personal-info" className="flex items-center gap-2 px-4.5 py-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30">
+                                    <UserIcon className="w-4.5 h-4.5" /> My Profile
+                                </Link>
+                                <a href="/logout" className="flex items-center gap-2 px-5 py-2.5 bg-red-50/30 hover:bg-red-50 text-red-500 border border-red-100/30 hover:border-red-100 rounded-2xl transition-all shadow-sm group font-bold text-sm">
+                                    <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                                    <span>Logout</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Hamburger Button (Mobile) */}
+                        <div className="flex items-center md:hidden">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="p-2.5 hover:bg-slate-50 text-slate-500 hover:text-indigo-600 border border-slate-100 hover:border-indigo-100 rounded-2xl transition-all duration-200 active:scale-95 flex items-center justify-center shadow-sm"
+                                aria-label="Toggle navigation menu"
+                            >
+                                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </button>
                         </div>
                     </div>
+
+                    {/* Mobile Navigation Dropdown */}
+                    {isMobileMenuOpen && (
+                        <div className="md:hidden mt-4 pt-4 border-t border-slate-100 space-y-1 animate-in fade-in slide-in-from-top-3 duration-200">
+                            <Link 
+                                to="/user" 
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center gap-3 px-4.5 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30"
+                            >
+                                <Home className="w-4 h-4 text-slate-400" />
+                                Home
+                            </Link>
+                            
+                            <button 
+                                onClick={() => {
+                                    setIsMobileMenuOpen(false);
+                                    setIsServicesOpen(true);
+                                }}
+                                className="w-full flex items-center gap-3 px-4.5 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30 text-left"
+                            >
+                                <Code className="w-4 h-4 text-slate-400" />
+                                Services
+                            </button>
+                            
+                            <button 
+                                onClick={() => {
+                                    setIsMobileMenuOpen(false);
+                                    setIsContactOpen(true);
+                                }}
+                                className="w-full flex items-center gap-3 px-4.5 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30 text-left"
+                            >
+                                <Mail className="w-4 h-4 text-slate-400" />
+                                Contact
+                            </button>
+
+                            <div className="h-px bg-slate-100 my-2" />
+
+                            <Link 
+                                to="/profile/personal-info" 
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center gap-3 px-4.5 py-3 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-indigo-100/30"
+                            >
+                                <UserIcon className="w-4 h-4 text-slate-400" />
+                                My Profile
+                            </Link>
+
+                            <a 
+                                href="/logout" 
+                                className="flex items-center gap-3 px-4.5 py-3 text-red-500 hover:text-red-600 hover:bg-red-50/50 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-red-100/30"
+                            >
+                                <LogOut className="w-4 h-4 text-red-400" />
+                                Logout
+                            </a>
+                        </div>
+                    )}
                 </div>
             </nav>
 
