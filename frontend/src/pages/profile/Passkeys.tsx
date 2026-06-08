@@ -73,6 +73,11 @@ export default function Passkeys() {
     e.preventDefault();
     if (!label.trim()) return;
 
+    if (!navigator.credentials) {
+      setError('WebAuthn/Passkeys are only supported in secure contexts (HTTPS or localhost/127.0.0.1).');
+      return;
+    }
+
     setRegisterLoading(true);
     setError(null);
 
@@ -207,13 +212,27 @@ export default function Passkeys() {
               setLabel('');
               setError(null);
             }}
-            disabled={isRegistering}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-indigo-100"
+            disabled={isRegistering || !navigator.credentials}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-indigo-100 disabled:cursor-not-allowed"
           >
             <Plus className="w-3 h-3" /> Register Passkey
           </button>
         </div>
       </div>
+
+      {/* Secure Context Alert */}
+      {!navigator.credentials && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-xs font-bold text-amber-800 flex items-start gap-3 animate-fade-in">
+          <AlertCircle className="w-5 h-5 shrink-0 text-amber-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-black uppercase tracking-wider text-[10px]">Secure Context Required</p>
+            <p className="leading-relaxed">
+              Your browser blocks WebAuthn/Passkeys because this page is not served over a secure connection (HTTPS) or localhost. 
+              To register passkeys, please access the site using <strong>localhost</strong> or <strong>HTTPS</strong>.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Error Alert */}
       {error && (

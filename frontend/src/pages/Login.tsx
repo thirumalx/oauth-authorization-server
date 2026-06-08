@@ -41,6 +41,10 @@ export default function Login() {
 
     const handlePasskeyLogin = async (e: React.MouseEvent) => {
         e.preventDefault();
+        if (!navigator.credentials) {
+            setErrorMsg('WebAuthn/Passkeys are only supported in secure contexts (HTTPS or localhost/127.0.0.1).');
+            return;
+        }
         setPasskeyLoading(true);
         setErrorMsg(null);
 
@@ -152,6 +156,16 @@ export default function Login() {
                         </div>
                     )}
 
+                    {!navigator.credentials && (
+                        <div className="mb-6 flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-800 text-xs animate-in fade-in slide-in-from-top-1 duration-300 font-medium">
+                            <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" />
+                            <div className="space-y-0.5 text-left">
+                                <p className="font-black uppercase tracking-wider text-[9px]">Secure Context Required</p>
+                                <p className="leading-relaxed text-slate-600">WebAuthn/Passkeys are disabled because this site is not accessed via HTTPS or localhost.</p>
+                            </div>
+                        </div>
+                    )}
+
                     {logout && (
                         <div className="mb-6 flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-sm animate-in fade-in slide-in-from-top-1 duration-300">
                             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -231,8 +245,9 @@ export default function Login() {
                         <button
                             type="button"
                             onClick={handlePasskeyLogin}
-                            disabled={passkeyLoading}
-                            className="w-full flex items-center justify-center py-3 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 active:scale-[0.98] group"
+                            disabled={passkeyLoading || !navigator.credentials}
+                            title={!navigator.credentials ? "Passkeys require a secure context (HTTPS/localhost)" : ""}
+                            className="w-full flex items-center justify-center py-3 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 active:scale-[0.98] group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {passkeyLoading ? (
                                 <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
