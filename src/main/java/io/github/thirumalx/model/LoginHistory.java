@@ -17,9 +17,12 @@ import lombok.ToString;
  * @author Thirumal
  *
  */
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
-@Builder@ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class LoginHistory implements Serializable {
 
 	private static final long serialVersionUID = 3285470174806684833L;
@@ -27,6 +30,7 @@ public class LoginHistory implements Serializable {
 	private Long loginHistoryId;
 	private Long loginUserId;
 	private boolean successLogin;
-	private OffsetDateTime rowCreatedOn; //Login Time
+	private String ipAddress;
+	private OffsetDateTime rowCreatedOn; // Login Time
 	private OffsetDateTime logoutTime;
 }

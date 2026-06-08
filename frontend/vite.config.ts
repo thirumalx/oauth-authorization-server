@@ -35,6 +35,7 @@ export default defineConfig({
             '/otp': redirectInterceptor,
             '/mfa': redirectInterceptor,
             '/allowed-ip': redirectInterceptor,
+            '/trusted-device': redirectInterceptor,
             '/address': redirectInterceptor,
             '/lookup': redirectInterceptor,
             '/webauthn': redirectInterceptor,

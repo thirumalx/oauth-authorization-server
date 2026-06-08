@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Clock, ShieldCheck, ShieldAlert, LogIn, LogOut, AlertCircle, RefreshCw, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, ShieldCheck, ShieldAlert, LogIn, LogOut, AlertCircle, RefreshCw, Activity, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 
 
 interface LoginHistory {
     loginHistoryId: number;
     loginUserId: number;
     successLogin: boolean;
+    ipAddress: string | null;
     rowCreatedOn: string;
     logoutTime: string | null;
 }
@@ -143,6 +144,13 @@ export default function ActivityHistory() {
                                                         }) : '-'}
                                                     </span>
                                                 </div>
+                                                {record.ipAddress && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Globe className="w-3.5 h-3.5 text-slate-400" />
+                                                        <span className="text-slate-400 font-medium">IP:</span>
+                                                        <span className="text-slate-700">{record.ipAddress}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
