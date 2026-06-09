@@ -9,6 +9,10 @@ interface PasskeyRecord {
   created: string;
   last_used: string | null;
   public_key_credential_type: string;
+  signature_count?: number;
+  backup_state?: boolean;
+  uv_initialized?: boolean;
+  authenticator_transports?: string;
 }
 
 // Utility: Decode Base64URL to ArrayBuffer
@@ -306,9 +310,9 @@ export default function Passkeys() {
                   <DeviceIcon className="w-7 h-7" />
                 </div>
 
-                <div className="space-y-1 min-w-0 flex-1">
+                <div className="space-y-2 min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight truncate">{cred.label}</h3>
+                    <h3 className="text-lg font-black text-slate-900 tracking-tight truncate">{cred.label || `Passkey (${cred.id.substring(0, 8)}...)`}</h3>
                     <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 flex items-center gap-1">
                       <ShieldCheck className="w-2.5 h-2.5" /> Passkey
                     </span>
@@ -319,6 +323,24 @@ export default function Passkeys() {
                     <span className="truncate max-w-[250px]">
                       Last Used: {cred.last_used ? new Date(cred.last_used).toLocaleString() : 'Never'}
                     </span>
+                  </div>
+                  
+                  {/* Detailed passkey information */}
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider border border-slate-200">
+                      Signatures: {cred.signature_count !== undefined ? cred.signature_count : 0}
+                    </span>
+                    <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider border ${cred.backup_state ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                      Backed Up: {cred.backup_state ? 'Yes' : 'No'}
+                    </span>
+                    <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider border ${cred.uv_initialized ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                      UV Init: {cred.uv_initialized ? 'Yes' : 'No'}
+                    </span>
+                    {cred.authenticator_transports && (
+                      <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider border border-slate-200 max-w-[200px] truncate" title={cred.authenticator_transports}>
+                        Transports: {cred.authenticator_transports}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

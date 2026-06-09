@@ -49,7 +49,7 @@ public class PasskeyManagementService {
         List<Map<String, Object>> credentials = new ArrayList<Map<String, Object>>();
         if (userInfo != null) {
             credentials = jdbcTemplate.queryForList(
-                    "SELECT id, label, created, last_used, public_key_credential_type FROM public.user_credentials WHERE user_entity_user_id = ? ORDER BY created DESC",
+                    "SELECT id, credential_id, signature_count, backup_state, uv_initialized, authenticator_transports, label, created, last_used, public_key_credential_type FROM public.user_credentials WHERE user_entity_user_id = ? ORDER BY created DESC",
                     userInfo.get("id"));
         }
         return credentials;

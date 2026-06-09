@@ -24,15 +24,15 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 	private final JdbcOperations jdbcOperations;
 
 	private static final String INSERT_SQL = "INSERT INTO user_credentials "
-			+ "(id, user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json, public_key_credential_type, created, last_used, backup_eligible) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			+ "(id, user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json, public_key_credential_type, created, last_used, backup_eligible, label) "
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String FIND_BY_CREDENTIAL_ID_SQL = "SELECT "
-			+ "user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json "
+			+ "user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json, label, created, last_used "
 			+ "FROM user_credentials WHERE credential_id = ?";
 
 	private static final String FIND_BY_USER_ID_SQL = "SELECT "
-			+ "user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json "
+			+ "user_entity_user_id, credential_id, public_key, signature_count, backup_state, uv_initialized, authenticator_transports, attestation_object, attestation_client_data_json, label, created, last_used "
 			+ "FROM user_credentials WHERE user_entity_user_id = ?";
 
 	private static final String DELETE_SQL = "DELETE FROM user_credentials WHERE credential_id = ?";
@@ -100,7 +100,8 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 					credentialRecord.getCredentialType().getValue(),
 					created,
 					lastUsed,
-					credentialRecord.isBackupEligible()
+					credentialRecord.isBackupEligible(),
+					credentialRecord.getLabel()
 			);
 			System.out.println("====== INSERT SUCCESSFUL, ROWS AFFECTED: " + rows + " ======");
 		} catch (Exception e) {
@@ -177,6 +178,12 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 			byte[] clientDataJsonBytes = rs.getBytes("attestation_client_data_json");
 			Bytes clientDataJson = clientDataJsonBytes != null ? new Bytes(clientDataJsonBytes) : null;
 
+			String label = rs.getString("label");
+			java.sql.Timestamp createdTimestamp = rs.getTimestamp("created");
+			java.time.Instant created = createdTimestamp != null ? createdTimestamp.toInstant() : java.time.Instant.now();
+			java.sql.Timestamp lastUsedTimestamp = rs.getTimestamp("last_used");
+			java.time.Instant lastUsed = lastUsedTimestamp != null ? lastUsedTimestamp.toInstant() : created;
+
 			return ImmutableCredentialRecord.builder()
 					.userEntityUserId(userEntityId)
 					.credentialId(credentialId)
@@ -187,10 +194,11 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 					.transports(transports)
 					.attestationObject(attestationObject)
 					.attestationClientDataJSON(clientDataJson)
-					// Required fields missing from user_credentials
+					.label(label)
 					.credentialType(org.springframework.security.web.webauthn.api.PublicKeyCredentialType.PUBLIC_KEY)
 					.backupEligible(true)
-					.created(java.time.Instant.now())
+					.created(created)
+					.lastUsed(lastUsed)
 					.build();
 		}
 	}
