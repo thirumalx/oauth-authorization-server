@@ -32,8 +32,12 @@ import ua_parser.Parser;
  * @author Thirumal
  * Update the number of login attempt made by user to Zero 0
  */
+import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
+
 @Component
-public class AuthenticationSuccessListener implements ApplicationListener<AuthenticationSuccessEvent> {
+public class AuthenticationSuccessListener {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -44,9 +48,9 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 	@Autowired
 	private TrustedDeviceRepository trustedDeviceRepository;
 	
-	@Override
+	@EventListener
 	@Transactional
-	public void onApplicationEvent(AuthenticationSuccessEvent event) {  
+	public void onAuthenticationSuccessEvent(AuthenticationSuccessEvent event) {  
 		logger.debug("Login Success event : {}", event);
 		String userName  = event.getAuthentication().getName();
 		if (event.getSource() instanceof OAuth2AuthorizationCodeRequestAuthenticationToken) {
@@ -57,7 +61,13 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 		try {
 			loginId = UUID.fromString(userName);
 		} catch (IllegalArgumentException e) {
-			logger.debug("It's client id.....Ignoring.....");
+			logger.debug("Authentication principal class: {}", event.getAuthentication().getPrincipal().getClass().getName());
+			logger.debug("It's client id or unparseable UUID.....Ignoring..... userName was: '{}'", userName);
+			try {
+				java.nio.file.Files.writeString(java.nio.file.Paths.get("passkey_debug.txt"), 
+					"FAILED: userName='" + userName + "', principalClass=" + event.getAuthentication().getPrincipal().getClass().getName() + "\n",
+					java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+			} catch(Exception ignored) {}
 			return;
 		}
 		LoginUser loginUser = loginUserRepository.findByUuid(loginId);
@@ -71,6 +81,11 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (attributes != null) {
 			HttpServletRequest request = attributes.getRequest();
+			if (Boolean.TRUE.equals(request.getAttribute("LOGIN_RECORDED"))) {
+				logger.debug("Login already recorded in this request. Skipping.");
+				return;
+			}
+			request.setAttribute("LOGIN_RECORDED", true);
 			ipAddress = request.getRemoteAddr();
 			userAgentStr = request.getHeader("User-Agent");
 		}
@@ -119,5 +134,31 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 				.ipAddress(ipAddress)
 				.trustedDeviceId(trustedDeviceId)
 				.build());
+		try {
+			java.nio.file.Files.writeString(java.nio.file.Paths.get("passkey_debug.txt"), 
+				"SUCCESS! Saved login history for " + loginId + " | userName=" + userName + "\n",
+				java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+		} catch(Exception ignored) {}
+	}
+
+	@EventListener
+	@Transactional
+	public void onInteractiveAuthenticationSuccessEvent(InteractiveAuthenticationSuccessEvent event) {
+		logger.debug("Interactive Login Success event : {}", event);
+		try {
+			java.nio.file.Files.writeString(java.nio.file.Paths.get("passkey_debug.txt"), 
+				"INTERACTIVE EVENT CAUGHT! class=" + event.getAuthentication().getClass().getName() + " | userName=" + event.getAuthentication().getName() + "\n",
+				java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+		} catch(Exception ignored) {}
+		this.onAuthenticationSuccessEvent(new AuthenticationSuccessEvent(event.getAuthentication()));
+	}
+
+	@EventListener
+	public void onAbstractAuthenticationEvent(AbstractAuthenticationEvent event) {
+		try {
+			java.nio.file.Files.writeString(java.nio.file.Paths.get("passkey_debug.txt"), 
+				"ABSTRACT EVENT: " + event.getClass().getName() + " | authClass=" + event.getAuthentication().getClass().getName() + " | userName=" + event.getAuthentication().getName() + "\n",
+				java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+		} catch(Exception ignored) {}
 	}
 }
