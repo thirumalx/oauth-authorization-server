@@ -111,7 +111,8 @@ public class AuthorizationServerConfig {
 	@Bean
 	@Order(2)
 	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http,
-			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler)
+			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+			io.github.thirumalx.security.LoginHistoryFilter loginHistoryFilter)
 			throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
 				// Allow public access to login, signup, static resources, and WebAuthn auth endpoints
@@ -202,6 +203,7 @@ public class AuthorizationServerConfig {
 				);
 
 		http.addFilterAfter(new io.github.thirumalx.security.MfaEnforcementFilter(), org.springframework.security.web.context.SecurityContextHolderFilter.class);
+		http.addFilterAfter(loginHistoryFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class);
 
 		return http.build();
 	}
