@@ -39,9 +39,10 @@ logging:
   level:
     root: INFO
     '[org.springframework.web]': INFO
-    '[org.springframework.security]': debug
-    '[org.springframework.security.oauth2]': debug
-    '[io.github.thirumalx]': debug
+    '[org.springframework.security]': TRACE
+    '[org.springframework.security.oauth2]': TRACE
+    '[io.github.thirumalx]': TRACE
+    '[com.webauthn4j]': TRACE
   file:
     path: logs
     name: logs/authorization-server.log

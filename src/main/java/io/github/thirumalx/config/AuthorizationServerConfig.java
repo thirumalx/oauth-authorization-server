@@ -43,7 +43,9 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
+import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -210,8 +212,9 @@ public class AuthorizationServerConfig {
 	}
 
 	@Bean
-	public JdbcUserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
-		return new JdbcUserCredentialRepository(jdbcOperations);
+	@Primary
+	public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
+		return new io.github.thirumalx.repository.Base64UserCredentialRepository(jdbcOperations);
 	}
 
 	@Bean

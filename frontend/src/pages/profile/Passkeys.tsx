@@ -176,6 +176,7 @@ export default function Passkeys() {
   };
 
   const guessDeviceIcon = (labelName: string) => {
+    if (!labelName) return Laptop;
     const l = labelName.toLowerCase();
     if (l.includes('phone') || l.includes('mobile') || l.includes('android') || l.includes('ios') || l.includes('iphone')) {
       return Smartphone;

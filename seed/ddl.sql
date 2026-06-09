@@ -381,6 +381,7 @@ ALTER TABLE public.password OWNER TO postgres;
 CREATE TABLE public.login_history (
 	login_history_id bigserial NOT NULL,
 	login_user_id bigint NOT NULL,
+	trusted_device_id bigint,
 	success_login boolean NOT NULL,
 	ip_address varchar(45),
 	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
@@ -1367,7 +1368,7 @@ CREATE TABLE public.trusted_device (
 	trusted boolean NOT NULL DEFAULT true,
 	first_seen_at timestamptz NOT NULL DEFAULT current_timestamp,
 	last_seen_at timestamptz,
-	start_time timestamptz NOT NULL DEFAULT current_timetamp,
+	start_time timestamptz NOT NULL DEFAULT current_timestamp,
 	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
 	CONSTRAINT trusted_device_pk PRIMARY KEY (trusted_device_id)
 );
@@ -1519,7 +1520,7 @@ CREATE TABLE lookup.access_type_locale (
 	locale_cd integer,
 	description varchar(100) NOT NULL,
 	start_time timestamptz NOT NULL DEFAULT current_timestamp,
-	end_time timestamptz NOT NULL DEFAULT 'inifinity'::timestamp,
+	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
 	row_created_on timestamptz NOT NULL DEFAULT current_timestamp,
 	row_created_by varchar(50) NOT NULL DEFAULT 'Thirumal',
 	row_updated_by varchar(50) NOT NULL DEFAULT 'Thirumal',
@@ -1645,6 +1646,37 @@ USING btree
 (
 	user_entity_user_id
 );
+-- ddl-end --
+
+-- object: public.webauthn_creation_options | type: TABLE --
+-- DROP TABLE IF EXISTS public.webauthn_creation_options CASCADE;
+CREATE TABLE public.webauthn_creation_options (
+	session_id varchar(255) NOT NULL,
+	options_json text NOT NULL,
+	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT webauthn_creation_options_pk PRIMARY KEY (session_id)
+);
+-- ddl-end --
+ALTER TABLE public.webauthn_creation_options OWNER TO postgres;
+-- ddl-end --
+
+-- object: public.webauthn_request_options | type: TABLE --
+-- DROP TABLE IF EXISTS public.webauthn_request_options CASCADE;
+CREATE TABLE public.webauthn_request_options (
+	session_id varchar(255) NOT NULL,
+	options_json text NOT NULL,
+	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT webauthn_request_options_pk PRIMARY KEY (session_id)
+);
+-- ddl-end --
+ALTER TABLE public.webauthn_request_options OWNER TO postgres;
+-- ddl-end --
+
+-- object: trusted_device_fk | type: CONSTRAINT --
+-- ALTER TABLE public.login_history DROP CONSTRAINT IF EXISTS trusted_device_fk CASCADE;
+ALTER TABLE public.login_history ADD CONSTRAINT trusted_device_fk FOREIGN KEY (trusted_device_id)
+REFERENCES public.trusted_device (trusted_device_id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: oauth2_registered_client_fk | type: CONSTRAINT --
