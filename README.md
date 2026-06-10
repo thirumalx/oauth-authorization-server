@@ -38,6 +38,14 @@ OAuth2 supports several grant types for different use cases. The most common gra
 
 ## Features:
 
+- **Multi-Factor Authentication (MFA)**: Support for Authentication App, Text message (SMS), Security Key, and Recovery Codes.
+- **Passkey Login (Fingerprint / Biometrics)**: Passwordless authentication using WebAuthn passkeys.
+- **Mobile Passkey**: Support for cross-device mobile passkeys.
+- **My Profile Features**: User profile management and settings.
+- **Customize Token Content**: Fully customizable access and refresh tokens.
+
+### Configuration Parameters & Endpoints
+
 | Configuration Parameter                                                                     | EndPoints                               | 
 |---------------------------------------------------------------------------------------------|-----------------------------------------|
 | issuer (Base URL)                                                                           | http://localhost:9000                   |
@@ -218,16 +226,7 @@ http://localhost:9000/oauth2/authorize?response_type=code&client_id=Thirumal&red
 
 
 
-## Multi factor authentication
 
-* Authentication App
-
-* Text message (SMS)
-
-* Security Key
-
-* Recovery Code
-	When the use lost the phone / authenticator app mobile
 
 <!-- GitAds-Verify: 6BKQQV7NW224BW6GKSIPWEI4VIK49CUI -->
 
