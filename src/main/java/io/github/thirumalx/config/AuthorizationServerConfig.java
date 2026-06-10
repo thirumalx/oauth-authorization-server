@@ -31,8 +31,8 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -155,8 +155,8 @@ public class AuthorizationServerConfig {
 						.allowedOrigins("http://localhost:5173", "http://localhost:9000", "http://localhost:3000", "http://localhost:2223")
 				)
 				.logout(logout -> logout
-						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
-								"/logout", "GET"))
+						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.RegexRequestMatcher(
+								"^/logout$", "GET"))
 						.logoutSuccessUrl("/login?logout")
 						.permitAll())
 				.requestCache(requestCache -> {
@@ -235,8 +235,7 @@ public class AuthorizationServerConfig {
 	@Order(1)
 	SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
 			throws Exception {
-		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer
-				.authorizationServer();
+		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
 		http
 				.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
