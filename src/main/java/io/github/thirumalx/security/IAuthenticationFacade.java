@@ -3,6 +3,7 @@
  */
 package io.github.thirumalx.security;
 
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -10,9 +11,11 @@ import org.springframework.security.core.Authentication;
  *
  */
 public interface IAuthenticationFacade {
-	
+
 	Authentication getAuthentication();
-	
-	String getLoginId();
-	
+
+	Long getLoginId();
+
+	UUID getCurrentUserUuid();
+
 }

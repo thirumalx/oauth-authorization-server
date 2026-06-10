@@ -49,5 +49,11 @@ public class RegisterClientController {
 	public RegisteredClient get(@PathVariable String id) {
 		return registerClientService.get(id);
 	}
+
+	@GetMapping("")
+	public org.springframework.http.ResponseEntity<java.util.List<java.util.Map<String, Object>>> list() {
+		logger.debug("REST request to list registered clients");
+		return org.springframework.http.ResponseEntity.ok(registerClientService.listClients());
+	}
 	
 }

@@ -33,4 +33,8 @@ public interface ContactRepository {
 	 */
 	int verify(Long contactId);
 	
+	int delete(Long contactId);
+	
+	int update(Contact contact);
+	
 }

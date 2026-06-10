@@ -31,8 +31,8 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -41,6 +41,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository;
+import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
+import org.springframework.security.web.webauthn.management.UserCredentialRepository;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -105,23 +110,53 @@ public class AuthorizationServerConfig {
 	 */
 	@Bean
 	@Order(2)
-	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http,
+			io.github.thirumalx.handler.CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+			io.github.thirumalx.security.LoginHistoryFilter loginHistoryFilter)
+			throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
-				// Allow public access to login, signup, and static resources
-				.requestMatchers("/login", "/signup", "/style/**", "/error", "/forgot-password/**",
+				// Allow public access to login, signup, static resources, and WebAuthn auth endpoints
+				.requestMatchers("/login", "/signup", "/index.html", "/assets/**", "/vite.svg",
+						"/style/**", "/error", "/forgot-password/**",
 						"/client/**", "/swagger-ui/**", "/v3/api-docs/**", "/vendor/**",
-						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**")
+						"/favicon.ico", "/actuator/**", "/webjars/**", "/verify-otp/**", "/otp/**",
+						"/login/webauthn.js", "/webauthn/authenticate/**")
 				.permitAll()
+				// Allow unauthenticated access to forgot-password REST endpoints
+				.requestMatchers("/user/request-otp", "/user/reset-password").permitAll()
 				// Restrict /user endpoint to users with ADMIN role
-				.requestMatchers("/user/**").hasAuthority("ADMIN")
+				.requestMatchers("/user", "/user/**").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
+				.csrf(csrf -> csrf
+						// Allow unauthenticated/SPA calls for login, signup, otp, forgot-password, and WebAuthn
+						// REST endpoints
+						.ignoringRequestMatchers("/login", "/signup", "/otp/**",
+								"/user/request-otp", "/user/reset-password", "/user/update",
+								"/profile/change-password/**",
+								"/profile/email", "/profile/email/**",
+								"/profile/phone-number", "/profile/phone-number/**",
+								"/mfa", "/mfa/**",
+								"/allowed-ip", "/allowed-ip/**",
+								"/address", "/address/**",
+								"/login/webauthn", "/webauthn/**")
+				// For SPA, it's better to use CookieCsrfTokenRepository
+				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+				)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				// Form login handles the redirect to the login page from the
 				// authorization server filter chain
 				.formLogin(form -> form
 						.loginPage("/login") // Custom login page
+						.successHandler(customAuthenticationSuccessHandler)
 						.permitAll())
+				.webAuthn(webAuthn -> webAuthn
+						.rpName("OAuth Authorization Server")
+						.rpId("localhost")
+						.allowedOrigins("http://localhost:5173", "http://localhost:9000", "http://localhost:3000", "http://localhost:2223")
+				)
 				.logout(logout -> logout
+						.logoutRequestMatcher(new org.springframework.security.web.util.matcher.RegexRequestMatcher(
+								"^/logout$", "GET"))
 						.logoutSuccessUrl("/login?logout")
 						.permitAll())
 				.requestCache(requestCache -> {
@@ -135,13 +170,27 @@ public class AuthorizationServerConfig {
 							if (redirectUrl != null) {
 								request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST", redirectUrl);
 							} else {
-								super.saveRequest(request, response);
+								// Only cache main page GET requests expecting HTML, never background JSON/AJAX API requests
+								String accept = request.getHeader("Accept");
+								String method = request.getMethod();
+								if ("GET".equalsIgnoreCase(method) && accept != null && accept.contains("text/html")) {
+									super.saveRequest(request, response);
+								}
 							}
 						}
 					};
 					requestCache.requestCache(cache);
 				})
 				.exceptionHandling(exceptions -> exceptions
+						.authenticationEntryPoint((request, response, authException) -> {
+							String accept = request.getHeader("Accept");
+							String requestedWith = request.getHeader("X-Requested-With");
+							if ((accept != null && accept.contains("application/json")) || "XMLHttpRequest".equals(requestedWith)) {
+								response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Session expired");
+							} else {
+								response.sendRedirect(request.getContextPath() + "/login");
+							}
+						})
 						.accessDeniedHandler((request, response, accessDeniedException) -> {
 							// Custom access denied handler for /user endpoint
 							if (request.getRequestURI().startsWith("/user")) {
@@ -150,9 +199,29 @@ public class AuthorizationServerConfig {
 							} else {
 								response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
 							}
-						}));
+						})
+				);
+
+		http.addFilterAfter(new io.github.thirumalx.security.MfaEnforcementFilter(), org.springframework.security.web.context.SecurityContextHolderFilter.class);
+		http.addFilterAfter(loginHistoryFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public JdbcPublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(JdbcOperations jdbcOperations) {
+		return new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations);
+	}
+
+	@Bean
+	@Primary
+	public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
+		return new io.github.thirumalx.repository.Base64UserCredentialRepository(jdbcOperations);
+	}
+
+	@Bean
+	public org.springframework.security.web.session.HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new org.springframework.security.web.session.HttpSessionEventPublisher();
 	}
 
 	/**
@@ -166,12 +235,13 @@ public class AuthorizationServerConfig {
 	@Order(1)
 	SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
 			throws Exception {
-		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer
-				.authorizationServer();
+		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
 		http
 				.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
 				.with(authorizationServerConfigurer, authorizationServer -> authorizationServer
+						.authorizationEndpoint(
+								authorizationEndpoint -> authorizationEndpoint.consentPage("/oauth2/consent"))
 						.oidc(Customizer.withDefaults()) // Enable OpenID Connect 1.0
 				)
 				.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
@@ -248,8 +318,8 @@ public class AuthorizationServerConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
 		corsConfiguration.setAllowCredentials(true); // important for cookies/session
 		corsConfiguration.setMaxAge(3600L); // 1 hour

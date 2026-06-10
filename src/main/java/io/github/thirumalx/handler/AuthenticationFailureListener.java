@@ -2,6 +2,8 @@ package io.github.thirumalx.handler;
 
 import java.util.Objects;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.github.thirumalx.model.Contact;
 import io.github.thirumalx.model.LoginHistory;
@@ -39,7 +43,15 @@ public class AuthenticationFailureListener implements ApplicationListener<Authen
 			logger.debug("Not able to find the login id  {} itself .....Ignoring.....", userName);
 			return;
 		} 
-		loginHistoryRepository.save(LoginHistory.builder().loginUserId(contact.getLoginUserId()).successLogin(false).build());
+		
+		String ipAddress = null;
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if (attributes != null) {
+			HttpServletRequest request = attributes.getRequest();
+			ipAddress = request.getRemoteAddr();
+		}
+
+		loginHistoryRepository.save(LoginHistory.builder().loginUserId(contact.getLoginUserId()).successLogin(false).ipAddress(ipAddress).build());
 	}
 
 }

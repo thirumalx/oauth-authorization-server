@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import io.github.thirumalx.util.PhoneNumberUtility;
@@ -42,15 +43,19 @@ public class UserResource implements Serializable {
 	private String phoneNumber;
 	@NotNull
 	private String password;
+	@JsonDeserialize(using = OffsetDateTimeJsonDeserializer.class)
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private OffsetDateTime dateOfBirth;// Or date of Incorporation if user is not an individual
 	private boolean individual;
+	private Integer languageCd;
+	private String languageLocale;
 	private OffsetDateTime accountCreatedOn;
 	// Account is created by internal system
 	private boolean forcePasswordChange;
 	// Registered Client details
-	//It's not mandatory, if the user creates an account directly from the SAS signup page; 
-		//otherwise, it remains mandatory.
+	// It's not mandatory, if the user creates an account directly from the SAS
+	// signup page;
+	// otherwise, it remains mandatory.
 	private String registeredClientId;
 	private Set<SimpleGrantedAuthority> authorities;
 

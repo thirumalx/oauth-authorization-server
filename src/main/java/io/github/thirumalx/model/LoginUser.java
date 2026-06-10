@@ -20,22 +20,28 @@ import lombok.ToString;
  * @author Thirumal
  *
  */
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
-@Builder@ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class LoginUser implements Serializable {
 
 	private static final long serialVersionUID = 8998709262269738118L;
-	
+
 	private Long loginUserId;
 	@NotNull
 	private UUID loginUuid;
 	private OffsetDateTime dateOfBirth;
 	private boolean individual;
+	private Integer languageCd;
+	private String languageLocale;
 	private OffsetDateTime rowCreatedOn;
-	
+
 	public LoginUser(LoginUser loginUser) {
-		this(loginUser.loginUserId, loginUser.getLoginUuid(), loginUser.getDateOfBirth(), loginUser.individual, loginUser.getRowCreatedOn());
+		this(loginUser.loginUserId, loginUser.getLoginUuid(), loginUser.getDateOfBirth(), loginUser.individual,
+				loginUser.getLanguageCd(), loginUser.getLanguageLocale(), loginUser.getRowCreatedOn());
 	}
 
 	@Override
@@ -52,8 +58,8 @@ public class LoginUser implements Serializable {
 			return false;
 		}
 		LoginUser other = (LoginUser) obj;
-		return Objects.equals(dateOfBirth, other.dateOfBirth) && individual == other.individual;
+		return Objects.equals(dateOfBirth, other.dateOfBirth) && individual == other.individual
+				&& Objects.equals(languageCd, other.languageCd);
 	}
-
 
 }

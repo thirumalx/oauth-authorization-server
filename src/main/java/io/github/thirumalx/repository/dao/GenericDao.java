@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import io.github.thirumalx.exception.BadRequestException;
 import io.github.thirumalx.exception.ResourceNotFoundException;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author Thirumal
@@ -21,39 +22,41 @@ import io.github.thirumalx.exception.ResourceNotFoundException;
  */
 public abstract class GenericDao {
 
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     protected JdbcTemplate jdbcTemplate;
     @Autowired
     protected Environment environment;
-    
+
     protected String messageOf = "MessageOf";
     protected String rowCreatedOn = "row_created_on";
- 
-    //Error Message    
+
+    // Error Message
     protected String primaryKeyErr = "Not able to generate PK";
-    
+
     /**
-     * Get SQL query from the 
+     * Get SQL query from the
      * src/main/resources/sql.properties file
+     * 
      * @param key
      * @return SQL query
      */
-    protected String getSql(String key) {
+    protected String getSql(@NotNull String key) {
         String sql = environment.getProperty(key);
         if (sql != null) {
             return sql;
         }
-        String errorMessage = "The SQL for the requested key "+ key +  " is not found"; 
+        String errorMessage = "The SQL for the requested key " + key + " is not found";
         logger.debug(errorMessage);
         throw new ResourceNotFoundException("SQL is not found!!");
     }
-    
+
     protected String setInvalues(String query, String replaceString, Set<String> inValues) {
-		if (inValues == null || inValues.isEmpty()) {
-			throw new BadRequestException(" List cannot be empty");
-		}
-		return query.replace(replaceString, "'" + inValues.stream().map(Object::toString).collect(Collectors.joining("','")) + "'");
-	}
+        if (inValues == null || inValues.isEmpty()) {
+            throw new BadRequestException(" List cannot be empty");
+        }
+        return query.replace(replaceString,
+                "'" + inValues.stream().map(Object::toString).collect(Collectors.joining("','")) + "'");
+    }
 }

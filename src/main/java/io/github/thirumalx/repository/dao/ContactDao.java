@@ -134,6 +134,16 @@ public class ContactDao extends GenericDao implements ContactRepository {
 	public int verify(Long contactId) {
 		return jdbcTemplate.update(getSql("Contact.verify"), contactId);
 	}	
+
+	@Override
+	public int delete(Long contactId) {
+		return jdbcTemplate.update(getSql("Contact.delete"), contactId);
+	}
+
+	@Override
+	public int update(Contact contact) {
+		return jdbcTemplate.update(getSql("Contact.update"), contact.getLoginId().strip().toLowerCase(), contact.getContactId());
+	}
 	
 	RowMapper<Contact> contactRowMapper = (rs, rowNum) -> {
 

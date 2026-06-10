@@ -199,9 +199,19 @@ sequenceDiagram
 ```
 
 
-### Login
+### OAuth2 Authorization Testing URLs
 
-[](http://127.0.0.1:9000/oauth2/authorize?response_type=code&client_id=client1&redirect_uri=http://127.0.0.1:9000/authorized&scope=openid%20read)
+You can test the OAuth2 Authorization Code flow (which triggers the Custom React Consent Page) by navigating to the following URLs in your browser.
+
+**1. Test `bff-client-id-001` Client**
+```text
+http://localhost:9000/oauth2/authorize?response_type=code&client_id=bff-client-id-001&redirect_uri=http://localhost:2223/login/oauth2/code/bff-client-oidc&scope=openid profile message.read message.write
+```
+
+**2. Test `Thirumal` Client**
+```text
+http://localhost:9000/oauth2/authorize?response_type=code&client_id=Thirumal&redirect_uri=http://127.0.0.1:8000/authorized&scope=openid profile read
+```
 
 ## Recovery Code
 
@@ -220,3 +230,19 @@ sequenceDiagram
 	When the use lost the phone / authenticator app mobile
 
 <!-- GitAds-Verify: 6BKQQV7NW224BW6GKSIPWEI4VIK49CUI -->
+
+## UI development
+
+Technical Architecture
+The migration supports two modes of operation:
+
+1. Integrated Mode (Production)
+
+Deployment: Single executable JAR.
+Serving: Spring Boot serves the pre-built React static files from src/main/resources/static.
+Origin: Same-origin (e.g., http://localhost:8080). No CORS issues.
+2. Proxied Mode (Development)
+
+Deployment: React runs on Vite Dev Server (port 5173), Spring Boot runs on port 8080.
+Communication: Vite proxies all /api, /login, and /signup requests to Spring Boot.
+Experience: Fast Hot Module Replacement (HMR) for the frontend while interacting with the real backend.

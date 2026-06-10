@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -27,6 +29,7 @@ import io.github.thirumalx.client.MessageServiceClient;
 import io.github.thirumalx.exception.BadRequestException;
 import io.github.thirumalx.exception.NotImplementedException;
 import io.github.thirumalx.exception.ResourceNotFoundException;
+import io.github.thirumalx.exception.UnAuthorizedException;
 import io.github.thirumalx.model.Contact;
 import io.github.thirumalx.model.ContactVerify;
 import io.github.thirumalx.model.Email;
@@ -229,6 +232,25 @@ public class UserService {
 		return buildUserResource(loginUser, loginUserName, contacts, password);
 	}
 
+	/**
+	 * List of contact (i.e email, phone number)
+	 * 
+	 * @param loginUuid
+	 * @param contactCd
+	 * @return
+	 */
+	public List<String> getContact(UUID loginUuid, Long contactCd) {
+		logger.debug("Getting the user {}", loginUuid);
+		LoginUser loginUser = loginUserRepository.findByUuid(loginUuid);
+		if (Objects.isNull(loginUser)) {
+			throw new ResourceNotFoundException("The requested user " + loginUuid + " is not available");
+		}
+		// Contact
+		List<Contact> contacts = contactRepository.findAllByLoginUserId(loginUser.getLoginUserId());
+		return contacts.stream().filter(c -> contactCd.equals(c.getContactCd())).map(Contact::getLoginId)
+				.collect(Collectors.toList());
+	}
+
 	private UserResource get(Long loginUserId) {
 		LoginUser loginUser = loginUserRepository.findById(loginUserId);
 		if (Objects.isNull(loginUser)) {
@@ -243,6 +265,8 @@ public class UserService {
 		// Login User
 		userResource.setLoginUuid(loginUser.getLoginUuid());
 		userResource.setDateOfBirth(loginUser.getDateOfBirth());
+		userResource.setLanguageCd(loginUser.getLanguageCd());
+		userResource.setLanguageLocale(loginUser.getLanguageLocale());
 		userResource.setIndividual(loginUser.isIndividual());
 		userResource.setAccountCreatedOn(loginUser.getRowCreatedOn());
 		// Login User Name
@@ -294,6 +318,7 @@ public class UserService {
 		LoginUser loginUser = new LoginUser(loginUserDb);
 		loginUser.setDateOfBirth(userResource.getDateOfBirth());
 		loginUser.setIndividual(userResource.isIndividual());
+		loginUser.setLanguageCd(userResource.getLanguageCd());
 		if (!loginUser.equals(loginUserDb)) {
 			loginUserRepository.update(loginUser);
 			newChange = true;
@@ -427,6 +452,26 @@ public class UserService {
 				loginHistoryRepository.count(loginUser.getLoginUserId()));
 	}
 
+	private UUID getCurrentUserUuid() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(authentication.getName())) {
+			throw new UnAuthorizedException("User is not authenticated");
+		}
+		return UUID.fromString(authentication.getName());
+	}
+
+	public PaginatedLoginHistory loginHistories(int page, int size) {
+		logger.debug("Listing login histories {} from page {} to {}", page, size);
+		LoginUser loginUser = loginUserRepository.findByUuid(getCurrentUserUuid());
+		if (Objects.isNull(loginUser)) {
+			throw new ResourceNotFoundException("The reuested user is not present in the database");
+		}
+		return new PaginatedLoginHistory(
+				loginHistoryRepository.list(loginUser.getLoginUserId(), size, ((page - 1) * size)),
+				loginHistoryRepository.count(loginUser.getLoginUserId()));
+	}
+
 	@Transactional
 	public boolean resetPassword(ResetPassword resetPassword) {
 		logger.debug("reset password {}", resetPassword);
@@ -475,10 +520,23 @@ public class UserService {
 		}
 	}
 
-	public PaginatedUser list(Pagination pagination) {
-		logger.debug("Lsting users with {}", pagination);
+	/**
+	 * 
+	 * @param typeOfPerson - for the filter
+	 * @param pagination
+	 * @return
+	 */
+	public PaginatedUser list(String typeOfPerson, Pagination pagination) {
+		logger.debug("Lsting {} users with {}", typeOfPerson, pagination);
 		var userResources = new ArrayList<UserResource>();
-		List<LoginUser> loginUsers = loginUserRepository.findAll(pagination);
+		List<LoginUser> loginUsers;
+		if (typeOfPerson.equalsIgnoreCase("organization")) {
+			loginUsers = loginUserRepository.findNonIndividual(pagination);
+		} else if (typeOfPerson.equalsIgnoreCase("individual")) {
+			loginUsers = loginUserRepository.findIndividual(pagination);
+		} else {
+			loginUsers = loginUserRepository.findAll(pagination);
+		}
 		for (LoginUser loginUser : loginUsers) {
 			userResources.add(get(loginUser.getLoginUuid()));
 		}
@@ -503,4 +561,32 @@ public class UserService {
 		return userResources;
 	}
 
+	@Transactional
+	public boolean sendLoginMfaOtp(Contact contact) {
+		logger.debug("Generating login MFA OTP for contact: {}", contact.getLoginId());
+		String otp = generateOtp(6);
+		tokenRepository.save(Token.builder()
+				.contactId(contact.getContactId())
+				.otp(passwordEncoder.encode(otp))
+				.expiresOn(OffsetDateTime.now().plusMinutes(Token.EXPIRY_TIME_IN_MINUTES))
+				.build());
+		LoginUserName userName = loginUserNameRepository.findByLoginUserId(contact.getLoginUserId());
+		String name = userName != null ? userName.getFirstName() : "User";
+		String subject = "Login Verification OTP - ";
+		String template = Email.ACCOUNT_VERIFY_FTL_TEMPLATE;
+		sendOtp(name, contact, otp, template, subject);
+		return true;
+	}
+
+	public boolean verifyLoginMfaOtp(Contact contact, String otp) {
+		logger.debug("Executing temporary login MFA OTP validation for: {}", contact.getLoginId());
+		Token token = tokenRepository.findByContactId(contact.getContactId());
+		if (token == null) {
+			throw new BadRequestException("OTP has expired or was not requested");
+		}
+		if (!passwordEncoder.matches(otp, token.getOtp())) {
+			throw new BadRequestException("The verification code is incorrect");
+		}
+		return true;
+	}
 }

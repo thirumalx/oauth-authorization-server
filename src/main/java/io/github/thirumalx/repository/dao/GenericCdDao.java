@@ -3,11 +3,17 @@
  */
 package io.github.thirumalx.repository.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import io.github.thirumalx.exception.DatabaseException;
+import io.github.thirumalx.exception.ResourceNotFoundException;
 import io.github.thirumalx.model.GenericCd;
 import io.github.thirumalx.repository.GenericCdRepository;
 
@@ -23,8 +29,30 @@ public class GenericCdDao extends GenericDao implements GenericCdRepository {
 		logger.debug("Table name {}", tableName);
 		String sql = getSql("GenericCd.listByTableName").replace("{TABLE_NAME}", tableName);
 		return jdbcTemplate.query(sql, genericCodeCdRowMapper, localeCd);
-	}	
-	
+	}
+
+	public List<GenericCd> list(String tableName, String locale) {
+		Long localeCd = getLocaleCdFromCode(locale);
+		return list(tableName, localeCd);
+	}
+
+	public Long getLocaleCdFromCode(String language) {
+		if (language == null) {
+			return getLocaleCdFromCode(getSql("spring.web.locale"));
+		}
+		language = language.replace("-", "_");
+		try {
+			return jdbcTemplate.queryForObject(getSql("GenericCodeCd.getLocalCd"),
+					(rs, rowNum) -> rs.getLong("locale_cd"), language);
+		} catch (EmptyResultDataAccessException e) {
+			logger.error("Locales are not found in database");
+			throw new ResourceNotFoundException("Locale is not found");
+		} catch (CannotGetJdbcConnectionException cannotGetJdbcConnectionException) {
+			logger.error("Not able to connect to database, check with Thirumal...");
+			throw new DatabaseException("Not able to connect to database. Contact Thirumal");
+		}
+	}
+
 	RowMapper<GenericCd> genericCodeCdRowMapper = (rs, rowNum) -> {
 
 		GenericCd genericCd = new GenericCd();
@@ -38,9 +66,9 @@ public class GenericCdDao extends GenericDao implements GenericCdRepository {
 		}
 
 		genericCd.setCode(rs.getObject("code") != null ? rs.getString("code") : null);
-		
+
 		genericCd.setDescription(rs.getObject("description") != null ? rs.getString("description") : null);
-		
+
 		try {
 			genericCd.setRegex(rs.getObject("regex") != null ? rs.getString("regex") : null);
 		} catch (Exception e) {

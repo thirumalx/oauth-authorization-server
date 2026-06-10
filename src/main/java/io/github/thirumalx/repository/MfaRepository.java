@@ -19,5 +19,9 @@ public interface MfaRepository {
 	
 	List<Mfa> findByLoginUserId(Long loginUserId);
 	
+	int update(Mfa mfa);
+
+	int delete(Long mfaId, Long loginUserId);
+	
 	int disable(Long loginUserId);
 }

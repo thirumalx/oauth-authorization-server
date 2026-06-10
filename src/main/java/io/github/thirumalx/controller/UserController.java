@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,13 +20,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import io.github.thirumalx.model.ContactVerify;
 import io.github.thirumalx.model.Login;
 import io.github.thirumalx.model.PaginatedLoginHistory;
+import io.github.thirumalx.model.PaginatedUser;
+import io.github.thirumalx.model.Pagination;
 import io.github.thirumalx.model.ResetPassword;
 import io.github.thirumalx.model.UserResource;
 import io.github.thirumalx.service.UserService;
@@ -39,7 +39,6 @@ import jakarta.validation.Valid;
  * @author Thirumal
  *
  */
-@Controller
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -86,7 +85,7 @@ public class UserController {
 	 * 
 	 * @param contactVerify
 	 * @return
-	 * @deprecated in favor of @link {@link OtpController#showOtpPage(UUID, Model)}
+	 * @deprecated Use /api/otp/verify in OtpController
 	 */
 	@PostMapping("/verify")
 	@Deprecated
@@ -97,8 +96,10 @@ public class UserController {
 	/**
 	 * @param payload (email)
 	 * @return
+	 * @deprecated Use /api/otp/resend in OtpController
 	 */
 	@PatchMapping(value = "/request-otp", consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@Deprecated
 	public ResponseEntity<?> requestOtpToVerifyAccount(@RequestParam String purpose,
 			HttpServletRequest request, @RequestBody Map<String, Object> payload) {
 		logger.debug("Requested OTP for the {}", purpose);
@@ -139,20 +140,35 @@ public class UserController {
 
 	@GetMapping("/login-histories/{loginUuid}")
 	public PaginatedLoginHistory loginHistories(@PathVariable UUID loginUuid,
-			@RequestParam(required = false, defaultValue = "20") int page,
-			@RequestParam(required = false, defaultValue = "0") int size) {
+			@RequestParam(required = false, defaultValue = "1") int page,
+			@RequestParam(required = false, defaultValue = "20") int size) {
 		return userService.loginHistories(loginUuid, page, size);
 	}
 
+	@GetMapping("/login-histories")
+	public PaginatedLoginHistory loginHistories(
+			@RequestParam(required = false, defaultValue = "1") int page,
+			@RequestParam(required = false, defaultValue = "20") int size) {
+		return userService.loginHistories(page, size);
+	}
+
+	/**
+	 * 
+	 * @param page
+	 * @param size
+	 * @param personType - can be "all", "organization" and "individual"
+	 * @param sortBy
+	 * @param asc
+	 * @return
+	 */
 	@GetMapping("")
-	public ModelAndView user(@RequestParam(defaultValue = "0", required = false) long page,
+	@ResponseBody
+	public PaginatedUser list(@RequestParam(defaultValue = "0", required = false) long page,
 			@RequestParam(defaultValue = "30", required = false) long size,
+			@RequestParam(defaultValue = "all", required = false) String personType,
 			@RequestParam(defaultValue = "rowCreatedOn", required = false) String sortBy,
-			@RequestParam(required = false) boolean asc, Model model) {
-		var paginatedUser = userService.list(new io.github.thirumalx.model.Pagination(page, size, sortBy, asc));
-		ModelAndView modelAndView = new ModelAndView("user");
-		modelAndView.addObject("user", paginatedUser);
-		return modelAndView;
+			@RequestParam(required = false) boolean asc) {
+		return userService.list(personType, new Pagination(page, size, sortBy, asc));
 	}
 
 }

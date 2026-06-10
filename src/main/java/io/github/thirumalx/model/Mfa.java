@@ -17,18 +17,26 @@ import lombok.ToString;
  * @author Thirumal
  *
  */
-@Getter@Setter
-@NoArgsConstructor@AllArgsConstructor
-@Builder@ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class Mfa implements Serializable {
-	
+
 	private static final long serialVersionUID = -4711396330473057724L;
-	
+
 	private Long mfaId;
 	private Long loginUserId;
 	private Long contactId;
-	private Long mfaCd;
+	private Long mfaCd; // Google/Microsoft Top, SMS OTP, Email OTP..
 	private String secret;
+	private String code; // Transient verification code
+	//
+	private boolean verified;
+	private boolean primaryMfa;
+	//
 	private OffsetDateTime startTime;
 	private OffsetDateTime endTime;
 	private OffsetDateTime rowCreatedOn;
