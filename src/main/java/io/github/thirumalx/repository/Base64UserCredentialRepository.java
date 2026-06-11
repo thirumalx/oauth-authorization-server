@@ -4,14 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
@@ -48,10 +46,14 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 
 		if (findByCredentialId(credentialRecord.getCredentialId()) != null) {
 			System.out.println("====== EXECUTING UPDATE ON user_credentials ======");
-			String credentialId = Base64.getUrlEncoder().withoutPadding().encodeToString(credentialRecord.getCredentialId().getBytes());
-			java.sql.Timestamp lastUsed = credentialRecord.getLastUsed() != null ? java.sql.Timestamp.from(credentialRecord.getLastUsed()) : new java.sql.Timestamp(System.currentTimeMillis());
+			String credentialId = Base64.getUrlEncoder().withoutPadding()
+					.encodeToString(credentialRecord.getCredentialId().getBytes());
+			java.sql.Timestamp lastUsed = credentialRecord.getLastUsed() != null
+					? java.sql.Timestamp.from(credentialRecord.getLastUsed())
+					: new java.sql.Timestamp(System.currentTimeMillis());
 			try {
-				int rows = jdbcOperations.update("UPDATE user_credentials SET signature_count = ?, backup_state = ?, uv_initialized = ?, last_used = ? WHERE credential_id = ?",
+				int rows = jdbcOperations.update(
+						"UPDATE user_credentials SET signature_count = ?, backup_state = ?, uv_initialized = ?, last_used = ? WHERE credential_id = ?",
 						credentialRecord.getSignatureCount(),
 						credentialRecord.isBackupState(),
 						credentialRecord.isUvInitialized(),
@@ -66,10 +68,13 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 			return;
 		}
 
-		String userEntityId = Base64.getUrlEncoder().withoutPadding().encodeToString(credentialRecord.getUserEntityUserId().getBytes());
-		String credentialId = Base64.getUrlEncoder().withoutPadding().encodeToString(credentialRecord.getCredentialId().getBytes());
-		String publicKey = Base64.getUrlEncoder().withoutPadding().encodeToString(credentialRecord.getPublicKey().getBytes());
-		
+		String userEntityId = Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(credentialRecord.getUserEntityUserId().getBytes());
+		String credentialId = Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(credentialRecord.getCredentialId().getBytes());
+		String publicKey = Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(credentialRecord.getPublicKey().getBytes());
+
 		String transports = null;
 		if (credentialRecord.getTransports() != null) {
 			transports = credentialRecord.getTransports().stream()
@@ -77,11 +82,19 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 					.collect(Collectors.joining(","));
 		}
 
-		byte[] attestationObject = credentialRecord.getAttestationObject() != null ? credentialRecord.getAttestationObject().getBytes() : null;
-		byte[] clientDataJson = credentialRecord.getAttestationClientDataJSON() != null ? credentialRecord.getAttestationClientDataJSON().getBytes() : null;
+		byte[] attestationObject = credentialRecord.getAttestationObject() != null
+				? credentialRecord.getAttestationObject().getBytes()
+				: null;
+		byte[] clientDataJson = credentialRecord.getAttestationClientDataJSON() != null
+				? credentialRecord.getAttestationClientDataJSON().getBytes()
+				: null;
 
-		java.sql.Timestamp created = credentialRecord.getCreated() != null ? java.sql.Timestamp.from(credentialRecord.getCreated()) : new java.sql.Timestamp(System.currentTimeMillis());
-		java.sql.Timestamp lastUsed = credentialRecord.getLastUsed() != null ? java.sql.Timestamp.from(credentialRecord.getLastUsed()) : created;
+		java.sql.Timestamp created = credentialRecord.getCreated() != null
+				? java.sql.Timestamp.from(credentialRecord.getCreated())
+				: new java.sql.Timestamp(System.currentTimeMillis());
+		java.sql.Timestamp lastUsed = credentialRecord.getLastUsed() != null
+				? java.sql.Timestamp.from(credentialRecord.getLastUsed())
+				: created;
 		String id = java.util.UUID.randomUUID().toString();
 
 		System.out.println("====== EXECUTING INSERT INTO user_credentials ======");
@@ -101,8 +114,7 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 					created,
 					lastUsed,
 					credentialRecord.isBackupEligible(),
-					credentialRecord.getLabel()
-			);
+					credentialRecord.getLabel());
 			System.out.println("====== INSERT SUCCESSFUL, ROWS AFFECTED: " + rows + " ======");
 		} catch (Exception e) {
 			System.err.println("====== ERROR INSERTING CREDENTIAL ======");
@@ -120,7 +132,8 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 	@Override
 	public CredentialRecord findByCredentialId(Bytes credentialId) {
 		String encodedCredentialId = Base64.getUrlEncoder().withoutPadding().encodeToString(credentialId.getBytes());
-		List<CredentialRecord> records = jdbcOperations.query(FIND_BY_CREDENTIAL_ID_SQL, new CredentialRecordRowMapper(), encodedCredentialId);
+		List<CredentialRecord> records = jdbcOperations.query(FIND_BY_CREDENTIAL_ID_SQL,
+				new CredentialRecordRowMapper(), encodedCredentialId);
 		if (records.isEmpty()) {
 			return null;
 		}
@@ -143,17 +156,27 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 			Bytes credentialId = new Bytes(Base64.getUrlDecoder().decode(credentialIdStr));
 
 			String publicKeyStr = rs.getString("public_key");
-			// In Spring Security 6.2+, PublicKeyCose is an interface, but we can provide Bytes, or we can use the default implementation or we just pass Bytes to the builder directly
-			// Wait, in older Spring Security PublicKeyCose had a byte[] constructor. 
-			// Let's use new PublicKeyCose(bytes) if possible? No, compilation said "PublicKeyCose is abstract; cannot be instantiated".
-			// So we just pass the byte array to the publicKey method in builder? Wait, ImmutableCredentialRecordBuilder has a publicKey(PublicKeyCose) method. 
+			// In Spring Security 6.2+, PublicKeyCose is an interface, but we can provide
+			// Bytes, or we can use the default implementation or we just pass Bytes to the
+			// builder directly
+			// Wait, in older Spring Security PublicKeyCose had a byte[] constructor.
+			// Let's use new PublicKeyCose(bytes) if possible? No, compilation said
+			// "PublicKeyCose is abstract; cannot be instantiated".
+			// So we just pass the byte array to the publicKey method in builder? Wait,
+			// ImmutableCredentialRecordBuilder has a publicKey(PublicKeyCose) method.
 			// But since PublicKeyCose is abstract, what implementation to use?
-			// Maybe there is a method to create it or maybe the builder accepts Bytes or byte[]?
+			// Maybe there is a method to create it or maybe the builder accepts Bytes or
+			// byte[]?
 			// Let's use `new PublicKeyCose(...)`? No, abstract.
-			// Let's look up how to create PublicKeyCose. It might be `org.springframework.security.web.webauthn.api.PublicKeyCose`.
-			// Spring Security docs say `PublicKeyCose` is an interface. We might not need to implement it.
-			// Actually, ImmutableCredentialRecordBuilder accepts `publicKeyCose` which is just an interface. We can use an anonymous class or see if there is a factory method.
-			// Is there a factory method like `PublicKeyCose.of(...)`? Let's check or just make an anonymous class!
+			// Let's look up how to create PublicKeyCose. It might be
+			// `org.springframework.security.web.webauthn.api.PublicKeyCose`.
+			// Spring Security docs say `PublicKeyCose` is an interface. We might not need
+			// to implement it.
+			// Actually, ImmutableCredentialRecordBuilder accepts `publicKeyCose` which is
+			// just an interface. We can use an anonymous class or see if there is a factory
+			// method.
+			// Is there a factory method like `PublicKeyCose.of(...)`? Let's check or just
+			// make an anonymous class!
 			PublicKeyCose publicKey = new PublicKeyCose() {
 				@Override
 				public byte[] getBytes() {
@@ -166,11 +189,12 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 			boolean uvInitialized = rs.getBoolean("uv_initialized");
 
 			String transportsStr = rs.getString("authenticator_transports");
-			Set<org.springframework.security.web.webauthn.api.AuthenticatorTransport> transports = transportsStr != null 
-				? Arrays.stream(transportsStr.split(","))
-					.map(s -> org.springframework.security.web.webauthn.api.AuthenticatorTransport.valueOf(s.toUpperCase()))
-					.collect(Collectors.toSet())
-				: null;
+			Set<org.springframework.security.web.webauthn.api.AuthenticatorTransport> transports = transportsStr != null
+					? Arrays.stream(transportsStr.split(","))
+							.map(s -> org.springframework.security.web.webauthn.api.AuthenticatorTransport
+									.valueOf(s.toUpperCase()))
+							.collect(Collectors.toSet())
+					: null;
 
 			byte[] attestationObjectBytes = rs.getBytes("attestation_object");
 			Bytes attestationObject = attestationObjectBytes != null ? new Bytes(attestationObjectBytes) : null;
@@ -180,7 +204,8 @@ public class Base64UserCredentialRepository implements UserCredentialRepository 
 
 			String label = rs.getString("label");
 			java.sql.Timestamp createdTimestamp = rs.getTimestamp("created");
-			java.time.Instant created = createdTimestamp != null ? createdTimestamp.toInstant() : java.time.Instant.now();
+			java.time.Instant created = createdTimestamp != null ? createdTimestamp.toInstant()
+					: java.time.Instant.now();
 			java.sql.Timestamp lastUsedTimestamp = rs.getTimestamp("last_used");
 			java.time.Instant lastUsed = lastUsedTimestamp != null ? lastUsedTimestamp.toInstant() : created;
 
