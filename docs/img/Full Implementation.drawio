@@ -26,7 +26,7 @@
           <mxGeometry height="460" width="600" x="490" y="-10" as="geometry" />
         </mxCell>
         <mxCell id="tyRBif4YMoV9Pp8mc-sA-11" parent="tyRBif4YMoV9Pp8mc-sA-7" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Cache_Redis_Product.svg;" value="&lt;div&gt;Redis Db&lt;/div&gt;&lt;div&gt;(Session + JWT token)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="42" width="50" x="20" y="350" as="geometry" />
+          <mxGeometry height="42" width="50" x="30" y="350" as="geometry" />
         </mxCell>
         <mxCell id="N-FUAeV2wjRyOOdeCRRQ-1" parent="tyRBif4YMoV9Pp8mc-sA-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#647687;fontColor=#ffffff;strokeColor=#314354;" value="Order Service" vertex="1">
           <mxGeometry height="60" width="120" x="120" y="200" as="geometry" />
