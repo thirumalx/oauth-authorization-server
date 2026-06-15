@@ -62,8 +62,6 @@ OAuth2 supports several grant types for different use cases. The most common gra
 | [Data Dictionary of Model](./docs/data%20dictionary.html)                                   | [DB](./docs/data%20dictionary.html)     |
 
 
-
-
 ## Prerequisites:
 
 1. [Eureka](https://github.com/m-thirumal/eureka-server) (Optional)
@@ -74,6 +72,10 @@ OAuth2 supports several grant types for different use cases. The most common gra
 ### Architecture/Flow:
 
 ![Architecture](./img/Architecture.drawio.png)
+
+#### Full Implementation
+
+![Full Implementation](./docs/img/Full%20Implementation.drawio.png)       
 
 ```
 React (Browser)
