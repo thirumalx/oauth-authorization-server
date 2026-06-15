@@ -181,6 +181,17 @@
         <mxCell id="N-FUAeV2wjRyOOdeCRRQ-26" parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.fire_tv;fillColor=#5294CF;gradientColor=none;" value="TV" vertex="1">
           <mxGeometry height="55.5" width="75" x="-20.5" y="450" as="geometry" />
         </mxCell>
+        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-29" edge="1" parent="1" source="N-FUAeV2wjRyOOdeCRRQ-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="tyRBif4YMoV9Pp8mc-sA-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-30" connectable="0" parent="N-FUAeV2wjRyOOdeCRRQ-29" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Client Id + Client Secret" vertex="1">
+          <mxGeometry relative="1" x="-0.0415" y="-4" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Confidential&lt;/div&gt;&lt;div&gt;Client&lt;/div&gt;&lt;div&gt;(3rd Party App)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="-43" y="610" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
