@@ -1,0 +1,19 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0" version="29.6.0">
+  <diagram name="Page-1" id="c-g72nFVk12Tsod46kpy">
+    <mxGraphModel dx="872" dy="467" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DzR4FbTl9eKgnpzrhwsF-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Actor" vertex="1">
+          <mxGeometry height="60" width="30" x="20" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="DzR4FbTl9eKgnpzrhwsF-2" parent="1" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.laptop;pointerEvents=1;" value="" vertex="1">
+          <mxGeometry height="75" width="130" x="130" y="202.5" as="geometry" />
+        </mxCell>
+        <mxCell id="DzR4FbTl9eKgnpzrhwsF-3" edge="1" parent="1" source="DzR4FbTl9eKgnpzrhwsF-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.08;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="DzR4FbTl9eKgnpzrhwsF-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
