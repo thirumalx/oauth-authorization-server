@@ -1,10 +1,10 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0">
   <diagram name="Page-1" id="c-g72nFVk12Tsod46kpy">
-    <mxGraphModel dx="1949" dy="1567" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1710" dy="1567" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="DzR4FbTl9eKgnpzrhwsF-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Actor" vertex="1">
+        <mxCell id="DzR4FbTl9eKgnpzrhwsF-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" value="Actor" vertex="1">
           <mxGeometry height="60" width="30" x="-170" y="200" as="geometry" />
         </mxCell>
         <mxCell id="DzR4FbTl9eKgnpzrhwsF-2" parent="1" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.laptop;pointerEvents=1;" value="&lt;div&gt;Cookie&lt;/div&gt;&lt;div&gt;(session_id in http only)&lt;/div&gt;" vertex="1">
@@ -78,7 +78,7 @@
         <mxCell id="N-FUAeV2wjRyOOdeCRRQ-6" edge="1" parent="tyRBif4YMoV9Pp8mc-sA-7" source="N-FUAeV2wjRyOOdeCRRQ-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.065;entryY=0.573;entryDx=0;entryDy=0;entryPerimeter=0;" target="N-FUAeV2wjRyOOdeCRRQ-5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-33" connectable="0" parent="N-FUAeV2wjRyOOdeCRRQ-6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="JDBC" vertex="1">
+        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-33" connectable="0" parent="N-FUAeV2wjRyOOdeCRRQ-6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=0;" value="JDBC" vertex="1">
           <mxGeometry relative="1" x="-0.0889" y="-2" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -104,7 +104,7 @@
         <mxCell id="tyRBif4YMoV9Pp8mc-sA-8" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Public&amp;nbsp;" vertex="1">
           <mxGeometry height="460" width="220" x="250" y="-10" as="geometry" />
         </mxCell>
-        <mxCell id="tyRBif4YMoV9Pp8mc-sA-13" parent="tyRBif4YMoV9Pp8mc-sA-8" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.servers.reverse_proxy;" value="&lt;div&gt;Reverse proxy&lt;/div&gt;&lt;div&gt;(Nginx)&lt;/div&gt;" vertex="1">
+        <mxCell id="tyRBif4YMoV9Pp8mc-sA-13" parent="tyRBif4YMoV9Pp8mc-sA-8" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#B20000;fillColor=#e51400;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.servers.reverse_proxy;fontColor=#ffffff;" value="&lt;div&gt;Reverse proxy&lt;/div&gt;&lt;div&gt;(Nginx)&lt;/div&gt;" vertex="1">
           <mxGeometry height="80" width="50" x="20" y="210" as="geometry" />
         </mxCell>
         <mxCell id="tyRBif4YMoV9Pp8mc-sA-2" parent="tyRBif4YMoV9Pp8mc-sA-8" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Azure_Spring_Cloud.svg;" value="&lt;div&gt;API Gateway&amp;nbsp;&lt;/div&gt;&lt;div&gt;+&lt;/div&gt;&lt;div&gt;BFF&lt;/div&gt;" vertex="1">
@@ -211,7 +211,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Confidential&lt;/div&gt;&lt;div&gt;Client&lt;/div&gt;&lt;div&gt;(3rd Party App)&lt;/div&gt;" vertex="1">
+        <mxCell id="N-FUAeV2wjRyOOdeCRRQ-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" value="&lt;div&gt;Confidential&lt;/div&gt;&lt;div&gt;Client&lt;/div&gt;&lt;div&gt;(3rd Party App)&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="-43" y="610" as="geometry" />
         </mxCell>
       </root>
