@@ -8,11 +8,11 @@ This repository full documentation can be found at [m-thirumal.github.io/oauth-a
 
 The below diagram shows the full implementation of the OAuth2 Authorization Server:
 
-    * [API Gateway + BFF](https://github.com/thirumalx/spring-cloud-gateway)
-    * [Authorization Server](https://github.com/thirumalx/oauth-authorization-server)
-    * [Resource Server](https://github.com/thirumalx/oauth-resource-server)
-    * [Resource Server UI](https://github.com/thirumalx/resource-server-ui)
-    * [Eureka Server](https://github.com/thirumalx/eureka-server)
+* [API Gateway + BFF](https://github.com/thirumalx/spring-cloud-gateway)
+* [Authorization Server](https://github.com/thirumalx/oauth-authorization-server)
+* [Resource Server](https://github.com/thirumalx/oauth-resource-server)
+* [Resource Server UI](https://github.com/thirumalx/resource-server-ui)
+* [Eureka Server](https://github.com/thirumalx/eureka-server)
   
 ![Full Implementation](./docs/img/Full%20Implementation.drawio.png)  
 
