@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0" version="29.6.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0">
   <diagram name="Page-1" id="c-g72nFVk12Tsod46kpy">
-    <mxGraphModel dx="872" dy="467" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="860" dy="467" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -12,6 +12,18 @@
         </mxCell>
         <mxCell id="DzR4FbTl9eKgnpzrhwsF-3" edge="1" parent="1" source="DzR4FbTl9eKgnpzrhwsF-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.08;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="DzR4FbTl9eKgnpzrhwsF-2">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tyRBif4YMoV9Pp8mc-sA-2" parent="1" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Azure_Spring_Cloud.svg;" value="API Gateway" vertex="1">
+          <mxGeometry height="68" width="68" x="380" y="203" as="geometry" />
+        </mxCell>
+        <mxCell id="tyRBif4YMoV9Pp8mc-sA-5" edge="1" parent="1" source="tyRBif4YMoV9Pp8mc-sA-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="tyRBif4YMoV9Pp8mc-sA-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tyRBif4YMoV9Pp8mc-sA-3" parent="1" style="shape=mxgraph.sap.icon;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeWidth=1;strokeColor=#D5DADD;fillColor=#EDEFF0;gradientColor=#FCFCFC;gradientDirection=west;aspect=fixed;SAPIcon=OAuth_20" value="Authorization Server&#xa;(OAuth-2.1)" vertex="1">
+          <mxGeometry height="100" width="100" x="620" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tyRBif4YMoV9Pp8mc-sA-4" parent="1" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/Azure_Database_PostgreSQL_Server.svg;" value="" vertex="1">
+          <mxGeometry height="82" width="61.5" x="920" y="29" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
