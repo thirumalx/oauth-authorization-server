@@ -4,6 +4,18 @@
 
 This repository full documentation can be found at [m-thirumal.github.io/oauth-authorization-server/](https://m-thirumal.github.io/oauth-authorization-server/)
 
+## Full Implementation
+
+The below diagram shows the full implementation of the OAuth2 Authorization Server:
+
+    * [API Gateway + BFF](https://github.com/thirumalx/spring-cloud-gateway)
+    * [Authorization Server](https://github.com/thirumalx/oauth-authorization-server)
+    * [Resource Server](https://github.com/thirumalx/oauth-resource-server)
+    * [Resource Server UI](https://github.com/thirumalx/resource-server-ui)
+    * [Eureka Server](https://github.com/thirumalx/eureka-server)
+  
+![Full Implementation](./docs/img/Full%20Implementation.drawio.png)  
+
 ## Pre-requists
 
 Run [Eureka Server](https://github.com/m-thirumal/eureka-server)
@@ -71,11 +83,7 @@ OAuth2 supports several grant types for different use cases. The most common gra
 
 ### Architecture/Flow:
 
-![Architecture](./img/Architecture.drawio.png)
-
-#### Full Implementation
-
-![Full Implementation](./docs/img/Full%20Implementation.drawio.png)       
+![Architecture](./img/Architecture.drawio.png)     
 
 ```
 React (Browser)
