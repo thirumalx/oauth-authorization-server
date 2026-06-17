@@ -90,9 +90,35 @@ public class AuthorizationServerConfig {
 	}
 
 	@Bean
-	OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate,
+	@SuppressWarnings("deprecation")
+	OAuth2AuthorizationService authorizationService(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate,
 			RegisteredClientRepository registeredClientRepository) {
-		return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+		JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+
+		JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper = new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
+		JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper paramMapper = new JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper();
+
+		com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+		ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
+		java.util.List<com.fasterxml.jackson.databind.Module> securityModules = org.springframework.security.jackson2.SecurityJackson2Modules.getModules(classLoader);
+		objectMapper.registerModules(securityModules);
+		objectMapper.registerModule(new org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module());
+		objectMapper.registerModule(new org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module());
+
+		com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator ptv = com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.builder()
+				.allowIfSubType("org.springframework.security.")
+				.allowIfSubType("java.")
+				.allowIfSubType("io.github.thirumalx.")
+				.build();
+		objectMapper.activateDefaultTyping(ptv, com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL, com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY);
+
+		rowMapper.setObjectMapper(objectMapper);
+		paramMapper.setObjectMapper(objectMapper);
+
+		service.setAuthorizationRowMapper(rowMapper);
+		service.setAuthorizationParametersMapper(paramMapper);
+
+		return service;
 	}
 
 	@Bean
@@ -142,6 +168,40 @@ public class AuthorizationServerConfig {
 				// For SPA, it's better to use CookieCsrfTokenRepository
 				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				)
+				.addFilterBefore((request, response, chain) -> {
+					jakarta.servlet.http.HttpServletRequest req = (jakarta.servlet.http.HttpServletRequest) request;
+					jakarta.servlet.http.HttpServletResponse res = (jakarta.servlet.http.HttpServletResponse) response;
+					if ("/login/webauthn".equals(req.getRequestURI())) {
+						jakarta.servlet.http.HttpServletResponseWrapper wrapper = new jakarta.servlet.http.HttpServletResponseWrapper(res) {
+							@Override
+							public void sendRedirect(String location) throws java.io.IOException {
+								String finalRedirectUrl = location;
+								Object savedRequestObj = req.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+								if (savedRequestObj instanceof org.springframework.security.web.savedrequest.SavedRequest) {
+									finalRedirectUrl = ((org.springframework.security.web.savedrequest.SavedRequest) savedRequestObj).getRedirectUrl();
+									req.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
+								} else if (savedRequestObj instanceof String) {
+									finalRedirectUrl = (String) savedRequestObj;
+									req.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
+								}
+								
+								// Ensure we redirect to the SPA frontend and not the backend's port
+								if (finalRedirectUrl.equals("/") || finalRedirectUrl.endsWith(":9095/") || finalRedirectUrl.endsWith(":9095")) {
+									finalRedirectUrl = "http://localhost:5173/profile";
+								} else if (finalRedirectUrl.contains("error")) {
+									finalRedirectUrl = "http://localhost:5173/login?error";
+								}
+
+								this.setStatus(jakarta.servlet.http.HttpServletResponse.SC_OK);
+								this.setContentType("application/json");
+								this.getWriter().write("{\"redirectUrl\": \"" + finalRedirectUrl + "\"}");
+							}
+						};
+						chain.doFilter(req, wrapper);
+					} else {
+						chain.doFilter(req, res);
+					}
+				}, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				// Form login handles the redirect to the login page from the
 				// authorization server filter chain
@@ -251,7 +311,21 @@ public class AuthorizationServerConfig {
 						.defaultAuthenticationEntryPointFor(
 								new LoginUrlAuthenticationEntryPoint("/login"),
 								new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-				.cors(Customizer.withDefaults());
+				.cors(Customizer.withDefaults())
+				.addFilterAfter(new org.springframework.web.filter.OncePerRequestFilter() {
+					@Override
+					protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, java.io.IOException {
+						org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+						if (authentication != null && authentication.getClass().getName().contains("WebAuthnAuthentication")) {
+							org.springframework.security.core.Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+									authentication.getName(), 
+									authentication.getCredentials(), 
+									authentication.getAuthorities());
+							org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(newAuth);
+						}
+						filterChain.doFilter(request, response);
+					}
+				}, org.springframework.security.web.context.SecurityContextHolderFilter.class);
 		return http.build();
 	}
 
@@ -303,13 +377,19 @@ public class AuthorizationServerConfig {
 	@Bean
 	OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer(CustomClaims claims) {
 		return context -> {
+			Authentication principal = context.getPrincipal();
+			java.util.Map<String, Object> customClaims = claims.getClaims(principal);
+			
+			if (customClaims.containsKey("uuid")) {
+				context.getClaims().subject((String) customClaims.get("uuid"));
+			}
+
 			if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
-				Authentication principal = context.getPrincipal();
 				Set<String> authorities = principal.getAuthorities().stream()
 						.map(GrantedAuthority::getAuthority)
 						.collect(Collectors.toSet());
 				context.getClaims().claims(c -> c.put("creator", "Thirumal"));
-				context.getClaims().claims(c -> c.putAll(claims.getClaims(principal)));
+				context.getClaims().claims(c -> c.putAll(customClaims));
 				context.getClaims().claim("roles", authorities);
 			}
 		};

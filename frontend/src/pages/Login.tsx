@@ -54,6 +54,7 @@ export default function Login() {
             const optionsRes = await fetch('/webauthn/authenticate/options', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: username.trim() ? JSON.stringify({ username: username }) : JSON.stringify({})
             });
 
@@ -100,6 +101,7 @@ export default function Login() {
             const loginRes = await fetch('/login/webauthn', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(assertionPayload)
             });
 
@@ -107,7 +109,17 @@ export default function Login() {
                 throw new Error('Authentication failed: Invalid credentials or signature');
             }
 
-            // 6. Redirect to profile page
+            // 6. Redirect to the target URL provided by the success handler
+            const contentType = loginRes.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await loginRes.json();
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                    return;
+                }
+            }
+
+            // Fallback
             window.location.href = '/profile';
         } catch (err: any) {
             console.error(err);

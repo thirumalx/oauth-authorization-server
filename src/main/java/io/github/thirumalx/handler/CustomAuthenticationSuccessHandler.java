@@ -40,9 +40,22 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
     @Autowired
     private MfaRepository mfaRepository;
 
+    @Autowired
+    private io.github.thirumalx.repository.ContactRepository contactRepository;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws ServletException, IOException {
+
+        // Convert WebAuthnAuthentication to UsernamePasswordAuthenticationToken to avoid Jackson serialization 
+        // errors during the OAuth2 Token Exchange phase.
+        if (authentication.getClass().getName().contains("WebAuthnAuthentication")) {
+            Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    authentication.getName(), 
+                    authentication.getCredentials(), 
+                    authentication.getAuthorities());
+            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(newAuth);
+        }
 
         Object savedRequestObj = request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
         String redirectUrl = null;
@@ -87,7 +100,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         // Perform Multi-Factor Authentication Check
         try {
             String loginUuidStr = authentication.getName();
-            LoginUser loginUser = loginUserRepository.findByUuid(UUID.fromString(loginUuidStr));
+            LoginUser loginUser = null;
+            try {
+                loginUser = loginUserRepository.findByUuid(UUID.fromString(loginUuidStr));
+            } catch (IllegalArgumentException e) {
+                io.github.thirumalx.model.Contact contact = contactRepository.findActiveLoginIdByLoginId(loginUuidStr);
+                if (contact != null) {
+                    loginUser = loginUserRepository.findById(contact.getLoginUserId());
+                    loginUuidStr = loginUser.getLoginUuid().toString();
+                }
+            }
             if (loginUser != null) {
                 List<Mfa> mfaConfigs = mfaRepository.findByLoginUserId(loginUser.getLoginUserId());
                 boolean mfaRequired = mfaConfigs.stream().anyMatch(m -> m.isVerified() && (m.getEndTime() == null || m.getEndTime().isAfter(java.time.OffsetDateTime.now())));
@@ -97,6 +119,13 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
                     request.getSession().setAttribute("MFA_USER_ID", loginUser.getLoginUserId());
                     request.getSession().setAttribute("MFA_UUID", loginUuidStr);
                     request.getSession().setAttribute("MFA_TARGET_URL", finalDestination);
+                    
+                    if (request.getRequestURI().endsWith("/login/webauthn") || (request.getContentType() != null && request.getContentType().contains("application/json"))) {
+                        response.setContentType("application/json");
+                        response.setStatus(HttpServletResponse.SC_OK);
+                        response.getWriter().write("{\"redirectUrl\": \"/login/mfa\"}");
+                        return;
+                    }
                     
                     getRedirectStrategy().sendRedirect(request, response, "/login/mfa");
                     return;
@@ -108,6 +137,14 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
         logger.debug("Redirecting user directly to final target: " + finalDestination);
         request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
+
+        if (request.getRequestURI().endsWith("/login/webauthn") || (request.getContentType() != null && request.getContentType().contains("application/json"))) {
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"redirectUrl\": \"" + finalDestination + "\"}");
+            return;
+        }
+
         getRedirectStrategy().sendRedirect(request, response, finalDestination);
     }
 

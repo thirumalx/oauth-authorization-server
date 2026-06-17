@@ -30,21 +30,35 @@ import io.github.thirumalx.repository.LoginUserRepository;
 public class CustomClaims {
 
 	Logger logger = LoggerFactory.getLogger(CustomClaims.class);
-	
-	@Autowired
-	LoginUserRepository loginUserRepository;
-	@Autowired
-	LoginUserNameRepository loginUserNameRepository;
-	@Autowired
-	ContactRepository contactRepository;
+
+	final LoginUserRepository loginUserRepository;
+	final LoginUserNameRepository loginUserNameRepository;
+	final ContactRepository contactRepository;
+
+	public CustomClaims(LoginUserRepository loginUserRepository, LoginUserNameRepository loginUserNameRepository,
+			ContactRepository contactRepository) {
+		this.loginUserRepository = loginUserRepository;
+		this.loginUserNameRepository = loginUserNameRepository;
+		this.contactRepository = contactRepository;
+	}
 
 	public Map<String, Object> getClaims(Authentication principal) {
 		logger.debug("Seting user details in claim  for the user {}", principal.getName());
 		Map<String, Object> claims = new HashMap<>();
-		LoginUser loginUser = loginUserRepository.findByUuid(UUID.fromString(principal.getName()));
-		if(Objects.isNull(loginUser)) {
+		LoginUser loginUser = null;
+		try {
+			loginUser = loginUserRepository.findByUuid(UUID.fromString(principal.getName()));
+		} catch (IllegalArgumentException e) {
+			Contact contact = contactRepository.findActiveLoginIdByLoginId(principal.getName());
+			if (contact != null) {
+				loginUser = loginUserRepository.findById(contact.getLoginUserId());
+			}
+		}
+
+		if (Objects.isNull(loginUser)) {
 			return Map.of();
 		}
+		claims.put("uuid", loginUser.getLoginUuid().toString());
 		claims.put("individual", loginUser.isIndividual());
 		claims.put("dateOfBirth", convertToString(loginUser.getDateOfBirth()));
 		LoginUserName loginUserName = loginUserNameRepository.findByLoginUserId(loginUser.getLoginUserId());
@@ -61,11 +75,11 @@ public class CustomClaims {
 				claims.put("phoneNumberVerifiedOn", convertToString(contact.getVerifiedOn()));
 			}
 		}
-		return claims;		
+		return claims;
 	}
 
 	private String convertToString(Object obj) {
 		return obj == null ? null : obj.toString();
 	}
-	
+
 }
