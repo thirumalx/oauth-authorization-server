@@ -18,7 +18,7 @@ The below diagram shows the full implementation of the OAuth2 Authorization Serv
 
 BFF Implementation on oAuth2.1
 
-[BFF](./docs/img/BFF.drawio.png)
+![BFF](./docs/img/BFF.drawio.png)
 
 ## Pre-requists
 
