@@ -1,0 +1,59 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0">
+  <diagram id="6a731a19-8d31-9384-78a2-239565b7b9f0" name="Page-1">
+    <mxGraphModel dx="860" dy="438" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VmHbNppijue788IgN-Di-11" edge="1" parent="1" source="3NkmUdJtDIhvFP6ubdPw-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#A8201A;fontColor=#143642;fillColor=#FAE5C7;" target="VmHbNppijue788IgN-Di-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3NkmUdJtDIhvFP6ubdPw-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAE5C7;strokeColor=#0F8B8D;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=#143642;" value="&lt;div&gt;&amp;nbsp;React SPA (UI)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="10" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-2" edge="1" parent="1" source="3NkmUdJtDIhvFP6ubdPw-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#FAE5C7;strokeColor=#A8201A;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=default;" target="VmHbNppijue788IgN-Di-1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-6" connectable="0" parent="VmHbNppijue788IgN-Di-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#143642;fontFamily=Comic Sans MS;textShadow=1;" value="/oauth2/authorize" vertex="1">
+          <mxGeometry relative="1" x="-0.275" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3NkmUdJtDIhvFP6ubdPw-3" parent="1" style="whiteSpace=wrap;html=1;rounded=1;fillColor=#FAE5C7;strokeColor=#0F8B8D;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=#143642;" value="&lt;div&gt;BFF (Spring boot)&lt;/div&gt;&lt;div&gt;Handles session &amp;amp; auth&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="160" x="430" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-1" parent="1" style="whiteSpace=wrap;html=1;rounded=1;fillColor=#FAE5C7;strokeColor=#0F8B8D;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=#143642;" value="&lt;div&gt;Spring Authorization&amp;nbsp;&lt;/div&gt;&lt;div&gt;Server (SAS)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="450" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-3" parent="1" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/Azure_Database_PostgreSQL_Server.svg;fillColor=#FAE5C7;strokeColor=#0F8B8D;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=#143642;" value="SAS Db" vertex="1">
+          <mxGeometry height="104.01" width="78" x="690" y="223.33" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-4" edge="1" parent="1" source="VmHbNppijue788IgN-Di-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.045;entryY=0.636;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#FAE5C7;strokeColor=#A8201A;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=default;" target="VmHbNppijue788IgN-Di-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-7" parent="1" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Cache_Redis_Product.svg;labelBackgroundColor=none;fillColor=#FAE5C7;strokeColor=#0F8B8D;fontColor=#143642;fontFamily=Comic Sans MS;textShadow=1;" value="&lt;div&gt;BFF Db&lt;/div&gt;&lt;div&gt;(KV - SessionId:Token)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="95.25" x="690" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-8" edge="1" parent="1" source="3NkmUdJtDIhvFP6ubdPw-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.042;entryY=0.617;entryDx=0;entryDy=0;entryPerimeter=0;labelBackgroundColor=none;strokeColor=#A8201A;fontColor=default;fontFamily=Comic Sans MS;textShadow=1;" target="VmHbNppijue788IgN-Di-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-12" edge="1" parent="1" source="3NkmUdJtDIhvFP6ubdPw-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#FAE5C7;strokeColor=#A8201A;labelBorderColor=none;textShadow=1;fontFamily=Comic Sans MS;labelBackgroundColor=none;fontColor=default;" target="VmHbNppijue788IgN-Di-10" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="90" as="sourcePoint" />
+            <mxPoint x="360" y="90" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-13" connectable="0" parent="VmHbNppijue788IgN-Di-12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#143642;fontFamily=Comic Sans MS;textShadow=1;" value="/auth/login" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-14" edge="1" parent="1" source="VmHbNppijue788IgN-Di-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#A8201A;fontColor=#143642;fillColor=#FAE5C7;" target="3NkmUdJtDIhvFP6ubdPw-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VmHbNppijue788IgN-Di-10" parent="1" style="whiteSpace=wrap;html=1;fontFamily=Comic Sans MS;fillColor=#FAE5C7;strokeColor=#0F8B8D;fontColor=#143642;rounded=1;labelBorderColor=none;labelBackgroundColor=none;" value="API Gateway" vertex="1">
+          <mxGeometry height="60" width="120" x="240" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
