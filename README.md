@@ -16,6 +16,10 @@ The below diagram shows the full implementation of the OAuth2 Authorization Serv
   
 ![Full Implementation](./docs/img/Full%20Implementation.drawio.png)  
 
+BFF Implementation on oAuth2.1
+
+[BFF](./docs/img/BFF.drawio.png)
+
 ## Pre-requists
 
 Run [Eureka Server](https://github.com/m-thirumal/eureka-server)
