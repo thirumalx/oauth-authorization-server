@@ -1,4 +1,14 @@
-# OAuth (New - 2.1) Authorization server
+# OAuth 2.1 / OpenID Connect Authorization Server with Spring Boot
+
+## Features:
+
+- **Multi-Factor Authentication (MFA)**: Support for Authentication App, Text message (SMS), Security Key, and Recovery Codes.
+- **Passkey Login (Fingerprint / Biometrics)**: Passwordless authentication using WebAuthn passkeys.
+- **Mobile Passkey**: Support for cross-device mobile passkeys.
+- **My Profile Features**: User profile management and settings.
+- **Customize Token Content**: Fully customizable access and refresh tokens.
+- **OAuth 2.1 Authorization Server**
+- **OpenID Connect (OIDC)**
 
 ![](docs/img/Oauth2.1%20Authorization%20Server.drawio.png)
 
@@ -20,9 +30,15 @@ BFF Implementation on oAuth2.1
 
 ![BFF](./docs/img/BFF.drawio.png)
 
-## Pre-requists
+## Prerequisites
 
 Run [Eureka Server](https://github.com/m-thirumal/eureka-server)
+
+## Quick Start
+
+git clone ...
+docker compose up
+mvn spring-boot:run
 
 #### What is Authentication and Authorization?
 
@@ -51,14 +67,6 @@ OAuth2 supports several grant types for different use cases. The most common gra
 | Implicit                             | Used for single-page applications that run in a web browser and need access to resources without the need for a server.|
 | Resource Owner Password Credentials  | Used for trusted applications that require direct access to a user’s resources.                             |
 | Client Credentials                   |  Used for applications that need to access their own resources.                                             |
-
-## Features:
-
-- **Multi-Factor Authentication (MFA)**: Support for Authentication App, Text message (SMS), Security Key, and Recovery Codes.
-- **Passkey Login (Fingerprint / Biometrics)**: Passwordless authentication using WebAuthn passkeys.
-- **Mobile Passkey**: Support for cross-device mobile passkeys.
-- **My Profile Features**: User profile management and settings.
-- **Customize Token Content**: Fully customizable access and refresh tokens.
 
 ### Configuration Parameters & Endpoints
 
@@ -135,7 +143,7 @@ React (Browser)
 ```
 
 
-## Set UP
+## Setup
 
 Documentation to set up can be [found here](docs/Set%20up.md)
 
