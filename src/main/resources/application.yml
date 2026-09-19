@@ -24,14 +24,15 @@ spring:
       table-name: spring_session
 #      cleanup-cron: 0 */3 * * * *
     store-type: jdbc
+  web:
+    error:
+      include-stacktrace: never
+      path: /error
+      whitelabel:
+        enabled: false
 server:
 #  port: 9000
   shutdown: graceful
-  error:
-    include-stacktrace: never
-    path: /error
-    whitelabel:
-      enabled: false
   servlet:
     session:
       tracking-modes: cookie

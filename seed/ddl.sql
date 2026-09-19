@@ -45,7 +45,7 @@ SET search_path TO pg_catalog,public,lookup,icms;
 -- object: public.oauth2_authorization | type: TABLE --
 -- DROP TABLE IF EXISTS public.oauth2_authorization CASCADE;
 CREATE TABLE public.oauth2_authorization (
-	id varchar(100) NOT NULL,
+	id varchar(100),
 	registered_client_id varchar(100) NOT NULL,
 	principal_name varchar(200) NOT NULL,
 	authorization_grant_type varchar(100) NOT NULL,
@@ -77,8 +77,8 @@ CREATE TABLE public.oauth2_authorization (
 	device_code_value text,
 	device_code_issued_at timestamptz,
 	device_code_expires_at timestamptz,
-	device_code_metadata text,
-	CONSTRAINT oauth2_authorization_pk PRIMARY KEY (id,registered_client_id,principal_name)
+	device_code_metadata text
+
 );
 -- ddl-end --
 ALTER TABLE public.oauth2_authorization OWNER TO postgres;
@@ -99,13 +99,6 @@ ALTER TABLE public.oauth2_authorization_consent OWNER TO postgres;
 -- ddl-end --
 
 INSERT INTO public.oauth2_authorization_consent (registered_client_id, principal_name, authorities) VALUES (E'Thirumal', E'admin', E'SCOPE_read,user');
--- ddl-end --
-
--- object: oauth2_authorization_consent_fk | type: CONSTRAINT --
--- ALTER TABLE public.oauth2_authorization DROP CONSTRAINT IF EXISTS oauth2_authorization_consent_fk CASCADE;
-ALTER TABLE public.oauth2_authorization ADD CONSTRAINT oauth2_authorization_consent_fk FOREIGN KEY (registered_client_id,principal_name)
-REFERENCES public.oauth2_authorization_consent (registered_client_id,principal_name) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: public.oauth2_registered_client | type: TABLE --
@@ -139,9 +132,11 @@ INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at,
 -- ddl-end --
 INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'pkcepostman', E'pkcepostman', DEFAULT, DEFAULT, DEFAULT, E'pkcepostman', E'none', E'refresh_token,authorization_code', E'https://oauth.pstmn.io/v1/callback', E'read', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":false}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3000.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', E'http://localhost:2223/');
 -- ddl-end --
-INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'bff-client-id-001', E'bff-client', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'BFF Client', E'client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:9095/login/oauth2/code/bff-client-oidc,http://localhost:9095/authorized', E'openid,profile,message.read,message.write', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.ClientSettings",\n"requireProofKey": false,\n"requireAuthorizationConsent": true}', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.TokenSettings",\n      "accessTokenTimeToLive": "PT1H",\n      "refreshTokenTimeToLive": "P30D",\n      "reuseRefreshTokens": true,\n      "idTokenSignatureAlgorithm": "RS256"}', DEFAULT);
+INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'bff-client-id-001', E'bff-client', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'BFF Client', E'client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:2223/login/oauth2/code/bff-client-oidc,http://localhost:2223/authorized', E'openid,profile,message.read,message.write', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.ClientSettings",\n"requireProofKey": false,\n"requireAuthorizationConsent": true}', E'{"@class":"org.springframework.security.oauth2.server.authorization.settings.TokenSettings",\n      "accessTokenTimeToLive": "PT1H",\n      "refreshTokenTimeToLive": "P30D",\n      "reuseRefreshTokens": true,\n      "idTokenSignatureAlgorithm": "RS256"}', DEFAULT);
 -- ddl-end --
-INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'gateway-client-id-001', E'gateway-client', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'Gateway Client', E'client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:9095/login/oauth2/code/gateway-client-oidc,http://localhost:9095/authorized', E'openid,profile,message.read,message.write', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":false,"settings.client.require-authorization-consent":true}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",2592000.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', DEFAULT);
+INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'oauth-resource-server-ui', E'orsui', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'oauth resource server ui', E'none,client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:5173/,http://localhost:5173/callback', E'read,openid,profile', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":false}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', E'http://localhost:5173/');
+-- ddl-end --
+INSERT INTO public.oauth2_registered_client (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name, client_authentication_methods, authorization_grant_types, redirect_uris, scopes, client_settings, token_settings, post_logout_redirect_uris) VALUES (E'gateway-client-id-001', E'gateway-client', DEFAULT, E'$2a$10$M0D7JM8IErxNfdNCRccHgOR3ImXzr/nV5NQO1kRZZCIaaDM.YhA5e', DEFAULT, E'Gateway Client', E'client_secret_basic', E'authorization_code,refresh_token', E'http://localhost:9095/login/oauth2/code/gateway-client-oidc,http://localhost:9095/authorized', E'openid,profile', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":false,"settings.client.require-authorization-consent":true}', E'{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",2592000.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}', E'http://localhost:5173/');
 -- ddl-end --
 
 -- object: public.login_user_name_login_user_name_id_seq | type: SEQUENCE --
@@ -684,6 +679,7 @@ CREATE SEQUENCE public.login_user_role_login_user_role_id_seq
 CREATE TABLE public.login_user_role (
 	login_user_role_id bigint NOT NULL DEFAULT nextval('public.login_user_role_login_user_role_id_seq'::regclass),
 	login_user_id bigint NOT NULL,
+	oauth2_registered_client_id varchar(100),
 	role_cd smallint NOT NULL,
 	start_time timestamp NOT NULL DEFAULT current_timestamp,
 	end_time timestamptz NOT NULL DEFAULT 'infinity'::timestamp,
@@ -983,7 +979,7 @@ ALTER TABLE public.address OWNER TO postgres;
 -- ALTER TABLE public.address DROP CONSTRAINT IF EXISTS login_user_fk CASCADE;
 ALTER TABLE public.address ADD CONSTRAINT login_user_fk FOREIGN KEY (login_user_id)
 REFERENCES public.login_user (login_user_id) MATCH FULL
-ON DELETE SET NULL ON UPDATE CASCADE;
+ON DELETE CASCADE ON UPDATE NO ACTION;
 -- ddl-end --
 
 -- object: lookup.country_cd | type: TABLE --
@@ -1682,10 +1678,20 @@ ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: oauth2_registered_client_fk | type: CONSTRAINT --
--- ALTER TABLE public.oauth2_authorization DROP CONSTRAINT IF EXISTS oauth2_registered_client_fk CASCADE;
-ALTER TABLE public.oauth2_authorization ADD CONSTRAINT oauth2_registered_client_fk FOREIGN KEY (registered_client_id)
-REFERENCES public.oauth2_registered_client (id) MATCH SIMPLE
-ON DELETE NO ACTION ON UPDATE NO ACTION;
+-- ALTER TABLE public.login_user_role DROP CONSTRAINT IF EXISTS oauth2_registered_client_fk CASCADE;
+ALTER TABLE public.login_user_role ADD CONSTRAINT oauth2_registered_client_fk FOREIGN KEY (oauth2_registered_client_id)
+REFERENCES public.oauth2_registered_client (id) MATCH FULL
+ON DELETE CASCADE ON UPDATE NO ACTION;
+-- ddl-end --
+
+-- object: login_user_role_oauth2_registered_client_idx | type: INDEX --
+-- DROP INDEX IF EXISTS public.login_user_role_oauth2_registered_client_idx CASCADE;
+CREATE INDEX login_user_role_oauth2_registered_client_idx ON public.login_user_role
+USING btree
+(
+	oauth2_registered_client_id
+)
+WITH (FILLFACTOR = 90);
 -- ddl-end --
 
 -- object: oauth2_registered_client_fk | type: CONSTRAINT --
